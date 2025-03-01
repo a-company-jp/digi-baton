@@ -1,4 +1,4 @@
-module github.com/a-company-jp/digi-baton
+module github.com/a-company-jp/digi-baton/backend
 
 go 1.23.4
 
