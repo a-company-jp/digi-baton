@@ -1,6 +1,5 @@
 import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import prettier from "eslint-plugin-prettier";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
@@ -61,7 +60,6 @@ export default [
   {
     plugins: {
       prettier: fixupPluginRules(prettier),
-      "@typescript-eslint": fixupPluginRules(typescriptEslint),
       react: fixupPluginRules(react),
       "react-hooks": fixupPluginRules(reactHooks),
     },
