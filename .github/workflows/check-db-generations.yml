@@ -8,7 +8,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/check-schema-dump.yml'
+      - '.github/workflows/check-db-generations.yml'
       - 'backend/db/migrations/**'
       - 'backend/db/seed/**'
       - 'backend/db/schema.sql'
@@ -29,7 +29,8 @@ jobs:
         run: |
           cd backend && make migrate-setup migrate-up
       - name: Run make dump-schema
-        run: make dump-schema
+        run: |
+          cd backend && make dump-schema
       - name: Check for changes after dump-schema
         run: |
           if [[ -n $(git status --porcelain) ]]; then
