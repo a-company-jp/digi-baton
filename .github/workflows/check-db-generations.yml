@@ -1,4 +1,4 @@
-name: migrate and generate model
+name: migrate and validate schema-dump and sqlc generation
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: 'backend/go.sum'
       - name: Run migration
         run: |
-          make migrate-setup migrate-up
+          cd backend && make migrate-setup migrate-up
       - name: Run make dump-schema
         run: make dump-schema
       - name: Check for changes after dump-schema
@@ -41,7 +41,7 @@ jobs:
         uses: aquaproj/aqua-installer@v3.0.1
         with:
           aqua_version: v2.36.2
-      - name: make sqlc generate
+      - name: sqlc generate
         run: sqlc generate
       - name: Check for changes after sqlc generate
         run: |
