@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   run-terraform-apply:
+    environment: dev
     runs-on: ubuntu-latest
     # OIDC経由で Azure に認証するため、id-token: 'write' が必要
     permissions:

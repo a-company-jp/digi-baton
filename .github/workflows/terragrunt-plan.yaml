@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   run-terraform-plan:
+    environment: dev
     runs-on: ubuntu-latest
     permissions:
       pull-requests: 'write'
