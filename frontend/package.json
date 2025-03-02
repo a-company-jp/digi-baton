@@ -59,7 +59,8 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "eslint": "^9"
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
