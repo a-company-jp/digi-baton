@@ -43,7 +43,7 @@ jobs:
         with:
           aqua_version: v2.36.2
       - name: sqlc generate
-        run: sqlc generate
+        run: cd backend && sqlc generate
       - name: Check for changes after sqlc generate
         run: |
           if [[ -n $(git status --porcelain) ]]; then
