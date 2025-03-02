@@ -42,3 +42,6 @@ dump-schema:
 	pg_dump --schema-only "user=$(RDB_USER) password=$(RDB_PASS) dbname=$(RDB_NAME) sslmode=disable host=$(RDB_HOST) port=$(RDB_PORT)" > db/schema.sql
 ## マイグレーションリセット
 migrate-reset: migrate-drop migrate-up migrate-seed-up
+
+dev:
+	air -c .air.toml
