@@ -29,12 +29,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${notoSansJP.className} antialiased`}>
+    <html lang="en">
+      <ClerkProvider>
+        <body className={`${notoSansJP.className} min-h-screen antialiased`}>
           {children}
         </body>
-      </html>
-    </ClerkProvider>
+      </ClerkProvider>
+    </html>
   )
 }
