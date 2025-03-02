@@ -75,3 +75,64 @@ func (q *Queries) ListAccountsByReceiverId(ctx context.Context, receiverUserID p
 	}
 	return items, nil
 }
+
+const listDevicesByReceiverId = `-- name: ListDevicesByReceiverId :many
+SELECT devices.id, device_type, credential_type, device_description, device_username, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data, t.id, receiver_user_id, passer_user_id
+FROM devices
+JOIN trusts t ON devices.trust_id = t.id
+WHERE t.receiver_user_id = $1
+`
+
+type ListDevicesByReceiverIdRow struct {
+	ID                int32
+	DeviceType        int32
+	CredentialType    int32
+	DeviceDescription pgtype.Text
+	DeviceUsername    pgtype.Text
+	EncPassword       []byte
+	Memo              string
+	Message           string
+	PasserID          pgtype.UUID
+	TrustID           pgtype.Int4
+	IsDisclosed       bool
+	CustomData        []byte
+	ID_2              int32
+	ReceiverUserID    pgtype.UUID
+	PasserUserID      pgtype.UUID
+}
+
+func (q *Queries) ListDevicesByReceiverId(ctx context.Context, receiverUserID pgtype.UUID) ([]ListDevicesByReceiverIdRow, error) {
+	rows, err := q.db.Query(ctx, listDevicesByReceiverId, receiverUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListDevicesByReceiverIdRow
+	for rows.Next() {
+		var i ListDevicesByReceiverIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.DeviceType,
+			&i.CredentialType,
+			&i.DeviceDescription,
+			&i.DeviceUsername,
+			&i.EncPassword,
+			&i.Memo,
+			&i.Message,
+			&i.PasserID,
+			&i.TrustID,
+			&i.IsDisclosed,
+			&i.CustomData,
+			&i.ID_2,
+			&i.ReceiverUserID,
+			&i.PasserUserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
