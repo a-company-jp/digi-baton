@@ -11,14 +11,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const listAccountsByReceiverId = `-- name: ListAccountsByReceiverId :many
+const listDisclosedAccountsByReceiverId = `-- name: ListDisclosedAccountsByReceiverId :many
 SELECT accounts.id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data, t.id, receiver_user_id, passer_user_id
 FROM accounts
 JOIN trusts t ON accounts.trust_id = t.id
-WHERE t.receiver_user_id = $1
+WHERE t.receiver_user_id = $1 AND accounts.is_disclosed = true
 `
 
-type ListAccountsByReceiverIdRow struct {
+type ListDisclosedAccountsByReceiverIdRow struct {
 	ID              int32
 	AppTemplateID   pgtype.Int4
 	AppName         pgtype.Text
@@ -38,15 +38,15 @@ type ListAccountsByReceiverIdRow struct {
 	PasserUserID    pgtype.UUID
 }
 
-func (q *Queries) ListAccountsByReceiverId(ctx context.Context, receiverUserID pgtype.UUID) ([]ListAccountsByReceiverIdRow, error) {
-	rows, err := q.db.Query(ctx, listAccountsByReceiverId, receiverUserID)
+func (q *Queries) ListDisclosedAccountsByReceiverId(ctx context.Context, receiverUserID pgtype.UUID) ([]ListDisclosedAccountsByReceiverIdRow, error) {
+	rows, err := q.db.Query(ctx, listDisclosedAccountsByReceiverId, receiverUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListAccountsByReceiverIdRow
+	var items []ListDisclosedAccountsByReceiverIdRow
 	for rows.Next() {
-		var i ListAccountsByReceiverIdRow
+		var i ListDisclosedAccountsByReceiverIdRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.AppTemplateID,
@@ -76,14 +76,14 @@ func (q *Queries) ListAccountsByReceiverId(ctx context.Context, receiverUserID p
 	return items, nil
 }
 
-const listDevicesByReceiverId = `-- name: ListDevicesByReceiverId :many
+const listDisclosedDevicesByReceiverId = `-- name: ListDisclosedDevicesByReceiverId :many
 SELECT devices.id, device_type, credential_type, device_description, device_username, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data, t.id, receiver_user_id, passer_user_id
 FROM devices
 JOIN trusts t ON devices.trust_id = t.id
-WHERE t.receiver_user_id = $1
+WHERE t.receiver_user_id = $1 AND devices.is_disclosed = true
 `
 
-type ListDevicesByReceiverIdRow struct {
+type ListDisclosedDevicesByReceiverIdRow struct {
 	ID                int32
 	DeviceType        int32
 	CredentialType    int32
@@ -101,15 +101,15 @@ type ListDevicesByReceiverIdRow struct {
 	PasserUserID      pgtype.UUID
 }
 
-func (q *Queries) ListDevicesByReceiverId(ctx context.Context, receiverUserID pgtype.UUID) ([]ListDevicesByReceiverIdRow, error) {
-	rows, err := q.db.Query(ctx, listDevicesByReceiverId, receiverUserID)
+func (q *Queries) ListDisclosedDevicesByReceiverId(ctx context.Context, receiverUserID pgtype.UUID) ([]ListDisclosedDevicesByReceiverIdRow, error) {
+	rows, err := q.db.Query(ctx, listDisclosedDevicesByReceiverId, receiverUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListDevicesByReceiverIdRow
+	var items []ListDisclosedDevicesByReceiverIdRow
 	for rows.Next() {
-		var i ListDevicesByReceiverIdRow
+		var i ListDisclosedDevicesByReceiverIdRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.DeviceType,
