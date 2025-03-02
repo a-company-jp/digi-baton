@@ -1,0 +1,52 @@
+name: migrate and generate model
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/check-schema-dump.yml'
+      - 'backend/db/migrations/**'
+      - 'backend/db/seed/**'
+      - 'backend/db/schema.sql'
+      - 'backend/db/query/**'
+jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Postgres
+        run: docker run --name postgres-test -e POSTGRES_DB=digi_baton -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:16 &
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'backend/go.mod'
+          cache-dependency-path: 'backend/go.sum'
+      - name: Run migration
+        run: |
+          make migrate-setup migrate-up
+      - name: Run make dump-schema
+        run: make dump-schema
+      - name: Check for changes after dump-schema
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected after running 'make dump-schema'. Please run 'make dump-schema' locally and commit the changes."
+            git diff
+            exit 1
+          fi
+      - name: Setup aqua
+        uses: aquaproj/aqua-installer@v3.0.1
+        with:
+          aqua_version: v2.36.2
+      - name: make sqlc generate
+        run: sqlc generate
+      - name: Check for changes after sqlc generate
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected after running 'sqlc generate'. Please run 'sqlc generate' locally and commit the changes."
+            git diff
+            exit 1
+          fi
