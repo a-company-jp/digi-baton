@@ -1,0 +1,67 @@
+name: "Run Terragrunt Apply on main branch push"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terragrunt-apply.yml'
+concurrency:
+  group: terragrunt-apply
+  cancel-in-progress: true
+
+jobs:
+  run-terraform-apply:
+    runs-on: ubuntu-latest
+    # OIDC経由で Azure に認証するため、id-token: 'write' が必要
+    permissions:
+      pull-requests: 'write'
+      contents: 'read'
+      id-token: 'write'
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: setup repository
+        uses: actions/checkout@v4
+
+      - name: Setup aqua
+        uses: aquaproj/aqua-installer@v3.0.1
+        with:
+          aqua_version: v2.36.2
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.2.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terragrunt Init
+        working-directory: infra
+        run: terragrunt run-all init
+
+      - id: terragrunt-fmt
+        name: Check terragrunt fmt
+        working-directory: infra
+        run: terragrunt run-all fmt -check
+        # コードのフォーマットが崩れている場合、後で失敗させるために continue-on-error: true
+        continue-on-error: true
+
+      - name: Terragrunt validate
+        working-directory: infra
+        run: terragrunt run-all validate
+
+      - name: Terragrunt apply
+        working-directory: infra
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod 755 $GITHUB_WORKSPACE/.github/scripts/tfwrapper.sh
+          terragrunt run-all apply \
+            --terragrunt-non-interactive \
+            --terragrunt-tfpath $GITHUB_WORKSPACE/.github/scripts/tfwrapper.sh
+
+      # terragrunt fmt が失敗していたら exit 1
+      - name: Fail if terragrunt fmt failed
+        if: steps.terragrunt-fmt.outputs.exitcode != 0
+        run: exit 1
