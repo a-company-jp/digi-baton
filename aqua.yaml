@@ -1,0 +1,19 @@
+---
+# aqua - Declarative CLI Version Manager
+# https://aquaproj.github.io/
+# checksum:
+#   enabled: true
+#   require_checksum: true
+#   supported_envs:
+#   - all
+registries:
+  - type: standard
+    ref: v4.249.0 # renovate: depName=aquaproj/aqua-registry
+packages:
+  - name: google/yamlfmt@v0.14.0
+  - name: hashicorp/terraform@v1.9.8
+  - name: gruntwork-io/terragrunt@v0.68.9
+  - name: terraform-linters/tflint@v0.54.0
+  - name: reviewdog/reviewdog@v0.20.2
+  - name: suzuki-shunsuke/tfcmt@v4.14.0
+  - name: sqlc-dev/sqlc@v1.28.0
