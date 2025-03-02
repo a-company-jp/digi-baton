@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: 'backend/go.sum'
       - name: Run migration
         run: |
-          cd backend && make migrate-setup migrate-up
+          cd backend && make migrate-setup migrate-up migrate-seed-up
       - name: Run make dump-schema
         run: |
           cd backend && make dump-schema
