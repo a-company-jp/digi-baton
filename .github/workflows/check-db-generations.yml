@@ -8,7 +8,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/check-schema-dump.yml'
+      - '.github/workflows/check-db-generations.yml'
       - 'backend/db/migrations/**'
       - 'backend/db/seed/**'
       - 'backend/db/schema.sql'
@@ -27,9 +27,10 @@ jobs:
           cache-dependency-path: 'backend/go.sum'
       - name: Run migration
         run: |
-          cd backend && make migrate-setup migrate-up
+          cd backend && make migrate-setup migrate-up migrate-seed-up
       - name: Run make dump-schema
-        run: make dump-schema
+        run: |
+          cd backend && make dump-schema
       - name: Check for changes after dump-schema
         run: |
           if [[ -n $(git status --porcelain) ]]; then
@@ -42,7 +43,7 @@ jobs:
         with:
           aqua_version: v2.36.2
       - name: sqlc generate
-        run: sqlc generate
+        run: cd backend && sqlc generate
       - name: Check for changes after sqlc generate
         run: |
           if [[ -n $(git status --porcelain) ]]; then
