@@ -1,0 +1,27 @@
+syntax = "proto3";
+package crypto;
+
+option go_package = "github.com/a-company-jp/digi-baton/proto/crypto";
+
+service EncryptionService {
+  rpc Encrypt(EncryptRequest) returns (EncryptResponse);
+  rpc Decrypt(DecryptRequest) returns (DecryptResponse);
+}
+
+message EncryptRequest {
+  string user_id = 1;
+  bytes  plaintext = 2;
+}
+
+message EncryptResponse {
+  bytes ciphertext = 1;
+}
+
+message DecryptRequest {
+  string user_id = 1;
+  bytes ciphertext = 2;
+}
+
+message DecryptResponse {
+  bytes plaintext = 1;
+}
