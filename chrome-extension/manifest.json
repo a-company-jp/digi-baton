@@ -1,0 +1,16 @@
+{
+  "name": "WebAuthn PoC Extension",
+  "description": "A simple Chrome extension to demonstrate WebAuthn requests",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:8080/*"
+  ]
+}
