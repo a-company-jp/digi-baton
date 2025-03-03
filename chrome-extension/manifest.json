@@ -1,16 +1,15 @@
 {
-  "name": "WebAuthn PoC Extension",
-  "description": "A simple Chrome extension to demonstrate WebAuthn requests",
+  "name": "WebAuthn Proxy Demo",
   "version": "0.0.1",
   "manifest_version": 3,
-  "action": {
-    "default_popup": "popup.html"
-  },
+  "description": "Demo extension using chrome.webAuthenticationProxy to handle passkey requests.",
   "permissions": [
-    "activeTab",
-    "scripting"
+    "webAuthenticationProxy"
   ],
   "host_permissions": [
-    "http://localhost:8080/*"
-  ]
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 }
