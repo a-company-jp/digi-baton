@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WebAuthn Demo (Register & Login)</title>
+  </head>
+  <body>
+    <h1>WebAuthn Demo</h1>
+    <hr>
+
+    <!-- Register -->
+    <section>
+      <h2>Register (パスキー登録)</h2>
+      <label for="reg-username">Username:</label>
+      <input type="text" id="reg-username" placeholder="username" />
+      <button onclick="registerBegin()">Register</button>
+    </section>
+
+    <hr>
+
+    <!-- Login -->
+    <section>
+      <h2>Login (パスキーログイン)</h2>
+      <label for="login-username">Username:</label>
+      <input type="text" id="login-username" placeholder="username" />
+      <button onclick="loginBegin()">Login</button>
+    </section>
+
+    <script src="app.js"></script>
+  </body>
+</html>

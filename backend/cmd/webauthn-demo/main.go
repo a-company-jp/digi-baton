@@ -14,7 +14,14 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.Default())
 
-	// このPoCのWebAuthn設定
+	// ---------------------------------
+	// 1) 静的ファイルをホスティング
+	//   / へのアクセスで public/index.html を返し、
+	//   JS/CSSなども public ディレクトリに置いて提供します。
+	r.Static("/frontend", "./cmd/webauthn-demo/public")
+
+	// ---------------------------------
+	// 2) WebAuthn設定
 	w, _ := webauthn.New(&webauthn.Config{
 		RPDisplayName: "Demo WebAuthn Service",
 		RPID:          "localhost",
@@ -24,7 +31,10 @@ func main() {
 	userStorage := NewInMemoryUserStorage()
 	sessionStorage := NewInMemorySessionStorage()
 
-	// ユーザー登録 (実際はWebAuthnのRegister)
+	// ---------------------------------
+	// 3) WebAuthn APIエンドポイント
+
+	// ユーザー登録 (Begin)
 	r.GET("/register/begin", func(c *gin.Context) {
 		username := c.Query("username")
 		user := userStorage.GetOrCreateUser(username)
@@ -38,7 +48,7 @@ func main() {
 		c.JSON(http.StatusOK, opts)
 	})
 
-	// Finish
+	// ユーザー登録 (Finish)
 	r.POST("/register/finish", func(c *gin.Context) {
 		username := c.Query("username")
 		user := userStorage.GetOrCreateUser(username)
@@ -101,6 +111,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "logged in", "credentialID": credential.ID})
 	})
 
+	// ---------------------------------
 	log.Println("Demo WebAuthn Service is listening on :8081")
 	log.Fatal(r.Run(":8081"))
 }
