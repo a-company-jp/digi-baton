@@ -18,3 +18,4 @@ packages:
   - name: suzuki-shunsuke/tfcmt@v4.14.0
   - name: sqlc-dev/sqlc@v1.28.0
   - name: protocolbuffers/protobuf/protoc@v29.3
+  - name: golang-migrate/migrate@v4.18.2
