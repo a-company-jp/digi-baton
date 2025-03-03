@@ -9,8 +9,6 @@ services:
       POSTGRES_DB: digi_baton
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-    volumes:
-      - digi_baton_db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     # Override entrypoint to dynamically create init.sql
