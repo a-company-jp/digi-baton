@@ -20,7 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Start Postgres
-        run: docker run --name postgres-test -e POSTGRES_DB=digi_baton -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:16 &
+        run: |
+          cd .github
+          docker compose up -d
       - uses: actions/setup-go@v5
         with:
           go-version-file: 'backend/go.mod'

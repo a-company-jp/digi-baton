@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  db:
+    container_name: digi-baton-db
+    image: postgres:16
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: digi_baton
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - digi_baton_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    # Override entrypoint to dynamically create init.sql
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      echo 'CREATE DATABASE digi_baton_backend;' > /docker-entrypoint-initdb.d/init.sql &&
+      echo 'CREATE DATABASE digi_baton_crypto;' >> /docker-entrypoint-initdb.d/init.sql &&
+      exec docker-entrypoint.sh postgres
+      "
