@@ -13,12 +13,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type server struct {
+type Server struct {
 	crypto.UnimplementedEncryptionServiceServer
 	db *sql.DB
 }
 
-func (s *server) storeHistory(ctx context.Context, userID, operation string, data []byte) {
+func (s *Server) storeHistory(ctx context.Context, userID, operation string, data []byte) {
 	_, err := s.db.ExecContext(
 		ctx,
 		"INSERT INTO encryption_decryption_history (user_id, operation, data) VALUES ($1, $2, $3)",
@@ -39,9 +39,9 @@ func main() {
 		log.Fatalf("failed to ping db: %v", err)
 	}
 
-	// 2. Create a gRPC server
+	// 2. Create a gRPC Server
 	grpcServer := grpc.NewServer()
-	srv := &server{db: db}
+	srv := &Server{db: db}
 
 	// 3. Register our encryption service
 	crypto.RegisterEncryptionServiceServer(grpcServer, srv)
@@ -55,7 +55,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	log.Println("Starting gRPC server on :50051 ...")
+	log.Println("Starting gRPC Server on :50051 ...")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

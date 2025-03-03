@@ -10,7 +10,7 @@ import (
 	"github.com/a-company-jp/digi-baton/proto/crypto"
 )
 
-func (s *server) Encrypt(ctx context.Context, req *crypto.EncryptRequest) (*crypto.EncryptResponse, error) {
+func (s *Server) Encrypt(ctx context.Context, req *crypto.EncryptRequest) (*crypto.EncryptResponse, error) {
 	// 1. Look up or create RSA key pair
 	priv, pub, err := getOrCreateUserKey(ctx, s.db, req.GetUserId())
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *server) Encrypt(ctx context.Context, req *crypto.EncryptRequest) (*cryp
 }
 
 // Decrypt uses the private key
-func (s *server) Decrypt(ctx context.Context, req *crypto.DecryptRequest) (*crypto.DecryptResponse, error) {
+func (s *Server) Decrypt(ctx context.Context, req *crypto.DecryptRequest) (*crypto.DecryptResponse, error) {
 	priv, _, err := getOrCreateUserKey(ctx, s.db, req.GetUserId())
 	if err != nil {
 		return nil, err
