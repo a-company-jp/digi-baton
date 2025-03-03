@@ -1,3 +1,4 @@
+version: "3.9"
 services:
 #   backend:
 #     container_name: gaishi-backend
@@ -23,12 +24,20 @@ services:
       - digi_baton_db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    # Override entrypoint to dynamically create init.sql
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      echo 'CREATE DATABASE digi_baton_backend;' > /docker-entrypoint-initdb.d/init.sql &&
+      echo 'CREATE DATABASE digi_baton_crypto;' >> /docker-entrypoint-initdb.d/init.sql &&
+      exec docker-entrypoint.sh postgres
+      "
   adminer:
     container_name: digi-baton-adminer
     image: adminer
     restart: always
     ports:
-      - 6666:8080
+      - "6666:8080"
 
 volumes:
   digi_baton_db_data:
