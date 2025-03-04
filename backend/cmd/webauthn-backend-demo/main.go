@@ -44,11 +44,12 @@ func main() {
 	r.POST("/create-key", func(c *gin.Context) {
 		data, _ := c.GetRawData()
 		log.Printf("create-key: %s", string(data))
+
 		out := process(string(data))
 		c.Data(200, "application/json; charset=utf-8", []byte(out))
 
 		//// using beta package
-		//resp, err := authenticator.MakeCredentialResponse(data)
+		//resp, err := beta.MakeCredentialResponse(data)
 		//if err != nil {
 		//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		//	return

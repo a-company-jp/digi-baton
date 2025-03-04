@@ -6,11 +6,16 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"github.com/fxamacker/cbor/v2"
 	"log"
+	"math/big"
+	"time"
 )
 
 type PublicKeyCredential struct {
@@ -30,18 +35,33 @@ type PublicKeyCredential struct {
 	ClientExtensionResults map[string]interface{} `json:"clientExtensionResults"`
 }
 
+type PublicKeyCredentialCreationPayload struct {
+	RequestID          int64  `json:"requestId"`
+	RequestDetailsJson string `json:"requestDetailsJson"`
+}
+
 type AuthnRequest struct {
-	Challenge string `json:"challenge"`
-	Rp        struct {
+	Attestation            string `json:"attestation"`
+	AuthenticatorSelection struct {
+		ResidentKey      string `json:"residentKey"`
+		UserVerification string `json:"userVerification"`
+	} `json:"authenticatorSelection"`
+	Challenge          string                 `json:"challenge"`
+	ExcludeCredentials []interface{}          `json:"excludeCredentials"`
+	Extensions         map[string]interface{} `json:"extensions"` // 拡張フィールド
+	PubKeyCredParams   []struct {
+		Alg  int    `json:"alg"`
+		Type string `json:"type"`
+	} `json:"pubKeyCredParams"`
+	RP struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"rp"`
 	User struct {
+		DisplayName string `json:"displayName"`
 		ID          string `json:"id"`
 		Name        string `json:"name"`
-		DisplayName string `json:"displayName"`
 	} `json:"user"`
-	// ...他のフィールドは省略
 }
 
 type AttestationObject struct {
@@ -136,8 +156,13 @@ func createCoseEC2PublicKey(pub *ecdsa.PublicKey) ([]byte, error) {
 func process(reqJSON string) string {
 	// -- (1) まずは認証サーバから送られてきたリクエスト(JSON) を想定してパースする --
 
+	var payload PublicKeyCredentialCreationPayload
+	if err := json.Unmarshal([]byte(reqJSON), &payload); err != nil {
+		log.Fatal(err)
+	}
+
 	var ar AuthnRequest
-	if err := json.Unmarshal([]byte(reqJSON), &ar); err != nil {
+	if err := json.Unmarshal([]byte(payload.RequestDetailsJson), &ar); err != nil {
 		log.Fatal(err)
 	}
 
@@ -159,43 +184,52 @@ func process(reqJSON string) string {
 	}
 
 	// -- (5) authenticatorData を組み立て --
-	authData, err := createAuthenticatorData(ar.Rp.ID, credID, cosePub)
+	authData, err := createAuthenticatorData(ar.RP.ID, credID, cosePub)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// -- (6) clientDataJSON を組み立てて base64url エンコード --
 	//     challenge はそのまま Base64URL 文字列を使うケースが多い (ブラウザJSと合わせる)
-	clientData, err := createClientDataJSON(ar.Challenge, "http://localhost")
+
+	origin := "https://" + ar.RP.ID
+	if ar.Extensions["remoteDesktopClientOverride"] != nil && ar.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"] != nil {
+		origin = ar.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"].(string)
+	}
+
+	clientData, err := createClientDataJSON(ar.Challenge, origin)
 	if err != nil {
 		log.Fatal(err)
 	}
 	clientDataHash := sha256.Sum256(clientData)
 	clientDataB64 := base64.RawURLEncoding.EncodeToString(clientData)
 
-	// -- (7) “attestation=none” だが、自前鍵で署名する "packed" 形式の例を示す --
-	//    * “none”なので本来は attStmt = {} で署名も証明書も返さないケースもある
-	//    * しかし「自前の秘密鍵で署名をしたい」要件を考慮し、ここでは "fmt=packed" かつ x5c なし(＝実質 none 相当)で署名だけ返す。
-	//       Relying Party が "none" Attestation を求めている場合、サーバ側の実装によっては署名なし(まったくの空 attStmt)でも受理される場合があります。
-	//       実際にどこまで署名を含めるかは要件次第です。
 	dataToSign := append(authData, clientDataHash[:]...)
 	r, s, err := ecdsa.Sign(rand.Reader, privKey, dataToSign)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// DERエンコードなど、実際の “packed” アテステーションステートメントではシグネチャを
-	// ASN.1 DER 形式で格納するのが一般的。ここでは簡易実装として r,s を連結しているだけとする。
-	// (仕様厳守するなら DER 形式で連結が必要)
-	signature := append(r.Bytes(), s.Bytes()...)
 
+	type ecdsaSignature struct {
+		R, S *big.Int
+	}
+	sigDER, err := asn1.Marshal(ecdsaSignature{R: r, S: s})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	selfSigned, err := createSelfSignedCertDER(privKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 	attStmt := map[string]interface{}{
-		"alg": -7,        // ES256
-		"sig": signature, // 実際は ASN.1 DER にすることが多い
-		// "x5c": 省略 (none アテステーションなので証明書チェーンを載せない)
+		"alg": -7,
+		"sig": sigDER,
+		"x5c": selfSigned,
 	}
 
 	attObj := AttestationObject{
-		Fmt:      "packed", // "none" とするなら attStmt を空にする
+		Fmt:      "packed",
 		AuthData: authData,
 		AttStmt:  attStmt,
 	}
@@ -226,5 +260,30 @@ func process(reqJSON string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(string(respJSON))
 	return string(respJSON)
+}
+
+var selfSignedCert []byte
+
+func createSelfSignedCertDER(priv *ecdsa.PrivateKey) ([]byte, error) {
+	if selfSignedCert != nil {
+		return selfSignedCert, nil
+	}
+	// 今回は自己署名証明書を作成する
+	template := x509.Certificate{
+		SerialNumber:          big.NewInt(1),
+		Subject:               pkix.Name{CommonName: "localhost"},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(1, 0, 0),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+	}
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	if err != nil {
+		return nil, err
+	}
+	selfSignedCert = derBytes
+	return selfSignedCert, nil
 }

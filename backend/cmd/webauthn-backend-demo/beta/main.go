@@ -14,8 +14,11 @@ import (
 	"log"
 )
 
-// PublicKeyCredentialCreationOptions は、
-// WebAuthn のクライアントサイドで作られる認証器登録リクエストを受け取るための構造体例。
+type PublicKeyCredentialCreationPayload struct {
+	RequestID          int64  `json:"requestId"`
+	RequestDetailsJson string `json:"requestDetailsJson"`
+}
+
 type PublicKeyCredentialCreationOptions struct {
 	Attestation            string `json:"attestation"`
 	AuthenticatorSelection struct {
@@ -63,9 +66,13 @@ func generateOrLoadPrivateKey() (*ecdsa.PrivateKey, error) {
 // "none" アテステーションのレスポンス(JSON)を作成して返します。
 func MakeCredentialResponse(requestData []byte) ([]byte, error) {
 	// ---- 1. リクエストをパースする ----
-	var options PublicKeyCredentialCreationOptions
-	if err := json.Unmarshal(requestData, &options); err != nil {
+	var payload PublicKeyCredentialCreationPayload
+	if err := json.Unmarshal(requestData, &payload); err != nil {
 		return nil, fmt.Errorf("failed to parse request: %w", err)
+	}
+	var options PublicKeyCredentialCreationOptions
+	if err := json.Unmarshal([]byte(payload.RequestDetailsJson), &options); err != nil {
+		return nil, fmt.Errorf("failed to parse request details: %w", err)
 	}
 
 	// challenge, rpID, origin(など)を取得
