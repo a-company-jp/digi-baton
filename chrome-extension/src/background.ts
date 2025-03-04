@@ -113,50 +113,21 @@ chrome.webAuthenticationProxy.onCreateRequest.addListener(async (requestInfo) =>
   const {requestId, requestDetailsJson} = requestInfo;
 
   try {
-    const options = JSON.parse(requestDetailsJson);
-    const publicKeyOptions = options.publicKey || options;
-    const rpId = publicKeyOptions.rp && publicKeyOptions.rp.id
-      ? publicKeyOptions.rp.id
-      : (publicKeyOptions.rp ? publicKeyOptions.rp.name : 'unknown-rp');
-
-    const user = publicKeyOptions.user || {};
-
-    // Generate a new credential ID
-    const newId = new Uint8Array(16);
-    crypto.getRandomValues(newId);
-    const credentialId = bufferToBase64(newId);
-
-    // Store in our in-memory store
-    if (!credentialsStore[rpId]) {
-      credentialsStore[rpId] = [];
-    }
-    credentialsStore[rpId].push({
-      id: credentialId,
-      userId: user.id ? bufferToBase64(user.id) : null,
-      signCount: 0
-    });
-    const credentialIdUrl = bufferToBase64Url(newId);
-
-    // Construct a minimal, valid attestationObject
-    const dummyAttestation = generateDummyAttestationObject();
-    // Construct a dummy clientDataJSON
-    const dummyClientData = generateDummyClientDataJSON('create');
-
-    // Build a valid registration (PublicKeyCredential) response object
-    const credentialResponse = {
-      type: 'public-key',
-      id: credentialIdUrl,
-      rawId: credentialIdUrl, // Typically base64url in real usage
-      response: {
-        clientDataJSON: dummyClientData,
-        attestationObject: dummyAttestation
-      }
-    };
-
-    // Send the registration response
+    // fetch POST localhost:8003/create-key
+    // body should be requestInfo
+    const resp = await fetch('http://localhost:8083/create-key', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestInfo),
+    })
+    // get body of response as json
+    const body = await resp.text()
+    console.log('Response from create-key:', body);
     await chrome.webAuthenticationProxy.completeCreateRequest({
       requestId,
-      responseJson: JSON.stringify(credentialResponse)
+      responseJson: body
     });
     console.log('completeCreateRequest sent for requestId:', requestId);
 
