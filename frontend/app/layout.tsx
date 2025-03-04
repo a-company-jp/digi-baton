@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 function Header() {
   return (
-    <header className="border-b border-gray-200">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gray-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center">
           <CircleIcon className="h-6 w-6 text-orange-500" />
@@ -50,7 +50,7 @@ export default function RootLayout({
           className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}
         >
           <Header />
-          {children}
+          <div className="pt-[60px]">{children}</div>
         </body>
       </ClerkProvider>
     </html>
