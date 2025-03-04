@@ -33,48 +33,67 @@ export default function DashboardLayout({
     { href: "/settings", icon: SettingsIcon, label: "設定" },
   ];
   return (
-    <div className="flex flex-col min-h-[calc(100dvh-68px)] max-w-7xl mx-auto w-full">
-      {/* Mobile header */}
-      <div className="lg:hidden flex items-center justify-endbg-white border-b border-gray-200 p-4">
-        <Button
-          className="ml-auto -mr-3"
-          variant="ghost"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          <Menu className="h-6 w-6" />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
-      </div>
+    <div className="relative min-h-[calc(100dvh-68px)]">
+      <div className="relative max-w-7xl mx-auto">
+        {/* Mobile header */}
+        <div className="lg:hidden fixed top-[60px] left-0 right-0 z-40 flex items-center justify-end bg-gray-50 border-b border-gray-200 p-4">
+          <Button
+            className="ml-auto -mr-3"
+            variant="ghost"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
+        </div>
 
-      <div className="flex flex-1 overflow-hidden h-full">
-        {/* Sidebar */}
-        <aside
-          className={`w-64 bg-white lg:bg-gray-50 border-r border-gray-200 lg:block ${
-            isSidebarOpen ? "block" : "hidden"
-          } lg:relative absolute inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <nav className="h-full overflow-y-auto p-4">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} passHref>
-                <Button
-                  variant={pathname === item.href ? "secondary" : "ghost"}
-                  className={`shadow-none my-2 w-full justify-start ${
-                    pathname === item.href ? "bg-gray-100" : ""
-                  }`}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
-          </nav>
-        </aside>
+        <div className="flex flex-1 h-full">
+          {/* Sidebar */}
+          <aside className="hidden lg:block fixed top-[60px] w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto h-[calc(100vh-60px)]">
+            <nav className="p-4">
+              {navItems.map((item) => (
+                <Link key={item.href} href={item.href} passHref>
+                  <Button
+                    variant={pathname === item.href ? "secondary" : "ghost"}
+                    className={`shadow-none my-2 w-full justify-start ${
+                      pathname === item.href ? "bg-gray-100" : ""
+                    }`}
+                    onClick={() => setIsSidebarOpen(false)}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
+            </nav>
+          </aside>
 
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-0 lg:p-4">{children}</main>
+          <aside
+            className={`lg:hidden fixed inset-0 z-50 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 ease-in-out bg-gray-50 w-64 overflow-y-auto`}
+          >
+            <nav className="p-4">
+              {navItems.map((item) => (
+                <Link key={item.href} href={item.href} passHref>
+                  <Button
+                    variant={pathname === item.href ? "secondary" : "ghost"}
+                    className={`shadow-none my-2 w-full justify-start ${
+                      pathname === item.href ? "bg-gray-100" : ""
+                    }`}
+                    onClick={() => setIsSidebarOpen(false)}
+                  >
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
+            </nav>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 lg:ml-64 py-4 mt-[69px] px-4 lg:mt-0">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );
