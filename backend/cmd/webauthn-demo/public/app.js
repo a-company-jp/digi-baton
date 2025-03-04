@@ -31,7 +31,8 @@ async function registerBegin() {
   }
 
   // 1. Get challenge from server
-  const resp = await fetch(`http://localhost:8081/register/begin?username=${encodeURIComponent(username)}`);
+  const resp = await fetch(
+    `http://localhost:8081/register/begin?username=${encodeURIComponent(username)}`);
   if (!resp.ok) {
     alert('Failed to begin registration');
     return;
@@ -56,7 +57,7 @@ async function registerBegin() {
   // 3. navigator.credentials.create()
   let credential;
   try {
-    credential = await navigator.credentials.create({ publicKey: options.publicKey });
+    credential = await navigator.credentials.create({publicKey: options.publicKey});
   } catch (err) {
     console.error('Error creating credential:', err);
     alert('Error creating credential: ' + err);
@@ -64,19 +65,12 @@ async function registerBegin() {
   }
 
   // 4. Send credential to server
-  const credentialJSON = {
-    id: credential.id,
-    rawId: arrayBufferToBase64Url(credential.rawId),
-    type: credential.type,
-    response: {
-      attestationObject: arrayBufferToBase64Url(credential.response.attestationObject),
-      clientDataJSON: arrayBufferToBase64Url(credential.response.clientDataJSON),
-    },
-  };
+  console.log(credential.toJSON());
+  const credentialJSON = credential.toJSON();
 
   const finishResp = await fetch(`http://localhost:8081/register/finish?username=${encodeURIComponent(username)}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(credentialJSON),
   });
   const finishData = await finishResp.json();
@@ -115,7 +109,7 @@ async function loginBegin() {
   // 3. navigator.credentials.get()
   let assertion;
   try {
-    assertion = await navigator.credentials.get({ publicKey: options.publicKey });
+    assertion = await navigator.credentials.get({publicKey: options.publicKey});
   } catch (err) {
     console.error('Error get credentials:', err);
     alert('Error get credentials: ' + err);
@@ -137,7 +131,7 @@ async function loginBegin() {
 
   const finishResp = await fetch(`http://localhost:8081/login/finish?username=${encodeURIComponent(username)}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(assertionJSON),
   });
 

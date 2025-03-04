@@ -61,6 +61,7 @@ func main() {
 
 		cred, err := w.FinishRegistration(user, *sessionData, c.Request)
 		if err != nil {
+			log.Printf("Error finishing registration: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
