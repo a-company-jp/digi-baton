@@ -1,0 +1,15 @@
+{
+  "name": "digi-baton-chrome-extension",
+  "version": "0.0.1",
+  "description": "Chrome Extension for Digi Baton",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "keywords": [],
+  "dependencies": {
+  }
+}
