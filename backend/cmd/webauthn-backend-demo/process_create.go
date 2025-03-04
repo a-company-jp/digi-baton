@@ -7,7 +7,6 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
@@ -201,37 +200,12 @@ func process(reqJSON string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	clientDataHash := sha256.Sum256(clientData)
 	clientDataB64 := base64.RawURLEncoding.EncodeToString(clientData)
 
-	dataToSign := append(authData, clientDataHash[:]...)
-	r, s, err := ecdsa.Sign(rand.Reader, privKey, dataToSign)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	type ecdsaSignature struct {
-		R, S *big.Int
-	}
-	sigDER, err := asn1.Marshal(ecdsaSignature{R: r, S: s})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	selfSigned, err := createSelfSignedCertDER(privKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-	attStmt := map[string]interface{}{
-		"alg": -7,
-		"sig": sigDER,
-		"x5c": selfSigned,
-	}
-
 	attObj := AttestationObject{
-		Fmt:      "packed",
+		Fmt:      "none",
 		AuthData: authData,
-		AttStmt:  attStmt,
+		AttStmt:  map[string]interface{}{},
 	}
 
 	attBytes, err := cbor.Marshal(attObj)
