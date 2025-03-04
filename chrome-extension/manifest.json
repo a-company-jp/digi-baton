@@ -1,8 +1,8 @@
 {
-  "name": "WebAuthn Proxy Demo",
+  "name": "WebAuthn Proxy Demo (TS)",
   "version": "0.0.1",
   "manifest_version": 3,
-  "description": "Demo extension using chrome.webAuthenticationProxy to handle passkey requests.",
+  "description": "Chrome extension using TypeScript and webAuthenticationProxy",
   "permissions": [
     "webAuthenticationProxy"
   ],
@@ -10,6 +10,6 @@
     "http://localhost/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.js"
   }
 }
