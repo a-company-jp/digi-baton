@@ -56,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ClerkProvider>
-        <body className={`${notoSansJP.className} min-h-screen antialiased`}>
+        <body className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}>
           <Header />
           {children}
         </body>
