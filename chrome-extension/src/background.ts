@@ -1,60 +1,12 @@
-// background.ts - Chrome Extension Background Script for WebAuthn Proxy (TypeScript)
-
-// 1) まず、webAuthenticationProxy に必要な型定義を独自追加する
-//    （@types/chrome には存在しないため。以下は最低限のサンプル例です。）
-
-interface WebAuthenticationProxyAttachCallback {
-  (): void;
-}
-
-/** 登録(create)要求が来た際の情報 */
-interface CreateRequestInfo {
-  requestId: string;
-  requestDetailsJson: string;
-}
-
-/** 認証(get)要求が来た際の情報 */
-interface GetRequestInfo {
-  requestId: string;
-  requestDetailsJson: string;
-}
-
-interface CompleteCreateRequestParams {
-  requestId: string;
-  responseJson?: string;
-  error?: {
-    name: string;
-    message: string;
-  };
-}
-
-interface CompleteGetRequestParams {
-  requestId: string;
-  responseJson?: string;
-  error?: {
-    name: string;
-    message: string;
-  };
-}
-
-const webAuthn = chrome.webAuthenticationProxy;
-
-// ------------------------------------------------------------------------------------------------
-// 2) 以下、元のJavaScriptコードを TypeScript へ書き換え
-// ------------------------------------------------------------------------------------------------
-
 console.log('[Extension] Service Worker loaded');
 
 // 1. Attach to WebAuthn requests
-//   - attach() の結果が Promise で返る想定なので "await" してもよいが、
-//     コールバックを使う場合は下記のようにしてもOK
-webAuthn.attach(() => {
+chrome.webAuthenticationProxy.attach(() => {
   console.log('[Extension] Attached to WebAuthn');
 });
 
 let isAttached = false;
 
-// Simple in-memory credential storage (map of rpId -> array of credentials)
 interface CredentialInfo {
   id: string;             // Base64
   userId: string | null; // Base64
@@ -78,8 +30,10 @@ function bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
 
 /**
  * Helper: Generates a minimal, valid CBOR attestationObject for "none" attestation.
+ * This is purely synthetic and not cryptographically valid. It's enough to satisfy
+ * the Chrome extension's validation checks for demonstration purposes.
  */
-function generateDummyAttestationObject(): string {
+function generateDummyAttestationObject() {
   // A minimal CBOR object with fields: { fmt: "none", authData: <4 dummy bytes>, attStmt: {} }
   // Hex breakdown:
   //   a3                                      # map(3)
@@ -114,18 +68,11 @@ function generateDummyClientDataJSON(type: 'create' | 'get'): string {
   return btoa(JSON.stringify(clientData));
 }
 
-// メッセージの action を扱うための型
-interface Message {
-  action?: 'register' | 'authenticate' | 'stop';
-
-  [key: string]: any;
-}
-
 // Listen for messages to attach/detach from the WebAuthn requests
-chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'register' || message.action === 'authenticate') {
     if (!isAttached) {
-      webAuthn.attach()
+      chrome.webAuthenticationProxy.attach()
         .then(() => {
           isAttached = true;
           console.log('WebAuthn proxy attached.');
@@ -142,7 +89,7 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
     }
   } else if (message.action === 'stop') {
     if (isAttached) {
-      webAuthn.detach()
+      chrome.webAuthenticationProxy.detach()
         .then(() => {
           isAttached = false;
           console.log('WebAuthn proxy detached.');
@@ -152,7 +99,7 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
           console.error('Error detaching WebAuthn proxy:', err);
           sendResponse({status: 'error', message: err.message});
         });
-      return true; // Keep the messaging channel open for async
+      return true;
     } else {
       sendResponse({status: 'detached'});
     }
@@ -161,7 +108,7 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
 });
 
 // Handle registration (navigator.credentials.create)
-webAuthn.onCreateRequest.addListener(async (requestInfo: CreateRequestInfo) => {
+chrome.webAuthenticationProxy.onCreateRequest.addListener(async (requestInfo) => {
   console.log('WebAuthn onCreateRequest:', requestInfo);
   const {requestId, requestDetailsJson} = requestInfo;
 
@@ -188,7 +135,6 @@ webAuthn.onCreateRequest.addListener(async (requestInfo: CreateRequestInfo) => {
       userId: user.id ? bufferToBase64(user.id) : null,
       signCount: 0
     });
-
     const credentialIdUrl = bufferToBase64Url(newId);
 
     // Construct a minimal, valid attestationObject
@@ -208,39 +154,37 @@ webAuthn.onCreateRequest.addListener(async (requestInfo: CreateRequestInfo) => {
     };
 
     // Send the registration response
-    await webAuthn.completeCreateRequest({
+    await chrome.webAuthenticationProxy.completeCreateRequest({
       requestId,
       responseJson: JSON.stringify(credentialResponse)
     });
     console.log('completeCreateRequest sent for requestId:', requestId);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Registration error:', error);
     // Report error back
-    await webAuthn.completeCreateRequest({
+    await chrome.webAuthenticationProxy.completeCreateRequest({
       requestId,
-      error: {name: 'NotAllowedError', message: error.message || 'Registration failed'}
+      error: {name: 'NotAllowedError', message: 'Registration failed'}
     });
   }
 });
 
 // Handle authentication (navigator.credentials.get)
-webAuthn.onGetRequest.addListener(async (requestInfo: GetRequestInfo) => {
+chrome.webAuthenticationProxy.onGetRequest.addListener(async (requestInfo) => {
   console.log('WebAuthn onGetRequest:', requestInfo);
   const {requestId, requestDetailsJson} = requestInfo;
 
   try {
     const options = JSON.parse(requestDetailsJson);
     const publicKeyOptions = options.publicKey || options;
-    const rpId: string = publicKeyOptions.rpId || '';
+    const rpId = publicKeyOptions.rpId || '';
     const allowCredentials = publicKeyOptions.allowCredentials || [];
 
     // Find a matching credential
-    let usedCred: CredentialInfo | undefined;
-
+    let usedCred = null;
     if (allowCredentials.length > 0) {
-      for (const cred of allowCredentials) {
-        // cred.id が string で来ることも ArrayBuffer で来ることもある
+      for (let cred of allowCredentials) {
         const credId = typeof cred.id === 'string'
           ? cred.id
           : bufferToBase64(cred.id);
@@ -289,31 +233,28 @@ webAuthn.onGetRequest.addListener(async (requestInfo: GetRequestInfo) => {
     };
 
     // Send the authentication response
-    await webAuthn.completeGetRequest({
+    await chrome.webAuthenticationProxy.completeGetRequest({
       requestId,
       responseJson: JSON.stringify(assertionResponse)
     });
     console.log('completeGetRequest sent for requestId:', requestId);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Authentication error:', error);
-    await webAuthn.completeGetRequest({
+    await chrome.webAuthenticationProxy.completeGetRequest({
       requestId,
-      error: {name: 'NotAllowedError', message: error.message || 'Authentication failed'}
+      error: {name: 'NotAllowedError', message: 'Authentication failed'}
     });
   }
 });
-
 // Handle cancellation of WebAuthn requests
-webAuthn.onRequestCanceled.addListener(({requestId}) => {
-  console.warn('WebAuthn request canceled:', requestId);
-});
+// chrome.webAuthenticationProxy.onRequestCanceled.addListener(({ requestId }) => {
+//   console.warn('WebAuthn request canceled:', requestId);
+// });
 
-/**
- * Replace (or add) the existing bufferToBase64 helper with a bufferToBase64Url helper.
- */
-function bufferToBase64Url(buffer: ArrayBuffer | Uint8Array): string {
-  const bytes = buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : new Uint8Array(buffer.buffer);
+// Replace (or add) the existing bufferToBase64 helper with a bufferToBase64Url helper.
+function bufferToBase64Url(buffer: ArrayBuffer | Uint8Array) {
+  const bytes = new Uint8Array(buffer);
   let binary = '';
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i]);

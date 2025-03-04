@@ -122,6 +122,8 @@ declare namespace chrome {
       callback?: () => void
     ): Promise<void>;
 
+    function detach(callback?: (error?: string) => void): Promise<void>;
+
     /**
      * Fired when a WebAuthn 'create' (registration) call is made in the browser.
      * A listener can handle the remote registration flow and then call completeCreateRequest.
