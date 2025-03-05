@@ -75,6 +75,13 @@ definitions:
       passerID:
         type: string
     type: object
+  handlers.DeleteTrustRequest:
+    properties:
+      passerID:
+        type: string
+      trustID:
+        type: integer
+    type: object
   handlers.DeviceCreateRequest:
     properties:
       credentialType:
@@ -131,6 +138,31 @@ definitions:
         type: string
       error:
         type: string
+    type: object
+  handlers.TrustRequest:
+    properties:
+      passerID:
+        type: string
+      reviverID:
+        type: string
+    type: object
+  handlers.TrustResponse:
+    properties:
+      id:
+        type: integer
+      passerID:
+        type: string
+      reviverID:
+        type: string
+    type: object
+  handlers.UpdateTrustRequest:
+    properties:
+      passerID:
+        type: string
+      reviverID:
+        type: string
+      trustID:
+        type: integer
     type: object
   handlers.UserCreateRequest:
     properties:
@@ -389,6 +421,124 @@ paths:
       summary: デバイス一覧取得
       tags:
       - devices
+  /trusts:
+    delete:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を削除する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteTrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の削除
+      tags:
+      - trusts
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示している相続関係一覧を取得する
+      parameters:
+      - description: 相続関係を取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.TrustResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の一覧取得
+      tags:
+      - trusts
+    post:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を作成する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の作成
+      tags:
+      - trusts
+    put:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を更新する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateTrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の更新
+      tags:
+      - trusts
   /users:
     post:
       consumes:
