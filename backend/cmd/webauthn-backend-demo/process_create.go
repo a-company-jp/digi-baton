@@ -6,15 +6,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/fxamacker/cbor/v2"
 	"log"
-	"math/big"
-	"time"
 )
 
 type PublicKeyCredential struct {
@@ -23,13 +20,16 @@ type PublicKeyCredential struct {
 	Type      string `json:"type"`      // "public-key"
 	PublicKey string `json:"publicKey"` //base64
 	Response  struct {
-		ID                 string   `json:"id"`
-		ClientDataJSON     string   `json:"clientDataJSON"`
-		AttestationObject  string   `json:"attestationObject"`
-		PublicKeyAlgorithm int      `json:"publicKeyAlgorithm"`
-		AuthenticatorData  string   `json:"authenticatorData"`
-		PublicKey          string   `json:"publicKey"` //base64
-		Transports         []string `json:"transports"`
+		ID                    string   `json:"id"`
+		ClientDataJSON        string   `json:"clientDataJSON"`
+		AttestationObject     string   `json:"attestationObject"`
+		PublicKeyAlgorithm    int      `json:"publicKeyAlgorithm"`
+		AuthenticatorData     string   `json:"authenticatorData"`
+		PublicKey             string   `json:"publicKey"` //base64
+		Transports            []string `json:"transports"`
+		Signature             string   `json:"signature,omitempty"`
+		UserHandle            string   `json:"userHandle,omitempty"`
+		AuthenticatorResponse string   `json:"authenticatorResponse,omitempty"`
 	} `json:"response"`
 	ClientExtensionResults map[string]interface{} `json:"clientExtensionResults"`
 }
@@ -62,7 +62,18 @@ type AuthnRequest struct {
 		Name        string `json:"name"`
 	} `json:"user"`
 }
-
+type GetAssertionRequest struct {
+	Challenge        string `json:"challenge"`
+	RPId             string `json:"rpId"`
+	Timeout          int    `json:"timeout,omitempty"`
+	UserVerification string `json:"userVerification,omitempty"`
+	AllowCredentials []struct {
+		ID        string   `json:"id"`
+		Type      string   `json:"type"`
+		Transport []string `json:"transports,omitempty"`
+	} `json:"allowCredentials,omitempty"`
+	Extensions map[string]interface{} `json:"extensions,omitempty"`
+}
 type AttestationObject struct {
 	Fmt      string                 `cbor:"fmt"`
 	AttStmt  map[string]interface{} `cbor:"attStmt"`
@@ -84,10 +95,15 @@ func generateOrLoadPrivateKey() (*ecdsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func createClientDataJSON(challenge, origin string) ([]byte, error) {
+func createClientDataJSON(challenge, origin string, isAssertion bool) ([]byte, error) {
+	typeStr := "webauthn.create"
+	if isAssertion {
+		typeStr = "webauthn.get"
+	}
+
 	clientData := map[string]interface{}{
-		"type":             "webauthn.create",
-		"challenge":        challenge, // 受け取ったBase64URLの文字列をそのまま設定することが多い
+		"type":             typeStr,
+		"challenge":        challenge,
 		"origin":           origin,
 		"crossOrigin":      false,
 		"clientExtensions": map[string]interface{}{},
@@ -152,7 +168,7 @@ func createCoseEC2PublicKey(pub *ecdsa.PublicKey) ([]byte, error) {
 	return cbor.Marshal(m)
 }
 
-func process(reqJSON string) string {
+func processCreate(reqJSON string) string {
 	// -- (1) まずは認証サーバから送られてきたリクエスト(JSON) を想定してパースする --
 
 	var payload PublicKeyCredentialCreationPayload
@@ -196,7 +212,7 @@ func process(reqJSON string) string {
 		origin = ar.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"].(string)
 	}
 
-	clientData, err := createClientDataJSON(ar.Challenge, origin)
+	clientData, err := createClientDataJSON(ar.Challenge, origin, false)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -230,34 +246,26 @@ func process(reqJSON string) string {
 		log.Fatal(err)
 	}
 	pkc.Response.PublicKey = base64URLEncode(pubDER)
+
+	credIDBase64 := base64URLEncode(credID)
+
+	passkey := &StoredPasskey{
+		RPID:         ar.RP.ID,
+		CredentialID: credIDBase64,
+		UserID:       ar.User.ID,
+		UserName:     ar.User.Name,
+		PublicKey:    pubDER,
+		PrivateKey:   privKey,
+		SignCount:    0,
+	}
+	store.Add(passkey)
+
+	log.Printf("Saved passkey for RPID: %s, CredentialID: %s", passkey.RPID, passkey.CredentialID)
+
 	respJSON, err := json.Marshal(pkc)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(string(respJSON))
 	return string(respJSON)
-}
-
-var selfSignedCert []byte
-
-func createSelfSignedCertDER(priv *ecdsa.PrivateKey) ([]byte, error) {
-	if selfSignedCert != nil {
-		return selfSignedCert, nil
-	}
-	// 今回は自己署名証明書を作成する
-	template := x509.Certificate{
-		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "localhost"},
-		NotBefore:             time.Now(),
-		NotAfter:              time.Now().AddDate(1, 0, 0),
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		BasicConstraintsValid: true,
-	}
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
-	if err != nil {
-		return nil, err
-	}
-	selfSignedCert = derBytes
-	return selfSignedCert, nil
 }
