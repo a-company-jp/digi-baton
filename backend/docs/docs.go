@@ -15,6 +15,187 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/accounts": {
+            "put": {
+                "description": "アカウントを更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウント更新",
+                "parameters": [
+                    {
+                        "description": "アカウント情報",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccountCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "アカウントを作成する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウント作成",
+                "parameters": [
+                    {
+                        "description": "アカウント情報",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccountCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "アカウントを削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウント削除",
+                "parameters": [
+                    {
+                        "description": "アカウント情報",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeleteAccountCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{passerID}": {
+            "get": {
+                "description": "ユーザが開示しているアカウント一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウント一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "パスワードを取得するユーザのID",
+                        "name": "passerID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AccountResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
@@ -107,6 +288,111 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.AccountCreateRequest": {
+            "type": "object",
+            "properties": {
+                "accountUsername": {
+                    "type": "string"
+                },
+                "appDescription": {
+                    "type": "string"
+                },
+                "appIconUrl": {
+                    "type": "string"
+                },
+                "appName": {
+                    "type": "string"
+                },
+                "appTemplateID": {
+                    "type": "integer"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "plsDelete": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handlers.AccountResponse": {
+            "type": "object",
+            "properties": {
+                "accountUsername": {
+                    "type": "string"
+                },
+                "appDescription": {
+                    "type": "string"
+                },
+                "appIconUrl": {
+                    "type": "string"
+                },
+                "appName": {
+                    "type": "string"
+                },
+                "appTemplateID": {
+                    "type": "integer"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "encPassword": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDisclosed": {
+                    "type": "boolean"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "plsDelete": {
+                    "type": "boolean"
+                },
+                "trustID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.DeleteAccountCreateRequest": {
+            "type": "object",
+            "properties": {
+                "deviceID": {
+                    "type": "integer"
+                },
+                "passerID": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.ErrorResponse": {
             "type": "object",
             "properties": {

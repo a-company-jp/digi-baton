@@ -8,6 +8,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Account struct {
+	ID              int32
+	AppTemplateID   pgtype.Int4
+	AppName         pgtype.Text
+	AppDescription  pgtype.Text
+	AppIconUrl      pgtype.Text
+	AccountUsername string
+	EncPassword     []byte
+	Memo            string
+	PlsDelete       bool
+	Message         string
+	PasserID        pgtype.UUID
+	TrustID         pgtype.Int4
+	IsDisclosed     bool
+	CustomData      []byte
+}
+
 type User struct {
 	ID                pgtype.UUID
 	DefaultReceiverID pgtype.UUID

@@ -1,4 +1,73 @@
 definitions:
+  handlers.AccountCreateRequest:
+    properties:
+      accountUsername:
+        type: string
+      appDescription:
+        type: string
+      appIconUrl:
+        type: string
+      appName:
+        type: string
+      appTemplateID:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+      plsDelete:
+        type: boolean
+    type: object
+  handlers.AccountResponse:
+    properties:
+      accountUsername:
+        type: string
+      appDescription:
+        type: string
+      appIconUrl:
+        type: string
+      appName:
+        type: string
+      appTemplateID:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      encPassword:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      isDisclosed:
+        type: boolean
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      plsDelete:
+        type: boolean
+      trustID:
+        type: integer
+    type: object
+  handlers.DeleteAccountCreateRequest:
+    properties:
+      deviceID:
+        type: integer
+      passerID:
+        type: string
+    type: object
   handlers.ErrorResponse:
     properties:
       details:
@@ -25,6 +94,125 @@ definitions:
 info:
   contact: {}
 paths:
+  /accounts:
+    delete:
+      consumes:
+      - application/json
+      description: アカウントを削除する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteAccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント削除
+      tags:
+      - accounts
+    post:
+      consumes:
+      - application/json
+      description: アカウントを作成する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント作成
+      tags:
+      - accounts
+    put:
+      consumes:
+      - application/json
+      description: アカウントを更新する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント更新
+      tags:
+      - accounts
+  /accounts/{passerID}:
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているアカウント一覧を取得する
+      parameters:
+      - description: パスワードを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AccountResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント一覧取得
+      tags:
+      - accounts
   /users:
     post:
       consumes:

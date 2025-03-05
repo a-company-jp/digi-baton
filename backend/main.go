@@ -17,7 +17,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-
 func main() {
 	ctx := context.Background()
 	config := config.LoadConfig()
@@ -39,7 +38,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 	docs.SwaggerInfo.BasePath = "/api/v1"
-	
+
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
@@ -54,7 +53,15 @@ func main() {
 		v1.POST("/users", usersHandler.Create)
 		v1.PUT("/users", usersHandler.Update)
 
+		// accounts
+		accountHandlers := handlers.NewAccountsHandler(q)
+		v1.GET("/accounts", accountHandlers.List)
+		v1.POST("/accounts", accountHandlers.Create)
+		v1.PUT("/accounts", accountHandlers.Update)
+		v1.DELETE("/accounts", accountHandlers.Delete)
+
 	}
 
 	router.Run(":" + config.Server.Port)
+
 }
