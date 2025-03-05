@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	ServerPort string
+	Server ServerConfig
+	DB    DBConfig
 }
 
 var (
@@ -26,7 +27,16 @@ func LoadConfig() *Config {
 		}
 
 		configInstance = &Config{
-			ServerPort: getEnv("SERVER_PORT", "8080"),
+			Server: ServerConfig{
+				Port: getEnv("SERVER_PORT", "8080"),
+			},
+			DB: DBConfig{
+				Host:     getEnv("DB_HOST", "localhost"),
+				Port:     getEnv("DB_PORT", "5432"),
+				User:     getEnv("DB_USER", "user"),
+				Password: getEnv("DB_PASSWORD", "password"),
+				Name:     getEnv("DB_NAME", "digi_baton"),
+			},
 		}
 	})
 	return configInstance
@@ -39,3 +49,4 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
+
