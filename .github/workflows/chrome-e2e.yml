@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: cd chrome-ext && pnpm install --frozen-lockfile --prefer-offline
       - run: cd chrome-ext && pnpm e2e
 
@@ -28,5 +30,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: cd chrome-ext && pnpm install --frozen-lockfile --prefer-offline
       - run: cd chrome-ext && pnpm e2e:firefox
