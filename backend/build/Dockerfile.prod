@@ -1,0 +1,6 @@
+# copy binary from github actions
+FROM alpine:3.20
+COPY ./main /app/main
+COPY ./db/migrations /app/db/migrations
+WORKDIR /app
+CMD ["/app/main"]

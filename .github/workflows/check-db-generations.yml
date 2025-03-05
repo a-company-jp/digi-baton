@@ -1,0 +1,55 @@
+name: migrate and validate schema-dump and sqlc generation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/check-db-generations.yml'
+      - 'backend/db/migrations/**'
+      - 'backend/db/seed/**'
+      - 'backend/db/schema.sql'
+      - 'backend/db/query/**'
+jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Postgres
+        run: |
+          cd .github
+          docker compose up -d
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'backend/go.mod'
+          cache-dependency-path: 'backend/go.sum'
+      - name: Run migration
+        run: |
+          cd backend && make migrate-setup migrate-up migrate-seed-up
+      - name: Run make dump-schema
+        run: |
+          cd backend && make dump-schema
+      - name: Check for changes after dump-schema
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected after running 'make dump-schema'. Please run 'make dump-schema' locally and commit the changes."
+            git diff
+            exit 1
+          fi
+      - name: Setup aqua
+        uses: aquaproj/aqua-installer@v3.0.1
+        with:
+          aqua_version: v2.36.2
+      - name: sqlc generate
+        run: cd backend && sqlc generate
+      - name: Check for changes after sqlc generate
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected after running 'sqlc generate'. Please run 'sqlc generate' locally and commit the changes."
+            git diff
+            exit 1
+          fi
