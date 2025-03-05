@@ -16,6 +16,51 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/accounts": {
+            "get": {
+                "description": "ユーザが開示しているアカウント一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウント一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "パスワードを取得するユーザのID",
+                        "name": "passerID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AccountResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "アカウントを更新する",
                 "consumes": [
@@ -149,9 +194,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/accounts/{passerID}": {
+        "/devices": {
             "get": {
-                "description": "ユーザが開示しているアカウント一覧を取得する",
+                "description": "ユーザが開示しているデバイス一覧を取得する",
                 "consumes": [
                     "application/json"
                 ],
@@ -159,13 +204,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "devices"
                 ],
-                "summary": "アカウント一覧取得",
+                "summary": "デバイス一覧取得",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "パスワードを取得するユーザのID",
+                        "description": "デバイスを取得するユーザのID",
                         "name": "passerID",
                         "in": "query",
                         "required": true
@@ -177,7 +222,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handlers.AccountResponse"
+                                "$ref": "#/definitions/handlers.DeviceResponse"
                             }
                         }
                     },
@@ -194,9 +239,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/devices": {
+            },
             "put": {
                 "description": "デバイスを更新する",
                 "consumes": [
@@ -313,53 +356,6 @@ const docTemplate = `{
                         "description": "成功",
                         "schema": {
                             "$ref": "#/definitions/handlers.DeviceResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "リクエストデータが不正です",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "データベース接続に失敗しました",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/devices/{passerID}": {
-            "get": {
-                "description": "ユーザが開示しているデバイス一覧を取得する",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "devices"
-                ],
-                "summary": "デバイス一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "デバイスを取得するユーザのID",
-                        "name": "passerID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handlers.DeviceResponse"
-                            }
                         }
                     },
                     "400": {

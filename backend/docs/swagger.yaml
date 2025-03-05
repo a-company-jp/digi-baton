@@ -213,6 +213,36 @@ paths:
       summary: アカウント削除
       tags:
       - accounts
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているアカウント一覧を取得する
+      parameters:
+      - description: パスワードを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AccountResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント一覧取得
+      tags:
+      - accounts
     post:
       consumes:
       - application/json
@@ -271,37 +301,6 @@ paths:
       summary: アカウント更新
       tags:
       - accounts
-  /accounts/{passerID}:
-    get:
-      consumes:
-      - application/json
-      description: ユーザが開示しているアカウント一覧を取得する
-      parameters:
-      - description: パスワードを取得するユーザのID
-        in: query
-        name: passerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            items:
-              $ref: '#/definitions/handlers.AccountResponse'
-            type: array
-        "400":
-          description: リクエストデータが不正です
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: データベース接続に失敗しました
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: アカウント一覧取得
-      tags:
-      - accounts
   /devices:
     delete:
       consumes:
@@ -330,6 +329,36 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: デバイス削除
+      tags:
+      - devices
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているデバイス一覧を取得する
+      parameters:
+      - description: デバイスを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.DeviceResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス一覧取得
       tags:
       - devices
     post:
@@ -388,37 +417,6 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: デバイス更新
-      tags:
-      - devices
-  /devices/{passerID}:
-    get:
-      consumes:
-      - application/json
-      description: ユーザが開示しているデバイス一覧を取得する
-      parameters:
-      - description: デバイスを取得するユーザのID
-        in: query
-        name: passerID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            items:
-              $ref: '#/definitions/handlers.DeviceResponse'
-            type: array
-        "400":
-          description: リクエストデータが不正です
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-        "500":
-          description: データベース接続に失敗しました
-          schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      summary: デバイス一覧取得
       tags:
       - devices
   /trusts:
