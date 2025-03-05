@@ -56,7 +56,6 @@ export default function RootLayout({
           </body>
         </ClerkProvider>
       </QueryProvider>
-      
     </html>
   );
 }
