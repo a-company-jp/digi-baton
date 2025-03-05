@@ -1,0 +1,32 @@
+name: "[Chrome] Run E2E Tests"
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  chrome:
+    name: E2E tests for Chrome
+    runs-on: ubuntu-latest
+    env:
+      CEB_CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+      - run: cd chrome-ext && pnpm install --frozen-lockfile --prefer-offline
+      - run: cd chrome-ext && pnpm e2e
+
+  firefox:
+    name: E2E tests for Firefox
+    runs-on: ubuntu-latest
+    env:
+      CEB_CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+      - run: cd chrome-ext && pnpm install --frozen-lockfile --prefer-offline
+      - run: cd chrome-ext && pnpm e2e:firefox
