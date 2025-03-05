@@ -24,6 +24,7 @@ type Account struct {
 	IsDisclosed     bool
 	CustomData      []byte
 }
+
 type Device struct {
 	ID                int32
 	DeviceType        int32
@@ -39,6 +40,11 @@ type Device struct {
 	CustomData        []byte
 }
 
+type Trust struct {
+	ID             int32
+	ReceiverUserID pgtype.UUID
+	PasserUserID   pgtype.UUID
+}
 
 type User struct {
 	ID                pgtype.UUID

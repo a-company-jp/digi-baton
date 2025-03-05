@@ -366,6 +366,185 @@
                 }
             }
         },
+        "/trusts": {
+            "get": {
+                "description": "ユーザが開示している相続関係一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trusts"
+                ],
+                "summary": "相続関係の一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "相続関係を取得するユーザのID",
+                        "name": "passerID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.TrustResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "ユーザ間の相続関係を更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trusts"
+                ],
+                "summary": "相続関係の更新",
+                "parameters": [
+                    {
+                        "description": "相続関係",
+                        "name": "trust",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateTrustRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TrustResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "ユーザ間の相続関係を作成する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trusts"
+                ],
+                "summary": "相続関係の作成",
+                "parameters": [
+                    {
+                        "description": "相続関係",
+                        "name": "trust",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TrustRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TrustResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ユーザ間の相続関係を削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trusts"
+                ],
+                "summary": "相続関係の削除",
+                "parameters": [
+                    {
+                        "description": "相続関係",
+                        "name": "trust",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeleteTrustRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TrustResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
@@ -574,6 +753,17 @@
                 }
             }
         },
+        "handlers.DeleteTrustRequest": {
+            "type": "object",
+            "properties": {
+                "passerID": {
+                    "type": "string"
+                },
+                "trustID": {
+                    "type": "integer"
+                }
+            }
+        },
         "handlers.DeviceCreateRequest": {
             "type": "object",
             "properties": {
@@ -658,6 +848,45 @@
                 },
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.TrustRequest": {
+            "type": "object",
+            "properties": {
+                "passerID": {
+                    "type": "string"
+                },
+                "reviverID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TrustResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "reviverID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.UpdateTrustRequest": {
+            "type": "object",
+            "properties": {
+                "passerID": {
+                    "type": "string"
+                },
+                "reviverID": {
+                    "type": "string"
+                },
+                "trustID": {
+                    "type": "integer"
                 }
             }
         },

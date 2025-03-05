@@ -67,6 +67,13 @@ func main() {
 		v1.PUT("/devices", devicesHandler.Update)
 		v1.DELETE("/devices", devicesHandler.Delete)
 
+		// trusts(相続の関係性）
+		trustsHandler := handlers.NewTrustsHandler(q)
+		v1.GET("/trusts/:passerID", trustsHandler.List)
+		v1.POST("/trusts", trustsHandler.Create)
+		v1.PUT("/trusts", trustsHandler.Update)
+		v1.DELETE("/trusts", trustsHandler.Delete)
+
 	}
 
 	router.Run(":" + config.Server.Port)
