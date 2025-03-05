@@ -1,4 +1,4 @@
-name: Deploy to Azure Container Registry - Backend
+name: "[Backend] Deploy to Azure Container Registry"
 on:
   push:
     branches:

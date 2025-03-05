@@ -1,4 +1,4 @@
-name: "[chrome] Build And Upload Extension Zip Via Artifact"
+name: "[Chrome] Build And Upload Extension Zip Via Artifact"
 on:
   push:
     branches: [ main, dev ]
@@ -11,7 +11,8 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22'
+          cache: 'pnpm'
       - run: cd chrome-ext && pnpm install --frozen-lockfile --prefer-offline
       - run: cd chrome-ext && pnpm build
       - uses: actions/upload-artifact@v4

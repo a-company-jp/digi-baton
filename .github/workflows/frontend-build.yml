@@ -1,4 +1,4 @@
-name: Lint Frontend
+name: "[Frontend] Build"
 on:
   push:
     branches:
@@ -7,10 +7,12 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/lint-frontend.yml'
+      - '.github/workflows/frontend-build.yml'
       - 'frontend/**'
 jobs:
   lint-frontend:
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
     name: Lint Frontend
     runs-on: ubuntu-latest
     steps:
@@ -23,9 +25,6 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
-      - name: Lint
-        run: pnpm run lint
-      - name: Run typecheck
-        working-directory: frontend
-        run: pnpm run typecheck
+        run: cd frontend && pnpm install
+      - name: Run Build
+        run: cd frontend && pnpm build

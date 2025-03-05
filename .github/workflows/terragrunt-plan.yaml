@@ -1,4 +1,4 @@
-name: "Run terragrunt plan on PR submission"
+name: "[Infra] Run terragrunt plan on PR submission"
 on:
   pull_request:
     branches:
