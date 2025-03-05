@@ -2,7 +2,7 @@ RDB_HOST ?= 127.0.0.1
 RDB_PORT ?= 5432
 RDB_USER ?= user
 RDB_PASS ?= password
-RDB_NAME ?= digi_baton
+RDB_NAME ?= digi_baton_backend
 DATABASE_HOST ?= postgres://$(RDB_USER):$(RDB_PASS)@$(RDB_HOST):$(RDB_PORT)
 DATABASE_URL ?= $(DATABASE_HOST)/$(RDB_NAME)?sslmode=disable
 

@@ -1,0 +1,16 @@
+{
+  "name": "WebAuthn Proxy Demo (TS)",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "description": "Chrome extension using TypeScript and webAuthenticationProxy",
+  "permissions": [
+    "webAuthenticationProxy"
+  ],
+  "host_permissions": [
+    "http://localhost/*",
+    "https://myaccount.google.com/*"
+  ],
+  "background": {
+    "service_worker": "dist/background.js"
+  }
+}
