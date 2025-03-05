@@ -60,8 +60,14 @@ func main() {
 		v1.PUT("/accounts", accountHandlers.Update)
 		v1.DELETE("/accounts", accountHandlers.Delete)
 
+		// devices
+		devicesHandler := handlers.NewDevicesHandler(q)
+		v1.GET("/devices", devicesHandler.List)
+		v1.POST("/devices", devicesHandler.Create)
+		v1.PUT("/devices", devicesHandler.Update)
+		v1.DELETE("/devices", devicesHandler.Delete)
+
 	}
 
 	router.Run(":" + config.Server.Port)
-
 }
