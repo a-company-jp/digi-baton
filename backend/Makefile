@@ -45,3 +45,6 @@ migrate-reset: migrate-drop migrate-up migrate-seed-up
 
 dev:
 	air -c .air.toml
+
+gen/docs:
+	swag init
