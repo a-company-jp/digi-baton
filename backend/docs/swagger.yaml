@@ -1,0 +1,87 @@
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.UserCreateRequest:
+    properties:
+      clerkUserID:
+        type: string
+      defaultReceiverID:
+        type: string
+    type: object
+  handlers.UserResponse:
+    properties:
+      clerkUserID:
+        type: string
+      defaultReceiverID:
+        type: string
+      userID:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
+      parameters:
+      - description: ユーザ情報
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.UserResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ユーザ登録
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント
+      parameters:
+      - description: ユーザ情報
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.UserResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ユーザ更新
+      tags:
+      - users
+swagger: "2.0"
