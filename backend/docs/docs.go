@@ -196,6 +196,187 @@ const docTemplate = `{
                 }
             }
         },
+        "/devices": {
+            "put": {
+                "description": "デバイスを更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "デバイス更新",
+                "parameters": [
+                    {
+                        "description": "デバイス情報",
+                        "name": "device",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "デバイスを追加する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "デバイス追加",
+                "parameters": [
+                    {
+                        "description": "デバイス情報",
+                        "name": "device",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "デバイスを削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "デバイス削除",
+                "parameters": [
+                    {
+                        "description": "デバイス情報",
+                        "name": "device",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeleteDeviceCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeviceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{passerID}": {
+            "get": {
+                "description": "ユーザが開示しているデバイス一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "devices"
+                ],
+                "summary": "デバイス一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "デバイスを取得するユーザのID",
+                        "name": "passerID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.DeviceResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
@@ -390,6 +571,93 @@ const docTemplate = `{
                 },
                 "passerID": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.DeleteDeviceCreateRequest": {
+            "type": "object",
+            "properties": {
+                "deviceID": {
+                    "type": "integer"
+                },
+                "passerID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DeviceCreateRequest": {
+            "type": "object",
+            "properties": {
+                "credentialType": {
+                    "type": "integer"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "deviceDescription": {
+                    "type": "string"
+                },
+                "deviceType": {
+                    "type": "integer"
+                },
+                "deviceUsername": {
+                    "type": "string"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DeviceResponse": {
+            "type": "object",
+            "properties": {
+                "credentialType": {
+                    "type": "integer"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "deviceDescription": {
+                    "type": "string"
+                },
+                "deviceType": {
+                    "type": "integer"
+                },
+                "deviceUsername": {
+                    "type": "string"
+                },
+                "encPassword": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "trustID": {
+                    "type": "integer"
                 }
             }
         },

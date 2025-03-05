@@ -68,6 +68,63 @@ definitions:
       passerID:
         type: string
     type: object
+  handlers.DeleteDeviceCreateRequest:
+    properties:
+      deviceID:
+        type: integer
+      passerID:
+        type: string
+    type: object
+  handlers.DeviceCreateRequest:
+    properties:
+      credentialType:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      deviceDescription:
+        type: string
+      deviceType:
+        type: integer
+      deviceUsername:
+        type: string
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+    type: object
+  handlers.DeviceResponse:
+    properties:
+      credentialType:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      deviceDescription:
+        type: string
+      deviceType:
+        type: integer
+      deviceUsername:
+        type: string
+      encPassword:
+        type: string
+      id:
+        type: integer
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      trustID:
+        type: integer
+    type: object
   handlers.ErrorResponse:
     properties:
       details:
@@ -213,6 +270,125 @@ paths:
       summary: アカウント一覧取得
       tags:
       - accounts
+  /devices:
+    delete:
+      consumes:
+      - application/json
+      description: デバイスを削除する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteDeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス削除
+      tags:
+      - devices
+    post:
+      consumes:
+      - application/json
+      description: デバイスを追加する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス追加
+      tags:
+      - devices
+    put:
+      consumes:
+      - application/json
+      description: デバイスを更新する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス更新
+      tags:
+      - devices
+  /devices/{passerID}:
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているデバイス一覧を取得する
+      parameters:
+      - description: デバイスを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.DeviceResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス一覧取得
+      tags:
+      - devices
   /users:
     post:
       consumes:
