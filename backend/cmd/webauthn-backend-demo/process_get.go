@@ -1,39 +1,40 @@
 package main
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/sha256"
-	"crypto/x509"
-	"encoding/asn1"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"log"
-	"math/big"
+	"time"
 )
 
-// アサーション用の authenticatorData を作成
-func createAssertionAuthData(rpId string, signCount uint32) ([]byte, error) {
-	// 1) rpIdHash
-	rpIdHash := sha256.Sum256([]byte(rpId))
-
-	// 2) flags (0x01: UserPresent)
-	flags := byte(0x01)
-
-	// 3) signCount
-	signCountBytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(signCountBytes, signCount)
-
-	// 最終的に authenticatorData は以下を連結:
-	//   rpIdHash(32) || flags(1) || signCount(4)
-	authData := make([]byte, 0, 32+1+4)
-	authData = append(authData, rpIdHash[:]...)
-	authData = append(authData, flags)
-	authData = append(authData, signCountBytes...)
-
-	return authData, nil
+// GetAssertionRequest はクライアントから送られる認証用リクエスト
+type GetAssertionRequest struct {
+	Challenge        string `json:"challenge"`
+	RPID             string `json:"rpId"`
+	Timeout          int    `json:"timeout,omitempty"`
+	UserVerification string `json:"userVerification,omitempty"`
+	AllowCredentials []struct {
+		ID        string   `json:"id"`
+		Type      string   `json:"type"`
+		Transport []string `json:"transports,omitempty"`
+	} `json:"allowCredentials,omitempty"`
+	Extensions map[string]interface{} `json:"extensions,omitempty"`
 }
 
+// AuthenticatorData の生成時にフラグをセットする用
+const (
+	flagUserPresent   byte = 0x01
+	flagUserVerified  byte = 0x04
+	flagAttestedCred  byte = 0x40
+	flagExtensionData byte = 0x80
+)
+
+// processGetAssertion は認証チャレンジを処理し、署名付きレスポンスを返す
 func processGetAssertion(reqJSON string) string {
 	// リクエストのパース
 	var payload struct {
@@ -45,123 +46,101 @@ func processGetAssertion(reqJSON string) string {
 		return `{"error": "Invalid request format"}`
 	}
 
-	// RequestDetailsJsonのパース
-	var getReq GetAssertionRequest
-	if err := json.Unmarshal([]byte(payload.RequestDetailsJson), &getReq); err != nil {
-		log.Printf("Error parsing request details: %v", err)
-		return `{"error": "Invalid request details"}`
+	// 1. リクエストをパース
+	var req GetAssertionRequest
+	err := json.Unmarshal([]byte(payload.RequestDetailsJson), &req)
+	if err != nil {
+		log.Printf("Failed to parse request JSON: %v", err)
+		return ""
 	}
 
-	log.Printf("Processing assertion for RPID: %s", getReq.RPId)
-
-	// allowCredentialsが空の場合は、RPIDに関連するすべてのパスキーから選択
-	var credID string
-	var passkey *StoredPasskey
-
-	if len(getReq.AllowCredentials) > 0 {
-		// allowCredentialsから最初の1つを使用
-		credID = getReq.AllowCredentials[0].ID
-		passkey = store.Get(getReq.RPId, credID)
-	} else {
-		// RPIDに関連するパスキーを取得
-		passkeys := store.GetByRPID(getReq.RPId)
-		if len(passkeys) > 0 {
-			passkey = passkeys[0]
-			credID = passkey.CredentialID
-		}
+	// 2. 対応する StoredPasskey を検索
+	//    - allowCredentials に複数の候補がある場合もあるが、ここでは 1つ目のみ対応
+	if len(req.AllowCredentials) == 0 {
+		log.Printf("No allowCredentials in request")
+		return ""
 	}
+	credID := req.AllowCredentials[0].ID
 
+	// base64 URL decode する場合など、エンコード形式に合わせて適宜処理
+	passkey := store.Get(req.RPID, credID)
 	if passkey == nil {
-		log.Printf("No matching passkey found for RPID: %s, CredentialID: %s", getReq.RPId, credID)
-		return `{"error": "No matching credential found"}`
+		log.Printf("No stored passkey found for RPID=%s, CredID=%s", req.RPID, credID)
+		return ""
 	}
 
-	// SignCountを更新
+	// 3. authenticatorData の組み立て
+	//    - rpIdHash(32byte) + flags(1byte) + signCount(4byte)
+	rpIdHash := sha256.Sum256([]byte(req.RPID))
+
+	// flags: UserPresentは1、UVはオプションで設定(ここではリクエストによらずOFFにしている例)
+	var flags byte = flagUserPresent
+
+	// signCount を 1 加算 (認証器内カウンターをエミュレート)
 	newSignCount := passkey.SignCount + 1
-	store.UpdateSignCount(getReq.RPId, credID, newSignCount)
 
-	// アサーション処理のためのデータ作成
-	origin := "https://" + getReq.RPId
-	if getReq.Extensions != nil && getReq.Extensions["remoteDesktopClientOverride"] != nil {
-		if originVal, ok := getReq.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"]; ok {
-			if originStr, ok := originVal.(string); ok {
-				origin = originStr
-			}
-		}
+	// 4byte BigEndian でカウンタをエンコード
+	signCountBuf := make([]byte, 4)
+	binary.BigEndian.PutUint32(signCountBuf, newSignCount)
+
+	var authData bytes.Buffer
+	authData.Write(rpIdHash[:])  // 32 bytes
+	authData.WriteByte(flags)    // 1 byte
+	authData.Write(signCountBuf) // 4 bytes
+
+	origin := "https://" + req.RPID
+	if req.Extensions["remoteDesktopClientOverride"] != nil && req.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"] != nil {
+		origin = req.Extensions["remoteDesktopClientOverride"].(map[string]interface{})["origin"].(string)
+	}
+	// 4. clientDataJSON と 署名(signature) を生成
+	//    - clientDataJSON は webauthn.get + Challenge + Origin
+	clientData := map[string]interface{}{
+		"type":      "webauthn.get",
+		"challenge": req.Challenge,     // そのままBase64URL文字列でよいことが多い
+		"origin":    origin,            // ここでは簡易的に rpId からoriginを組み立てる例
+		"timestamp": time.Now().Unix(), // デバッグ用に適当に入れてみた
 	}
 
-	// ClientDataJSONの作成
-	clientData, err := createClientDataJSON(getReq.Challenge, origin, true)
+	clientDataJSON, _ := json.Marshal(clientData)
+
+	// 署名対象は authenticatorData + sha256(clientDataJSON)
+	clientDataHash := sha256.Sum256(clientDataJSON)
+	toBeSigned := append(authData.Bytes(), clientDataHash[:]...)
+	// 2) さらにHash (digest)
+	digest := sha256.Sum256(toBeSigned)
+
+	// 3) ECDSA署名
+	signature, err := ecdsa.SignASN1(rand.Reader, passkey.PrivateKey, digest[:])
 	if err != nil {
-		log.Printf("Error creating clientDataJSON: %v", err)
-		return `{"error": "Failed to create client data"}`
+		log.Printf("Failed to sign: %v", err)
+		return ""
 	}
-	clientDataB64 := base64URLEncode(clientData)
 
-	// AuthenticatorDataの作成
-	authData, err := createAssertionAuthData(getReq.RPId, newSignCount)
+	// 5. StoredPasskey の SignCount を更新(保存処理)
+	passkey.SignCount = newSignCount
+
+	// 6. レスポンス用構造体を組み立て
+	var pkc PublicKeyCredential
+	pkc.ID = credID
+	pkc.RawID = credID
+	pkc.Type = "public-key"
+
+	// Base64URLエンコードして詰める
+	pkc.Response.ClientDataJSON = base64.RawURLEncoding.EncodeToString(clientDataJSON)
+	pkc.Response.AuthenticatorData = base64.RawURLEncoding.EncodeToString(authData.Bytes())
+	pkc.Response.Signature = base64.RawURLEncoding.EncodeToString(signature)
+
+	// userHandle は passkey.UserID を Base64URL で表すケースが多い
+	pkc.Response.UserHandle = passkey.UserID
+
+	pkc.ClientExtensionResults = map[string]interface{}{}
+
+	// JSON にエンコードして返す
+	respJSON, err := json.Marshal(pkc)
 	if err != nil {
-		log.Printf("Error creating authenticatorData: %v", err)
-		return `{"error": "Failed to create authenticator data"}`
+		log.Printf("Failed to marshal response: %v", err)
+		return ""
 	}
 
-	// 署名対象データの作成: authenticatorData + clientDataHash
-	clientDataHash := sha256.Sum256(clientData)
-	signData := append(authData, clientDataHash[:]...)
-
-	x509.ParsePKIXPublicKey(passkey.PublicKey)
-	// 署名の生成
-	r, s, err := ecdsa.Sign(rand.Reader, passkey.PrivateKey, signData)
-	if err != nil {
-		log.Printf("Error creating signature: %v", err)
-		return `{"error": "Failed to create signature"}`
-	}
-
-	// 署名データをASN.1 DERフォーマットに変換
-	signature, err := marshalECDSASignature(r, s)
-	if err != nil {
-		log.Printf("Error marshalling signature: %v", err)
-		return `{"error": "Failed to marshal signature"}`
-	}
-
-	// レスポンスの作成
-	response := PublicKeyCredential{
-		ID:    credID,
-		RawID: credID,
-		Type:  "public-key",
-		Response: struct {
-			ID                    string   `json:"id"`
-			ClientDataJSON        string   `json:"clientDataJSON"`
-			AttestationObject     string   `json:"attestationObject"`
-			PublicKeyAlgorithm    int      `json:"publicKeyAlgorithm"`
-			AuthenticatorData     string   `json:"authenticatorData"`
-			PublicKey             string   `json:"publicKey"`
-			Transports            []string `json:"transports"`
-			Signature             string   `json:"signature,omitempty"`
-			UserHandle            string   `json:"userHandle,omitempty"`
-			AuthenticatorResponse string   `json:"authenticatorResponse,omitempty"`
-		}{
-			ClientDataJSON:    clientDataB64,
-			AuthenticatorData: base64URLEncode(authData),
-			Signature:         base64URLEncode(signature),
-			UserHandle:        passkey.UserID,
-		},
-		ClientExtensionResults: map[string]interface{}{},
-	}
-
-	respJSON, err := json.Marshal(response)
-	if err != nil {
-		log.Printf("Error marshalling response: %v", err)
-		return `{"error": "Failed to create response"}`
-	}
-
-	log.Printf("Assertion response created for RPID: %s, CredentialID: %s", getReq.RPId, credID)
 	return string(respJSON)
-}
-
-// ECDSA署名をASN.1 DER形式にエンコード
-func marshalECDSASignature(r, s *big.Int) ([]byte, error) {
-	return asn1.Marshal(struct {
-		R, S *big.Int
-	}{R: r, S: s})
 }

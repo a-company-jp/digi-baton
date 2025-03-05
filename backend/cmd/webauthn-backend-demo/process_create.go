@@ -62,18 +62,6 @@ type AuthnRequest struct {
 		Name        string `json:"name"`
 	} `json:"user"`
 }
-type GetAssertionRequest struct {
-	Challenge        string `json:"challenge"`
-	RPId             string `json:"rpId"`
-	Timeout          int    `json:"timeout,omitempty"`
-	UserVerification string `json:"userVerification,omitempty"`
-	AllowCredentials []struct {
-		ID        string   `json:"id"`
-		Type      string   `json:"type"`
-		Transport []string `json:"transports,omitempty"`
-	} `json:"allowCredentials,omitempty"`
-	Extensions map[string]interface{} `json:"extensions,omitempty"`
-}
 type AttestationObject struct {
 	Fmt      string                 `cbor:"fmt"`
 	AttStmt  map[string]interface{} `cbor:"attStmt"`
