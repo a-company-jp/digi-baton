@@ -37,42 +37,42 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = "/api"
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	v1 := router.Group("/api/v1")
+	api := router.Group("/api")
 	{
 		usersHandler := handlers.NewUsersHandler(q)
 		// users
 		// passer and receiver are the same in the system
 		// clerkに認証の責務を負わせるため、本当に登録するためだけのエンドポイント。
-		v1.POST("/users", usersHandler.Create)
-		v1.PUT("/users", usersHandler.Update)
+		api.POST("/users", usersHandler.Create)
+		api.PUT("/users", usersHandler.Update)
 
 		// accounts
 		accountHandlers := handlers.NewAccountsHandler(q)
-		v1.GET("/accounts", accountHandlers.List)
-		v1.POST("/accounts", accountHandlers.Create)
-		v1.PUT("/accounts", accountHandlers.Update)
-		v1.DELETE("/accounts", accountHandlers.Delete)
+		api.GET("/accounts", accountHandlers.List)
+		api.POST("/accounts", accountHandlers.Create)
+		api.PUT("/accounts", accountHandlers.Update)
+		api.DELETE("/accounts", accountHandlers.Delete)
 
 		// devices
 		devicesHandler := handlers.NewDevicesHandler(q)
-		v1.GET("/devices", devicesHandler.List)
-		v1.POST("/devices", devicesHandler.Create)
-		v1.PUT("/devices", devicesHandler.Update)
-		v1.DELETE("/devices", devicesHandler.Delete)
+		api.GET("/devices", devicesHandler.List)
+		api.POST("/devices", devicesHandler.Create)
+		api.PUT("/devices", devicesHandler.Update)
+		api.DELETE("/devices", devicesHandler.Delete)
 
 		// trusts(相続の関係性）
 		trustsHandler := handlers.NewTrustsHandler(q)
-		v1.GET("/trusts/:passerID", trustsHandler.List)
-		v1.POST("/trusts", trustsHandler.Create)
-		v1.PUT("/trusts", trustsHandler.Update)
-		v1.DELETE("/trusts", trustsHandler.Delete)
+		api.GET("/trusts/:passerID", trustsHandler.List)
+		api.POST("/trusts", trustsHandler.Create)
+		api.PUT("/trusts", trustsHandler.Update)
+		api.DELETE("/trusts", trustsHandler.Delete)
 
 	}
 

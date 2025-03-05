@@ -60,7 +60,7 @@ type AccountCreateRequest struct {
 // @Success 200 {array} AccountResponse "成功"
 // @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
 // @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /accounts/{passerID} [get]
+// @Router /accounts [get]
 func (h *AccountsHandler) List(c *gin.Context) {
 	passerID := c.Query("passerID")
 	if passerID == "" {

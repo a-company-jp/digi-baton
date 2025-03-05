@@ -41,7 +41,7 @@ type DeviceResponse struct {
 // @Success 200 {array} DeviceResponse "成功"
 // @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
 // @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /devices/{passerID} [get]
+// @Router /devices [get]
 func (h *DevicesHandler) List(c *gin.Context) {
 	passerID := c.Query("passerID")
 	if passerID == "" {
