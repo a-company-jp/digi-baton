@@ -11,6 +11,8 @@ on:
       - 'frontend/**'
 jobs:
   lint-frontend:
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
     name: Lint Frontend
     runs-on: ubuntu-latest
     steps:
