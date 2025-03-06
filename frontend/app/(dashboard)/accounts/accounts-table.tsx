@@ -32,6 +32,7 @@ import {
   EyeOff,
   SearchIcon,
   Pencil,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -46,6 +47,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { AccountEditModal } from "./account-edit-modal";
 import { AccountCreationDialog } from "./account-creation-dialog";
@@ -133,30 +135,72 @@ function PasswordCell({ value }: { value: string }) {
 }
 
 // 編集ボタンセル
-function ActionCell({ account }: { account: Account }) {
-  const [isOpen, setIsOpen] = useState(false);
+function ActionCell({
+  account,
+  onDelete,
+}: {
+  account: Account;
+  onDelete: (id: string) => void;
+}) {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>アカウント編集</DialogTitle>
-        </DialogHeader>
-        <AccountEditModal
-          account={account}
-          onSave={(updatedAccount: Account) => {
-            // 実際のアプリケーションではここでデータ更新処理を行う
-            console.log("アカウント更新:", updatedAccount);
-            setIsOpen(false);
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+    <div className="flex items-center space-x-1">
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="sm">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>アカウント編集</DialogTitle>
+          </DialogHeader>
+          <AccountEditModal
+            account={account}
+            onSave={(updatedAccount: Account) => {
+              // 実際のアプリケーションではここでデータ更新処理を行う
+              console.log("アカウント更新:", updatedAccount);
+              setIsEditOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="sm">
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>アカウント削除の確認</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>「{account.appName}」のアカウントを削除してもよろしいですか？</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              この操作は元に戻せません。
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+              キャンセル
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                onDelete(account.id);
+                setIsDeleteOpen(false);
+              }}
+            >
+              削除する
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 
@@ -185,7 +229,8 @@ function InheritUserCell({ value, users }: { value: string; users: User[] }) {
 
 // メタデータの型定義
 interface TableCustomMeta {
-  users: User[];
+  users?: User[];
+  onDeleteAccount?: (id: string) => void;
 }
 
 // テーブルのカラム定義
@@ -294,7 +339,17 @@ const columns: ColumnDef<Account>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActionCell account={row.original} />,
+    cell: ({ row, table }) => (
+      <ActionCell
+        account={row.original}
+        onDelete={(id) => {
+          const accountsTable = table.options.meta as TableCustomMeta;
+          if (accountsTable && accountsTable.onDeleteAccount) {
+            accountsTable.onDeleteAccount(id);
+          }
+        }}
+      />
+    ),
   },
 ];
 
@@ -331,6 +386,13 @@ export function AccountsTable() {
     }
   };
 
+  const handleDeleteAccount = (id: string) => {
+    // アカウントの削除処理
+    const filteredAccounts = accounts.filter((acc) => acc.id !== id);
+    setAccounts(filteredAccounts);
+    toast.success("アカウントを削除しました");
+  };
+
   const table = useReactTable({
     data: accounts,
     columns,
@@ -351,6 +413,7 @@ export function AccountsTable() {
     },
     meta: {
       users, // usersをmetaとして渡す
+      onDeleteAccount: handleDeleteAccount, // 削除ハンドラーを渡す
     },
   });
 
