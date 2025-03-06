@@ -5,8 +5,9 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersTrustResponse {
-  id?: number;
-  passerID?: string;
-  reviverID?: string;
-}
+export type GetDisclosuresParams = {
+/**
+ * 開示請求を出したユーザのID
+ */
+requesterID: string;
+};

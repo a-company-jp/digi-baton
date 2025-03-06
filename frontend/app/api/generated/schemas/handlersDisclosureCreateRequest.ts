@@ -5,8 +5,9 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersTrustResponse {
-  id?: number;
+export interface HandlersDisclosureCreateRequest {
+  customData?: number[];
+  deadlineDuration?: number;
   passerID?: string;
-  reviverID?: string;
+  requesterID?: string;
 }

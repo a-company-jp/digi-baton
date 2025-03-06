@@ -5,8 +5,9 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersTrustResponse {
+export interface HandlersAccountTemplateResponse {
+  appDescription?: string;
+  appIconUrl?: string;
+  appName?: string;
   id?: number;
-  passerID?: string;
-  reviverID?: string;
 }

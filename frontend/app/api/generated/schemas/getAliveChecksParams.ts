@@ -5,9 +5,9 @@
  * OpenAPI spec version: 2.0
  */
 
-export type GetDevicesParams = {
+export type GetAliveChecksParams = {
 /**
- * デバイスを取得するユーザのID
+ * アライブチェック履歴を取得するユーザのID
  */
 passerID: string;
 };

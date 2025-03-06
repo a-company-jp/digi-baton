@@ -5,8 +5,4 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersTrustResponse {
-  id?: number;
-  passerID?: string;
-  reviverID?: string;
-}
+export type HandlersAccountCreateRequestCustomDataItem = { [key: string]: unknown };

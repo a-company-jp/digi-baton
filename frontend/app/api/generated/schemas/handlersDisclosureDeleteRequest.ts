@@ -5,8 +5,7 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersTrustResponse {
+export interface HandlersDisclosureDeleteRequest {
   id?: number;
-  passerID?: string;
-  reviverID?: string;
+  requesterID?: string;
 }
