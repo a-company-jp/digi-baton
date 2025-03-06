@@ -194,6 +194,129 @@ const docTemplate = `{
                 }
             }
         },
+        "/alive-checks": {
+            "get": {
+                "description": "アライブチェック履歴一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aliveChecks"
+                ],
+                "summary": "アライブチェック履歴一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "アライブチェック履歴を取得するユーザのID",
+                        "name": "passerID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AliveCheckHistoryResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "アライブチェック履歴を更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aliveChecks"
+                ],
+                "summary": "アライブチェック履歴更新",
+                "parameters": [
+                    {
+                        "description": "アライブチェック履歴更新リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AliveCheckHistoryUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AliveCheckHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "アライブチェック履歴を作成する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aliveChecks"
+                ],
+                "summary": "アライブチェック履歴作成",
+                "parameters": [
+                    {
+                        "description": "アライブチェック履歴作成リクエスト",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AliveCheckHistoryCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AliveCheckHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/devices": {
             "get": {
                 "description": "ユーザが開示しているデバイス一覧を取得する",
@@ -914,6 +1037,72 @@ const docTemplate = `{
                 },
                 "trustID": {
                     "type": "integer"
+                }
+            }
+        },
+        "handlers.AliveCheckHistoryCreateRequest": {
+            "type": "object",
+            "properties": {
+                "checkMethod": {
+                    "type": "integer"
+                },
+                "customedData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "targetUserID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AliveCheckHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "checkMethod": {
+                    "type": "integer"
+                },
+                "checkSuccess": {
+                    "type": "boolean"
+                },
+                "checkSuccessTime": {
+                    "type": "string"
+                },
+                "checkTime": {
+                    "type": "string"
+                },
+                "customedData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "targetUserID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AliveCheckHistoryUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "checkMethod": {
+                    "type": "integer"
+                },
+                "checkSuccess": {
+                    "type": "boolean"
+                },
+                "customedData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
                 }
             }
         },

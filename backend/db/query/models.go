@@ -25,6 +25,16 @@ type Account struct {
 	CustomData      []byte
 }
 
+type AliveCheckHistory struct {
+	ID               pgtype.UUID
+	TargetUserID     pgtype.UUID
+	CheckTime        pgtype.Timestamp
+	CheckMethod      int32
+	CheckSuccess     bool
+	CheckSuccessTime pgtype.Timestamp
+	CustomData       []byte
+}
+
 type Device struct {
 	ID                int32
 	DeviceType        int32
