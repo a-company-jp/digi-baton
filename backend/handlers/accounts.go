@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -21,34 +22,36 @@ func NewAccountsHandler(q *query.Queries) *AccountsHandler {
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID                int32   `json:"id"`
-	AppTemplateID     *int32   `json:"appTemplateID"`
-	AppName         string `json:"appName"`
-	AppDescription  string `json:"appDescription"`
-	AppIconUrl      string `json:"appIconUrl"`
-	AccountUsername string `json:"accountUsername"`
-	EncPassword     []byte `json:"encPassword"`
-	Memo            string `json:"memo"`
-	PlsDelete       bool  `json:"plsDelete"`
-	Message         string `json:"message"`
-	PasserID        string `json:"passerID"`
-	TrustID         *int32  `json:"trustID"`
-	IsDisclosed     bool `json:"isDisclosed"`
-	CustomData      []byte `json:"customData"`
+	ID             int32  `json:"id"`
+	AppTemplateID  *int32 `json:"appTemplateID"`
+	AppName        string `json:"appName"`
+	AppDescription string `json:"appDescription"`
+	AppIconUrl     string `json:"appIconUrl"`
+	Username       string `json:"accountUsername"`
+	Email          string `json:"email"`
+	EncPassword    []byte `json:"encPassword"`
+	Memo           string `json:"memo"`
+	PlsDelete      bool   `json:"plsDelete"`
+	Message        string `json:"message"`
+	PasserID       string `json:"passerID"`
+	TrustID        *int32 `json:"trustID"`
+	IsDisclosed    bool   `json:"isDisclosed"`
+	CustomData     []byte `json:"customData"`
 }
 
 type AccountCreateRequest struct {
-	AppTemplateID     *int32   `json:"appTemplateID"`
-	AppName         string `json:"appName"`
-	AppDescription  string `json:"appDescription"`
-	AppIconUrl      string `json:"appIconUrl"`
-	AccountUsername string `json:"accountUsername"`
-	Password     string `json:"password"`
-	Memo            string `json:"memo"`
-	PlsDelete       bool  `json:"plsDelete"`
-	Message         string `json:"message"`
-	PasserID        string `json:"passerID"`
-	CustomData      *[]byte `json:"customData"`
+	AppTemplateID  *int32  `json:"appTemplateID"`
+	AppName        string  `json:"appName"`
+	AppDescription string  `json:"appDescription"`
+	AppIconUrl     string  `json:"appIconUrl"`
+	Username       string  `json:"accountUsername"`
+	Email          string  `json:"email"`
+	Password       string  `json:"password"`
+	Memo           string  `json:"memo"`
+	PlsDelete      bool    `json:"plsDelete"`
+	Message        string  `json:"message"`
+	PasserID       string  `json:"passerID"`
+	CustomData     *[]byte `json:"customData"`
 }
 
 // @Summary アカウント一覧取得
@@ -56,27 +59,19 @@ type AccountCreateRequest struct {
 // @Tags accounts
 // @Accept json
 // @Produce json
-// @Param passerID query string true "パスワードを取得するユーザのID"
 // @Success 200 {array} AccountResponse "成功"
 // @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
 // @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
 // @Router /accounts [get]
 func (h *AccountsHandler) List(c *gin.Context) {
-	passerID := c.Query("passerID")
-	if passerID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "パラメータが不正です", "details": "passerIDが指定されていません"})
+	// 認証済みミドルウェアからユーザIDを取得
+	userUUID, exists := middleware.GetUserIdUUID(c)
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザー認証に失敗しました"})
 		return
 	}
 
-
-	pID, err := toPGUUID(passerID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "パラメータ変換中にエラーが発生しました", "details": err.Error()})
-		return
-	}
-
-
-	accounts, err := h.queries.ListAccountsByPasserId(c, pID)
+	accounts, err := h.queries.ListAccountsByPasserId(c, userUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント一覧取得に失敗しました", "details": err.Error()})
 		return
@@ -86,7 +81,7 @@ func (h *AccountsHandler) List(c *gin.Context) {
 	for i, account := range accounts {
 		response[i] = accountToResponse(account)
 	}
-	
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -114,21 +109,20 @@ func (h *AccountsHandler) Create(c *gin.Context) {
 		return
 	}
 
-	account, err := h.queries.CreateAccount(c, params);
+	account, err := h.queries.CreateAccount(c, params)
 
-	if  err != nil {
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント作成に失敗しました", "details": err.Error()})
 		return
 	}
 
 	response := accountToResponse(account)
 
-
 	c.JSON(http.StatusOK, response)
 }
 
 type AccountUpdateRequest struct {
-	ID 			  int32   `json:"id"`
+	ID int32 `json:"id"`
 	AccountCreateRequest
 }
 
@@ -161,8 +155,7 @@ func (h *AccountsHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "アカウントが見つかりません", "details": err.Error()})
 		return
 	}
-	
-	
+
 	account, err = h.queries.UpdateAccount(c, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント更新に失敗しました", "details": err.Error()})
@@ -177,7 +170,7 @@ func (h *AccountsHandler) Update(c *gin.Context) {
 
 type DeleteAccountCreateRequest struct {
 	PasserID string `json:"passerID"`
-	DeviceID int `json:"deviceID"`
+	DeviceID int    `json:"deviceID"`
 }
 
 // @Summary アカウント削除
@@ -216,11 +209,12 @@ func (h *AccountsHandler) Delete(c *gin.Context) {
 
 func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountParams, error) {
 	var params query.CreateAccountParams
-	
+
 	params.AppName = pgtype.Text{String: req.AppName, Valid: true}
 	params.AppDescription = pgtype.Text{String: req.AppDescription, Valid: true}
 	params.AppIconUrl = pgtype.Text{String: req.AppIconUrl, Valid: true}
-	params.AccountUsername = req.AccountUsername
+	params.Username = req.Username
+	params.Email = req.Email
 	params.Memo = req.Memo
 	params.Message = req.Message
 
@@ -246,7 +240,7 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 
 	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
 		params.CustomData = nil
-	}else {
+	} else {
 		params.CustomData = *req.CustomData
 	}
 
@@ -255,12 +249,13 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 
 func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountParams, error) {
 	var params query.UpdateAccountParams
-	
+
 	params.ID = req.ID
 	params.AppName = pgtype.Text{String: req.AppName, Valid: req.AppName != ""}
 	params.AppDescription = pgtype.Text{String: req.AppDescription, Valid: req.AppDescription != ""}
 	params.AppIconUrl = pgtype.Text{String: req.AppIconUrl, Valid: req.AppIconUrl != ""}
-	params.AccountUsername = req.AccountUsername
+	params.Username = req.Username
+	params.Email = req.Email
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 	params.Memo = req.Memo
 	params.Message = req.Message
@@ -287,11 +282,9 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 
 	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
 		params.CustomData = nil
-	}else {
+	} else {
 		params.CustomData = *req.CustomData
 	}
-
-	
 
 	return params, nil
 }
@@ -313,19 +306,20 @@ func accountToResponse(account query.Account) AccountResponse {
 	}
 
 	return AccountResponse{
-		ID:                account.ID,
-		AppTemplateID:     appTemplateID,
-		AppName:         account.AppName.String,
-		AppDescription:  account.AppDescription.String,
-		AppIconUrl:      account.AppIconUrl.String,
-		AccountUsername: account.AccountUsername,
-		EncPassword:     account.EncPassword,
-		Memo:            account.Memo,
-		PlsDelete:       account.PlsDelete,
-		Message:         account.Message,
-		PasserID:        account.PasserID.String(),
-		TrustID:         trustID,
-		IsDisclosed:     account.IsDisclosed,
-		CustomData:      account.CustomData,
+		ID:             account.ID,
+		AppTemplateID:  appTemplateID,
+		AppName:        account.AppName.String,
+		AppDescription: account.AppDescription.String,
+		AppIconUrl:     account.AppIconUrl.String,
+		Username:       account.Username,
+		Email:          account.Email,
+		EncPassword:    account.EncPassword,
+		Memo:           account.Memo,
+		PlsDelete:      account.PlsDelete,
+		Message:        account.Message,
+		PasserID:       account.PasserID.String(),
+		TrustID:        trustID,
+		IsDisclosed:    account.IsDisclosed,
+		CustomData:     account.CustomData,
 	}
 }

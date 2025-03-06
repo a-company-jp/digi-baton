@@ -68,7 +68,7 @@ func main() {
 
 		// 認証が必要なルートに対してClerkAuth middlewareを適用
 		authenticated := api.Group("/")
-		authenticated.Use(middleware.ClerkAuth())
+		authenticated.Use(middleware.ClerkAuth(q))
 		{
 			// accounts
 			accountHandlers := handlers.NewAccountsHandler(q)

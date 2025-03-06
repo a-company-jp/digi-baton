@@ -1,17 +1,21 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/a-company-jp/digi-baton/backend/db/query"
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/clerk/clerk-sdk-go/v2/jwt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// ClerkAuth is middleware that validates Clerk JWT tokens
-func ClerkAuth() gin.HandlerFunc {
+// ClerkAuth is middleware that validates Clerk JWT tokens and fetches the DB user ID
+func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the Authorization header
 		authHeader := c.GetHeader("Authorization")
@@ -44,13 +48,36 @@ func ClerkAuth() gin.HandlerFunc {
 
 		// Set claims in the context for later use
 		c.Set("clerkClaims", claims)
-		c.Set("userId", claims.Subject)
+		c.Set("clerkUserId", claims.Subject)
+
+		// Get the DB user by the Clerk user ID
+		clerkUserID := claims.Subject
+		user, err := q.GetUserByClerkID(context.Background(), clerkUserID)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User not found in the database: %v", err)})
+			c.Abort()
+			return
+		}
+
+		// Set the DB user ID in the context
+		c.Set("userId", user.ID.String())
 
 		c.Next()
 	}
 }
 
-// GetUserId extracts the Clerk user ID from the Gin context
+// GetClerkUserId extracts the Clerk user ID from the Gin context
+func GetClerkUserId(c *gin.Context) (string, bool) {
+	userId, exists := c.Get("clerkUserId")
+	if !exists {
+		return "", false
+	}
+
+	id, ok := userId.(string)
+	return id, ok
+}
+
+// GetUserId extracts the database user ID from the Gin context
 func GetUserId(c *gin.Context) (string, bool) {
 	userId, exists := c.Get("userId")
 	if !exists {
@@ -83,4 +110,25 @@ func GetSessionClaims(c *gin.Context) (*clerk.SessionClaims, bool) {
 
 	sessionClaims, ok := claims.(*clerk.SessionClaims)
 	return sessionClaims, ok
+}
+
+// GetUserIdUUID extracts the database user ID from the Gin context and converts it to pgtype.UUID
+func GetUserIdUUID(c *gin.Context) (pgtype.UUID, bool) {
+	userIdStr, exists := GetUserId(c)
+	if !exists {
+		return pgtype.UUID{}, false
+	}
+
+	parsedUUID, err := uuid.Parse(userIdStr)
+	if err != nil {
+		return pgtype.UUID{}, false
+	}
+
+	var pgUUID pgtype.UUID
+	err = pgUUID.Scan(parsedUUID)
+	if err != nil {
+		return pgtype.UUID{}, false
+	}
+
+	return pgUUID, true
 }
