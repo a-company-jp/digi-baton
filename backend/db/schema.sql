@@ -207,6 +207,41 @@ ALTER SEQUENCE public.disclosures_id_seq OWNED BY public.disclosures.id;
 
 
 --
+-- Name: passkeys; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.passkeys (
+    id integer NOT NULL,
+    user_id uuid NOT NULL,
+    private_key bytea NOT NULL
+);
+
+
+ALTER TABLE public.passkeys OWNER TO "user";
+
+--
+-- Name: passkeys_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.passkeys_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.passkeys_id_seq OWNER TO "user";
+
+--
+-- Name: passkeys_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.passkeys_id_seq OWNED BY public.passkeys.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -355,6 +390,13 @@ ALTER TABLE ONLY public.disclosures ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: passkeys id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys ALTER COLUMN id SET DEFAULT nextval('public.passkeys_id_seq'::regclass);
+
+
+--
 -- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -406,6 +448,14 @@ ALTER TABLE ONLY public.devices
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: passkeys passkeys_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_pkey PRIMARY KEY (id);
 
 
 --
@@ -518,6 +568,14 @@ ALTER TABLE ONLY public.disclosures
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_requester_id_fkey FOREIGN KEY (requester_id) REFERENCES public.users(id);
+
+
+--
+-- Name: passkeys passkeys_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
