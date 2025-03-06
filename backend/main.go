@@ -80,6 +80,12 @@ func main() {
 		api.POST("/disclosures", disclosuresHandler.Create)
 		api.PUT("/disclosures", disclosuresHandler.Update)
 		api.DELETE("/disclosures", disclosuresHandler.Delete)
+
+		// alive check
+		aliveChecksHandler := handlers.NewAliveChecksHandler(q)
+		api.GET("/alive-checks", aliveChecksHandler.List)
+		api.POST("/alive-checks", aliveChecksHandler.Create)
+		api.PUT("/alive-checks", aliveChecksHandler.Update)
 	}
 
 	router.Run(":" + config.Server.Port)
