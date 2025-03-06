@@ -377,6 +377,185 @@ const docTemplate = `{
                 }
             }
         },
+        "/disclosures": {
+            "get": {
+                "description": "ユーザが受けた開示請求一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disclosures"
+                ],
+                "summary": "開示申請一覧取得",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "開示請求を出したユーザのID",
+                        "name": "requesterID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.DisclosureResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "開示請求が見つかりませんでした",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "開示申請のステータスを更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disclosures"
+                ],
+                "summary": "開示申請更新",
+                "parameters": [
+                    {
+                        "description": "開示申請情報",
+                        "name": "disclosure",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "開示申請の更新に失敗",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "ユーザが他のユーザに開示請求を出す",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disclosures"
+                ],
+                "summary": "開示申請作成",
+                "parameters": [
+                    {
+                        "description": "開示請求情報",
+                        "name": "disclosure",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "開示請求の作成に失敗",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "開示申請を削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "disclosures"
+                ],
+                "summary": "開示申請削除",
+                "parameters": [
+                    {
+                        "description": "開示申請情報",
+                        "name": "disclosure",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DisclosureResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストが不正",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "開示申請の削除に失敗",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/trusts": {
             "get": {
                 "description": "ユーザが開示している相続関係一覧を取得する",
@@ -848,6 +1027,101 @@ const docTemplate = `{
                 },
                 "trustID": {
                     "type": "integer"
+                }
+            }
+        },
+        "handlers.DisclosureCreateRequest": {
+            "type": "object",
+            "properties": {
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "deadlineDuration": {
+                    "type": "integer"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "requesterID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DisclosureDeleteRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "requesterID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DisclosureResponse": {
+            "type": "object",
+            "properties": {
+                "customData": {
+                    "type": "string"
+                },
+                "deadline": {
+                    "type": "string"
+                },
+                "disclosed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inProgress": {
+                    "type": "boolean"
+                },
+                "issuedTime": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "preventedBy": {
+                    "type": "string"
+                },
+                "requesterID": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.DisclosureUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "deadLine": {
+                    "type": "string"
+                },
+                "disclosed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inProgress": {
+                    "type": "boolean"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "preventedBy": {
+                    "type": "string"
+                },
+                "requesterID": {
+                    "type": "string"
                 }
             }
         },
