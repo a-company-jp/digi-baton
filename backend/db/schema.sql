@@ -213,6 +213,7 @@ ALTER SEQUENCE public.disclosures_id_seq OWNED BY public.disclosures.id;
 CREATE TABLE public.passkeys (
     id integer NOT NULL,
     user_id uuid NOT NULL,
+    rp_id text NOT NULL,
     private_key bytea NOT NULL
 );
 
@@ -456,6 +457,14 @@ ALTER TABLE ONLY public.disclosures
 
 ALTER TABLE ONLY public.passkeys
     ADD CONSTRAINT passkeys_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: passkeys passkeys_user_id_rp_id_unique; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_user_id_rp_id_unique UNIQUE (user_id, rp_id);
 
 
 --
