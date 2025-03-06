@@ -69,11 +69,17 @@ func main() {
 
 		// trusts(相続の関係性）
 		trustsHandler := handlers.NewTrustsHandler(q)
-		v1.GET("/trusts/:passerID", trustsHandler.List)
+		v1.GET("/trusts", trustsHandler.List)
 		v1.POST("/trusts", trustsHandler.Create)
 		v1.PUT("/trusts", trustsHandler.Update)
 		v1.DELETE("/trusts", trustsHandler.Delete)
 
+		// disclosures
+		disclosuresHandler := handlers.NewDisclosuresHandler(q)
+		v1.GET("/disclosures", disclosuresHandler.List)
+		v1.POST("/disclosures", disclosuresHandler.Create)
+		v1.PUT("/disclosures", disclosuresHandler.Update)
+		v1.DELETE("/disclosures", disclosuresHandler.Delete)
 	}
 
 	router.Run(":" + config.Server.Port)
