@@ -199,10 +199,9 @@ func (h *DevicesHandler) Delete(c *gin.Context) {
 
 // reqToCreateDeviceParams はリクエスト構造体をクエリパラメータに変換
 func reqToCreateDeviceParams(req DeviceCreateRequest) (query.CreateDeviceParams, error) {
-	var params query.CreateDeviceParams
+	params := query.CreateDeviceParams{}
 
 	params.DeviceType = req.DeviceType
-	params.CredentialType = req.CredentialType
 	params.DeviceDescription = pgtype.Text{String: req.DeviceDescription, Valid: req.DeviceDescription != ""}
 	params.DeviceUsername = pgtype.Text{String: req.DeviceUsername, Valid: req.DeviceUsername != ""}
 	params.EncPassword = []byte(req.Password)
@@ -227,11 +226,10 @@ func reqToCreateDeviceParams(req DeviceCreateRequest) (query.CreateDeviceParams,
 }
 
 func reqToUpdateDeviceParams(req DeviceUpdateRequest) (query.UpdateDeviceParams, error) {
-	var params query.UpdateDeviceParams
+	params := query.UpdateDeviceParams{}
 
 	params.ID = req.ID
 	params.DeviceType = req.DeviceType
-	params.CredentialType = req.CredentialType
 	params.DeviceDescription = pgtype.Text{String: req.DeviceDescription, Valid: req.DeviceDescription != ""}
 	params.DeviceUsername = pgtype.Text{String: req.DeviceUsername, Valid: req.DeviceUsername != ""}
 	params.EncPassword = []byte(req.Password)
