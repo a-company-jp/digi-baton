@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -51,36 +52,37 @@ func NewAccountsHandler(q *query.Queries) *AccountsHandler {
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID              int32  `json:"id"`
-	AppTemplateID   *int32 `json:"appTemplateID"`
-	AppName         string `json:"appName"`
-	AppDescription  string `json:"appDescription"`
-	AppIconUrl      string `json:"appIconUrl"`
-	AccountUsername string `json:"accountUsername"`
-	EncPassword     []byte `json:"encPassword"`
-	Memo            string `json:"memo"`
-	PlsDelete       bool   `json:"plsDelete"`
-	Message         string `json:"message"`
-	PasserID        string `json:"passerID"`
-	TrustID         *int32 `json:"trustID"`
-	IsDisclosed     bool   `json:"isDisclosed"`
-	CustomData      []byte `json:"customData"`
+	ID              int32                  `json:"id"`
+	AppTemplateID   *int32                 `json:"appTemplateID"`
+	AppName         string                 `json:"appName"`
+	AppDescription  string                 `json:"appDescription"`
+	AppIconUrl      string                 `json:"appIconUrl"`
+	AccountUsername string                 `json:"accountUsername"`
+	EncPassword     []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
+	Memo            string                 `json:"memo"`
+	PlsDelete       bool                   `json:"plsDelete"`
+	Message         string                 `json:"message"`
+	PasserID        string                 `json:"passerID"`
+	TrustID         *int32                 `json:"trustID"`
+	IsDisclosed     bool                   `json:"isDisclosed"`
+	CustomData      map[string]interface{} `json:"customData"`
 }
 
 type AccountCreateRequest struct {
-	AppTemplateID   *int32  `json:"appTemplateID"`
-	AppName         string  `json:"appName"`
-	AppDescription  string  `json:"appDescription"`
-	AppIconUrl      string  `json:"appIconUrl"`
-	AccountUsername string  `json:"accountUsername"`
-	Password        string  `json:"password"`
-	Memo            string  `json:"memo"`
-	PlsDelete       bool    `json:"plsDelete"`
-	Message         string  `json:"message"`
-	PasserID        string  `json:"passerID"`
-	CustomData      *[]byte `json:"customData"`
+	AppTemplateID   *int32                    `json:"appTemplateID"`
+	AppName         string                    `json:"appName"`
+	AppDescription  string                    `json:"appDescription"`
+	AppIconUrl      string                    `json:"appIconUrl"`
+	AccountUsername string                    `json:"accountUsername"`
+	Password        string                    `json:"password"`
+	Memo            string                    `json:"memo"`
+	PlsDelete       bool                      `json:"plsDelete"`
+	Message         string                    `json:"message"`
+	PasserID        string                    `json:"passerID"`
+	CustomData      *[]map[string]interface{} `json:"customData"`
 }
 
+// List アカウント一覧取得
 // @Summary アカウント一覧取得
 // @Description ユーザが開示しているアカウント一覧を取得する
 // @Tags accounts
@@ -118,6 +120,7 @@ func (h *AccountsHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// Create アカウント作成
 // @Summary アカウント作成
 // @Description アカウントを作成する
 // @Tags accounts
@@ -159,6 +162,7 @@ type AccountUpdateRequest struct {
 	AccountCreateRequest
 }
 
+// Update アカウント更新
 // @Summary アカウント更新
 // @Description アカウントを更新する
 // @Tags accounts
@@ -206,6 +210,7 @@ type DeleteAccountCreateRequest struct {
 	DeviceID int    `json:"deviceID"`
 }
 
+// Delete アカウント削除
 // @Summary アカウント削除
 // @Description アカウントを削除する
 // @Tags accounts
@@ -286,10 +291,15 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	strings.ReplaceAll(req.Password, " ", "")
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
-	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
+	if req.CustomData == nil {
 		params.CustomData = nil
 	} else {
-		params.CustomData = *req.CustomData
+		// Convert []map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
 	}
 
 	return params, nil
@@ -327,22 +337,36 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 	strings.ReplaceAll(req.Password, " ", "")
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
-	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
+	if req.CustomData == nil {
 		params.CustomData = nil
 	} else {
-		params.CustomData = *req.CustomData
+		// Convert []map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
 	}
 
 	return params, nil
 }
 
 func accountToResponse(account query.Account) AccountResponse {
-
 	var appTemplateID *int32
+	var appName, appDescription, appIconUrl string
+
 	if account.AppTemplateID.Valid {
 		appTemplateID = &account.AppTemplateID.Int32
+		if template, ok := accountTemplateMap[account.AppTemplateID.Int32]; ok {
+			appName = template.AppName
+			appDescription = template.AppDescription
+			appIconUrl = template.AppIconUrl
+		}
 	} else {
 		appTemplateID = nil
+		appName = account.AppName.String
+		appDescription = account.AppDescription.String
+		appIconUrl = account.AppIconUrl.String
 	}
 
 	var trustID *int32
@@ -352,12 +376,23 @@ func accountToResponse(account query.Account) AccountResponse {
 		trustID = nil
 	}
 
+	// CustomDataをJSONからmap[string]interface{}に変換
+	var customData map[string]interface{}
+	if account.CustomData != nil {
+		if err := json.Unmarshal(account.CustomData, &customData); err != nil {
+			// エラーが発生した場合は空のマップを使用
+			customData = make(map[string]interface{})
+		}
+	} else {
+		customData = make(map[string]interface{})
+	}
+
 	return AccountResponse{
 		ID:              account.ID,
 		AppTemplateID:   appTemplateID,
-		AppName:         account.AppName.String,
-		AppDescription:  account.AppDescription.String,
-		AppIconUrl:      account.AppIconUrl.String,
+		AppName:         appName,
+		AppDescription:  appDescription,
+		AppIconUrl:      appIconUrl,
 		AccountUsername: account.AccountUsername,
 		EncPassword:     account.EncPassword,
 		Memo:            account.Memo,
@@ -366,6 +401,6 @@ func accountToResponse(account query.Account) AccountResponse {
 		PasserID:        account.PasserID.String(),
 		TrustID:         trustID,
 		IsDisclosed:     account.IsDisclosed,
-		CustomData:      account.CustomData,
+		CustomData:      customData,
 	}
 }
