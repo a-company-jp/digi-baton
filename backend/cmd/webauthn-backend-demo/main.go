@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -47,10 +48,10 @@ func main() {
 		//}
 		//c.Data(200, "application/json; charset=utf-8", resp)
 	})
-	r.POST("/check-passkey", func(c *gin.Context) {
+	r.POST("/check-passkeys", func(c *gin.Context) {
 		var req struct {
-			RPID         string `json:"rpId"`
-			CredentialID string `json:"credentialId,omitempty"`
+			RPID          string   `json:"rpId"`
+			CredentialIDs []string `json:"credentialIds,omitempty"`
 		}
 
 		if err := c.BindJSON(&req); err != nil {
@@ -58,8 +59,15 @@ func main() {
 			return
 		}
 
-		//exists := store.Exists(req.RPID, req.CredentialID)
-		c.JSON(http.StatusOK, gin.H{"exists": true})
+		fmt.Println("check-passkeys: ", req)
+
+		availableIDs := make([]string, 0)
+		for _, cred := range req.CredentialIDs {
+			if store.Exists(req.RPID, cred) {
+				availableIDs = append(availableIDs, cred)
+			}
+		}
+		c.JSON(http.StatusOK, gin.H{"availableCredentialIds": availableIDs})
 	})
 
 	// 認証（アサーション）エンドポイント
