@@ -1,11 +1,11 @@
 {
   "extensionDescription": {
     "description": "Extension description",
-    "message": "Chrome extension boilerplate developed with Vite, React and Typescript"
+    "message": "Use Keyper Chrome extension to securely manage your passkeys in the cloud!!\n*Note: This is a product of the Engineer Guild Hackathon. Please refrain from using it if you are not an associated party.\nhttps://event.gaishishukatsu.com/hackathon/2025_march"
   },
   "extensionName": {
     "description": "Extension name",
-    "message": "Chrome extension boilerplate"
+    "message": "Keyper"
   },
   "toggleTheme": {
     "message": "Toggle theme"
