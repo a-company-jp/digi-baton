@@ -19,3 +19,4 @@ packages:
   - name: sqlc-dev/sqlc@v1.28.0
   - name: protocolbuffers/protobuf/protoc@v29.3
   - name: golang-migrate/migrate@v4.18.2
+  - name: air-verse/air@v1.61.7
