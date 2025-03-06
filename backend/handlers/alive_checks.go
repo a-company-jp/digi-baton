@@ -20,23 +20,23 @@ func NewAliveChecksHandler(q *query.Queries) *aliveChecksHandler {
 }
 
 type AliveCheckHistoryResponse struct {
-	ID               string      `json:"id"`
+	ID               string `json:"id"`
 	TargetUserID     string `json:"targetUserID"`
-	CheckTime        string     `json:"checkTime"`
-	CheckMethod      int32      `json:"checkMethod"`
-	CheckSuccess     bool       `json:"checkSuccess"`
-	CheckSuccessTime string     `json:"checkSuccessTime"`
-	CustomData       []byte     `json:"customedData"`
+	CheckTime        string `json:"checkTime"`
+	CheckMethod      int32  `json:"checkMethod"`
+	CheckSuccess     bool   `json:"checkSuccess"`
+	CheckSuccessTime string `json:"checkSuccessTime"`
+	CustomData       []byte `json:"customedData"`
 }
 
-// @Summary アライブチェック履歴一覧取得
-// @Description アライブチェック履歴一覧を取得する
-// @Tags aliveChecks
-// @Accept json
-// @Produce json
-// @Param passerID query string true "アライブチェック履歴を取得するユーザのID"
-// @Success 200 {array} AliveCheckHistoryResponse "成功"
-// @Router /alive-checks [get]
+// @Summary		アライブチェック履歴一覧取得
+// @Description	アライブチェック履歴一覧を取得する
+// @Tags			aliveChecks
+// @Accept			json
+// @Produce		json
+// @Param			passerID	query	string						true	"アライブチェック履歴を取得するユーザのID"
+// @Success		200			{array}	AliveCheckHistoryResponse	"成功"
+// @Router			/alive-checks [get]
 func (h *aliveChecksHandler) List(c *gin.Context) {
 	passerID := c.Query("passerID")
 	if passerID == "" {
@@ -61,25 +61,25 @@ func (h *aliveChecksHandler) List(c *gin.Context) {
 		response[i] = aliveCheckToResponse(a)
 	}
 
-		c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
 type AliveCheckHistoryCreateRequest struct {
 	TargetUserID *uuid.UUID `json:"targetUserID"`
 	CheckMethod  int32      `json:"checkMethod"`
-	CustomData   *[]byte     `json:"customedData"`
+	CustomData   *[]byte    `json:"customedData"`
 }
 
-// @Summary アライブチェック履歴作成
-// @Description アライブチェック履歴を作成する
-// @Tags aliveChecks
-// @Accept json
-// @Produce json
-// @Param body body AliveCheckHistoryCreateRequest true "アライブチェック履歴作成リクエスト"
-// @Success 200 {object} AliveCheckHistoryResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
-// @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /alive-checks [post]
+// @Summary		アライブチェック履歴作成
+// @Description	アライブチェック履歴を作成する
+// @Tags			aliveChecks
+// @Accept			json
+// @Produce		json
+// @Param			body	body		AliveCheckHistoryCreateRequest	true	"アライブチェック履歴作成リクエスト"
+// @Success		200		{object}	AliveCheckHistoryResponse		"成功"
+// @Failure		400		{object}	ErrorResponse					"リクエストデータが不正です"
+// @Failure		500		{object}	ErrorResponse					"データベース接続に失敗しました"
+// @Router			/alive-checks [post]
 func (h *aliveChecksHandler) Create(c *gin.Context) {
 	var req AliveCheckHistoryCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,22 +105,22 @@ func (h *aliveChecksHandler) Create(c *gin.Context) {
 }
 
 type AliveCheckHistoryUpdateRequest struct {
-	ID               uuid.UUID `json:"id"`
-	CheckMethod      int32     `json:"checkMethod"`
-	CheckSuccess     bool      `json:"checkSuccess"`
-	CustomData       *[]byte    `json:"customedData"`
+	ID           uuid.UUID `json:"id"`
+	CheckMethod  int32     `json:"checkMethod"`
+	CheckSuccess bool      `json:"checkSuccess"`
+	CustomData   *[]byte   `json:"customedData"`
 }
 
-// @Summary アライブチェック履歴更新
-// @Description アライブチェック履歴を更新する
-// @Tags aliveChecks
-// @Accept json
-// @Produce json
-// @Param body body AliveCheckHistoryUpdateRequest true "アライブチェック履歴更新リクエスト"
-// @Success 200 {object} AliveCheckHistoryResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
-// @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /alive-checks [put]
+// @Summary		アライブチェック履歴更新
+// @Description	アライブチェック履歴を更新する
+// @Tags			aliveChecks
+// @Accept			json
+// @Produce		json
+// @Param			body	body		AliveCheckHistoryUpdateRequest	true	"アライブチェック履歴更新リクエスト"
+// @Success		200		{object}	AliveCheckHistoryResponse		"成功"
+// @Failure		400		{object}	ErrorResponse					"リクエストデータが不正です"
+// @Failure		500		{object}	ErrorResponse					"データベース接続に失敗しました"
+// @Router			/alive-checks [put]
 func (h *aliveChecksHandler) Update(c *gin.Context) {
 	var req AliveCheckHistoryUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -160,7 +160,6 @@ func reqToCreateAliveCheckHistoryParams(req AliveCheckHistoryCreateRequest) (que
 		return query.CreateAliveCheckHistoryParams{}, err
 	}
 	params.ID = pgUUID
-	
 
 	userID, err := toPGUUID(req.TargetUserID.String())
 	if err != nil {
@@ -180,9 +179,9 @@ func reqToCreateAliveCheckHistoryParams(req AliveCheckHistoryCreateRequest) (que
 }
 
 func reqToUpdateAliveCheckHistoryParams(req AliveCheckHistoryUpdateRequest) (query.UpdateAliveCheckHistoryParams, error) {
-	
+
 	var params query.UpdateAliveCheckHistoryParams
-	
+
 	id, err := toPGUUID(req.ID.String())
 	if err != nil {
 		return query.UpdateAliveCheckHistoryParams{}, err
