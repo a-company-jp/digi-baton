@@ -108,9 +108,10 @@ CREATE POLICY accounts_modification
 CREATE TABLE devices
 (
     id                 SERIAL PRIMARY KEY,
-    device_type        INTEGER NOT NULL, -- 1=PC, 2=mobile etc
+    device_type        INTEGER NOT NULL, -- 1=pc, 2=phone, 3=tablet
     device_description TEXT,
     device_username    TEXT,
+    device_icon_url    TEXT,
     enc_password       BYTEA   NOT NULL,
     memo               TEXT    NOT NULL,
     message            TEXT    NOT NULL,
@@ -176,6 +177,7 @@ CREATE TABLE subscriptions
 (
     id               SERIAL PRIMARY KEY,
     service_name         TEXT,
+    icon_url     TEXT,
     username TEXT    NOT NULL DEFAULT '',
     email TEXT NOT NULL DEFAULT '',
     enc_password     BYTEA   NOT NULL,
