@@ -1,12 +1,24 @@
 package handlers
 
-import "github.com/jackc/pgx/v5/pgtype"
+import (
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+)
 
 
-func toPGUUID(uuid string) (pgtype.UUID, error) {
-	var pgUUID pgtype.UUID
-	if err := pgUUID.Scan(uuid); err != nil {
-		return pgUUID, err
+func toPGUUID(id string) (pgtype.UUID, error) {
+	UUID, err := uuid.Parse(id)
+	if err != nil {
+		return pgtype.UUID{}, err
 	}
-	return pgUUID, nil
+	var u [16]byte
+	copy(u[:], UUID[:])
+
+	return pgtype.UUID{Bytes: u, Valid: true}, nil
+}
+
+func toPGTimestamp(time time.Time) (pgtype.Timestamp) {
+	return pgtype.Timestamp{Time: time, Valid: true}
 }
