@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 type AccountInfo = { name: string; initial: string };
@@ -7,36 +6,11 @@ export default function KeyperPopup(props: {
   isLoading: boolean;
   isComplete: boolean;
   accounts: AccountInfo[];
-  handleLogin: (a: AccountInfo) => void;
   handleRegister: (a: AccountInfo) => void;
+  handleDeviceAuth: () => void;
+  handleCancel: () => void;
 }) {
-  const accounts: AccountInfo[] = [
-    { name: 'Alice@example.com', initial: 'A' },
-    { name: 'Bob@example.com', initial: 'B' },
-    { name: 'Charlie@example.com', initial: 'C' },
-  ];
-
-  const mainAccount = accounts[0];
-  const [isLoading, setIsLoading] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-
-  // const dispatch = ()=>{
-  //   chrome.runtime.conne
-  // }
-
-  const loginWithAccount = (a: AccountInfo) => {
-    console.log('Login triggered');
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsComplete(true);
-      setTimeout(() => {
-        setIsComplete(false);
-      }, 2000);
-    }, 2000);
-  };
-
+  const mainAccount = props.accounts[0];
   return (
     <motion.div
       style={{ position: 'fixed', top: '20px', right: '20px' }}
@@ -68,14 +42,12 @@ export default function KeyperPopup(props: {
         </div>
         <h2 className="text-lg font-bold mt-4">Keyper上のパスキーを登録する</h2>
       </div>
-
-      {/* メインアカウントボタン */}
       <button
         className="bg-white/10 rounded-lg p-3 cursor-pointer"
         onClick={() => {
-          loginWithAccount(mainAccount);
+          props.handleRegister(mainAccount);
         }}
-        disabled={isLoading} // ローディング中は押せなくする例
+        disabled={props.isLoading} // ローディング中は押せなくする例
       >
         <div className="flex items-center">
           <div
@@ -91,12 +63,26 @@ export default function KeyperPopup(props: {
             e.stopPropagation();
             console.log('Dummy login button clicked for', mainAccount);
           }}
-          disabled={isLoading}>
+          disabled={props.isLoading}>
           Login
         </button>
       </button>
 
-      {isLoading && (
+      <div className="flex justify-end pt-2">
+        <button
+          className="px-4 py-2 flex-1 bg-white/20 rounded-lg text-sm hover:bg-white/30 mr-2 disabled:bg-white/10"
+          onClick={props.handleDeviceAuth}
+          disabled={props.isLoading}>
+          Use device passkey
+        </button>
+        <button
+          className="px-4 py-2 bg-white/20 rounded-lg text-sm hover:bg-white/30 disabled:bg-white/10"
+          onClick={props.handleCancel}
+          disabled={props.isLoading}>
+          Cancel
+        </button>
+      </div>
+      {props.isLoading && (
         <motion.div
           key="overlay-loading"
           initial={{ opacity: 0 }}
@@ -110,7 +96,7 @@ export default function KeyperPopup(props: {
           />
         </motion.div>
       )}
-      {isComplete && (
+      {props.isComplete && (
         <motion.div
           key="overlay-complete"
           initial={{ opacity: 0, scale: 0.8 }}
