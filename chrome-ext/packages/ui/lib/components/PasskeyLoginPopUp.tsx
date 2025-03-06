@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-export default function KeyperPopup() {
-  // デモ用にサンプルアカウントを定義。
-  const accounts = [
+type AccountInfo = { name: string; initial: string };
+
+export default function KeyperPopup(props: {
+  isLogin: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  accounts: AccountInfo[];
+  handleLogin: (a: AccountInfo) => void;
+  handleRegister: (a: AccountInfo) => void;
+}) {
+  const accounts: AccountInfo[] = [
     { name: 'Alice@example.com', initial: 'A' },
     { name: 'Bob@example.com', initial: 'B' },
     { name: 'Charlie@example.com', initial: 'C' },
@@ -11,25 +19,37 @@ export default function KeyperPopup() {
 
   const mainAccount = accounts[0];
   const otherAccounts = accounts.slice(1);
-
   const [showAll, setShowAll] = useState(false);
 
-  // その他アカウント数
-  const otherCount = otherAccounts.length;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
-  // 0件とそれ以外でバッジの色を調整
+  // const dispatch = ()=>{
+  //   chrome.runtime.conne
+  // }
+
+  const loginWithAccount = (a: AccountInfo) => {
+    console.log('Login triggered');
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsComplete(true);
+      setTimeout(() => {
+        setIsComplete(false);
+      }, 2000);
+    }, 2000);
+  };
+
+  const otherCount = otherAccounts.length;
   const badgeClass = otherCount > 0 ? 'bg-white/20 text-white' : 'bg-white/10 text-white/50';
 
   return (
     <motion.div
       style={{ position: 'fixed', top: '20px', right: '20px' }}
-      // 初期アニメーション
       initial={{ y: -20, opacity: 0 }}
-      // アニメーション後
       animate={{ y: 0, opacity: 1 }}
-      // アニメーション詳細設定
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      // レイアウトとデザイン
       className="w-80 p-4 z-[999999]
                  bg-gradient-to-br from-indigo-700 via-blue-800 to-violet-900
                  text-white rounded-2xl shadow-xl
@@ -47,18 +67,24 @@ export default function KeyperPopup() {
           className="hover:bg-white/20 rounded-md h-10 w-auto object-contain"
         />
       </div>
-      <div className="flex flex-col items-center">
+
+      <div className="flex flex-col items-center pt-4">
         <div className="bg-white/30 rounded-full p-4 size-[100px] flex items-center justify-center">
-          {/* パスキーアイコン (適宜変更OK) */}
           <img src="http://static.shion.pro/digi-baton/key-vector.png" alt="test" />
         </div>
-        <h2 className="text-lg font-bold mt-4">Login with Passkey</h2>
+        <h2 className="text-lg font-bold mt-4">
+          {props.isLogin ? <>パスキーでログイン</> : <>Keyper上のパスキーを登録する</>}
+        </h2>
       </div>
+
+      {/* メインアカウントボタン */}
       <button
         className="bg-white/10 rounded-lg p-3 cursor-pointer"
         onClick={() => {
-          console.log('Login triggered for', mainAccount);
-        }}>
+          loginWithAccount(mainAccount);
+        }}
+        disabled={isLoading} // ローディング中は押せなくする例
+      >
         <div className="flex items-center">
           <div
             className="w-12 h-12 rounded-full bg-white/30 text-white font-bold
@@ -68,49 +94,55 @@ export default function KeyperPopup() {
           <div className="text-base font-medium">{mainAccount.name}</div>
         </div>
         <button
-          className="mt-2 px-3 py-1 text-sm bg-white/20 rounded-md hover:bg-white/30"
+          className="mt-2 px-3 py-1 text-sm bg-white/20 rounded-md hover:bg-white/30 disabled:bg-white/10"
           onClick={e => {
-            // ボタンのクリックがonClickを伝播して親要素の選択イベントが発火しないように
             e.stopPropagation();
             console.log('Dummy login button clicked for', mainAccount);
-          }}>
+          }}
+          disabled={isLoading}>
           Login
         </button>
       </button>
 
+      {/* その他のアカウント表示トリガー */}
       <button
         className="w-full bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg flex justify-center"
-        onClick={() => setShowAll(true)}>
-        {/* ボタン左側のテキスト */}
+        onClick={() => setShowAll(true)}
+        disabled={isLoading}>
         <span className="mr-2">Choose other accounts</span>
-        {/* 丸い数字バッジ */}
         <div
           className={`min-w-[24px] h-6 flex items-center justify-center rounded-full px-1 text-sm font-medium ${badgeClass}`}>
           {otherCount}
         </div>
       </button>
 
-      <div className="flex justify-end pt-2">
-        <button
-          className="px-4 py-2 flex-1 bg-white/20 rounded-lg text-sm hover:bg-white/30 mr-2"
-          onClick={() => {
-            console.log('Use device passkey clicked');
-            // デバイスパスキーの利用に関連する処理など
-          }}>
-          Use device passkey
-        </button>
-        <button
-          className="px-4 py-2 bg-white/20 rounded-lg text-sm hover:bg-white/30"
-          onClick={() => {
-            console.log('Cancel clicked');
-            // ポップアップを閉じる処理など
-          }}>
-          Cancel
-        </button>
-      </div>
+      {/* 下部ボタン */}
+      {props.isLogin ? (
+        <div className="flex justify-end pt-2">
+          <button
+            className="px-4 py-2 flex-1 bg-white/20 rounded-lg text-sm hover:bg-white/30 mr-2 disabled:bg-white/10"
+            onClick={() => {
+              console.log('Use device passkey clicked');
+            }}
+            disabled={isLoading}>
+            Use device passkey
+          </button>
+          <button
+            className="px-4 py-2 bg-white/20 rounded-lg text-sm hover:bg-white/30 disabled:bg-white/10"
+            onClick={() => {
+              console.log('Cancel clicked');
+              // ポップアップ閉じるなど
+            }}
+            disabled={isLoading}>
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <></>
+      )}
 
-      {/* 下から覆い被さるタブパネル */}
-      {showAll && otherCount > 0 && (
+      {/* 下から出てくるアカウント一覧 */}
+      {props.isLogin && showAll && otherCount > 0 && (
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
@@ -131,8 +163,9 @@ export default function KeyperPopup() {
                 className="w-full flex items-center py-2 border-b border-white/20 last:border-b-0
                            hover:bg-white/10 cursor-pointer px-2 rounded-lg"
                 onClick={() => {
-                  console.log('Login triggered for', account);
-                }}>
+                  loginWithAccount(account);
+                }}
+                disabled={isLoading}>
                 <div
                   className="w-10 h-10 rounded-full bg-white/30 text-white font-bold
                              flex items-center justify-center mr-3">
@@ -144,12 +177,54 @@ export default function KeyperPopup() {
                   onClick={e => {
                     e.stopPropagation();
                     console.log('Dummy login button clicked for', account);
-                  }}>
+                  }}
+                  disabled={isLoading}>
                   Login
                 </button>
               </button>
             ))}
           </ul>
+        </motion.div>
+      )}
+
+      {/* ▼ ここがローディングと完了状態のオーバーレイ例 */}
+      {isLoading && (
+        <motion.div
+          key="overlay-loading"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 bg-black/60 flex items-center justify-center">
+          {/* スピナー的なものを回転させる例 (Framer Motionで回転) */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+            className="w-10 h-10 border-4 border-white border-t-transparent rounded-full"
+          />
+        </motion.div>
+      )}
+      {isComplete && (
+        <motion.div
+          key="overlay-complete"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute inset-0 bg-gradient-to-r from-green-600 to-lime-600 flex items-center justify-center">
+          {/* チェックアイコンなどをアニメーション付きで表示 */}
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-[100px] text-white">
+            <motion.path
+              d="M6 12 L10 16 L18 6"
+              initial={{ pathLength: 0, scale: 0.8 }}
+              animate={{ pathLength: 1, scale: 1.5 }}
+              transition={{ duration: 0.5, ease: 'easeIn' }}
+            />
+          </motion.svg>
         </motion.div>
       )}
     </motion.div>
