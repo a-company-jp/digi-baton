@@ -32,12 +32,6 @@ DELETE FROM devices
 WHERE id = $1 AND passer_id = $2
 RETURNING *;
 
--- name: SetDeviceDeleteFlag :one
-UPDATE devices
-SET pls_delete = $2
-WHERE id = $1
-RETURNING *;
-
 -- name: SetDeviceDisclosureStatus :one
 UPDATE devices
 SET is_disclosed = $2,

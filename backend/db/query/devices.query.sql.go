@@ -12,7 +12,7 @@ import (
 )
 
 const getDevice = `-- name: GetDevice :one
-SELECT devices.id, devices.device_type, devices.credential_type, devices.device_description, devices.device_username, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
+SELECT devices.id, devices.device_type, devices.device_description, devices.device_username, devices.device_icon_url, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
 FROM devices
 WHERE devices.id = $1
 `
@@ -23,9 +23,9 @@ func (q *Queries) GetDevice(ctx context.Context, id int32) (Device, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.DeviceType,
-		&i.CredentialType,
 		&i.DeviceDescription,
 		&i.DeviceUsername,
+		&i.DeviceIconUrl,
 		&i.EncPassword,
 		&i.Memo,
 		&i.Message,
@@ -38,7 +38,7 @@ func (q *Queries) GetDevice(ctx context.Context, id int32) (Device, error) {
 }
 
 const listDevicesByPasserId = `-- name: ListDevicesByPasserId :many
-SELECT devices.id, devices.device_type, devices.credential_type, devices.device_description, devices.device_username, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
+SELECT devices.id, devices.device_type, devices.device_description, devices.device_username, devices.device_icon_url, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
 FROM devices
 WHERE devices.passer_id = $1
 ORDER BY devices.id DESC
@@ -56,9 +56,9 @@ func (q *Queries) ListDevicesByPasserId(ctx context.Context, passerID pgtype.UUI
 		if err := rows.Scan(
 			&i.ID,
 			&i.DeviceType,
-			&i.CredentialType,
 			&i.DeviceDescription,
 			&i.DeviceUsername,
+			&i.DeviceIconUrl,
 			&i.EncPassword,
 			&i.Memo,
 			&i.Message,
@@ -78,7 +78,7 @@ func (q *Queries) ListDevicesByPasserId(ctx context.Context, passerID pgtype.UUI
 }
 
 const listDisclosedDevicesByReceiverId = `-- name: ListDisclosedDevicesByReceiverId :many
-SELECT devices.id, devices.device_type, devices.credential_type, devices.device_description, devices.device_username, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
+SELECT devices.id, devices.device_type, devices.device_description, devices.device_username, devices.device_icon_url, devices.enc_password, devices.memo, devices.message, devices.passer_id, devices.trust_id, devices.is_disclosed, devices.custom_data
 FROM devices
 JOIN trusts t ON devices.trust_id = t.id
 WHERE t.receiver_user_id = $1 AND devices.is_disclosed = true
@@ -96,9 +96,9 @@ func (q *Queries) ListDisclosedDevicesByReceiverId(ctx context.Context, receiver
 		if err := rows.Scan(
 			&i.ID,
 			&i.DeviceType,
-			&i.CredentialType,
 			&i.DeviceDescription,
 			&i.DeviceUsername,
+			&i.DeviceIconUrl,
 			&i.EncPassword,
 			&i.Memo,
 			&i.Message,

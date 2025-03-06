@@ -9,20 +9,21 @@ import (
 )
 
 type Account struct {
-	ID              int32
-	AppTemplateID   pgtype.Int4
-	AppName         pgtype.Text
-	AppDescription  pgtype.Text
-	AppIconUrl      pgtype.Text
-	AccountUsername string
-	EncPassword     []byte
-	Memo            string
-	PlsDelete       bool
-	Message         string
-	PasserID        pgtype.UUID
-	TrustID         pgtype.Int4
-	IsDisclosed     bool
-	CustomData      []byte
+	ID             int32
+	AppTemplateID  pgtype.Int4
+	AppName        pgtype.Text
+	AppDescription pgtype.Text
+	AppIconUrl     pgtype.Text
+	Username       string
+	Email          string
+	EncPassword    []byte
+	Memo           string
+	PlsDelete      bool
+	Message        string
+	PasserID       pgtype.UUID
+	TrustID        pgtype.Int4
+	IsDisclosed    bool
+	CustomData     []byte
 }
 
 type AliveCheckHistory struct {
@@ -38,9 +39,9 @@ type AliveCheckHistory struct {
 type Device struct {
 	ID                int32
 	DeviceType        int32
-	CredentialType    int32
 	DeviceDescription pgtype.Text
 	DeviceUsername    pgtype.Text
+	DeviceIconUrl     pgtype.Text
 	EncPassword       []byte
 	Memo              string
 	Message           string
@@ -61,6 +62,25 @@ type Disclosure struct {
 	PreventedBy pgtype.UUID
 	Deadline    pgtype.Timestamp
 	CustomData  []byte
+}
+
+type Subscription struct {
+	ID           int32
+	ServiceName  pgtype.Text
+	IconUrl      pgtype.Text
+	Username     string
+	Email        string
+	EncPassword  []byte
+	Amount       int32
+	Currency     string
+	BillingCycle string
+	Memo         string
+	PlsDelete    bool
+	Message      string
+	PasserID     pgtype.UUID
+	TrustID      pgtype.Int4
+	IsDisclosed  bool
+	CustomData   []byte
 }
 
 type Trust struct {
