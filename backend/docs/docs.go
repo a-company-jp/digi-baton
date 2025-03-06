@@ -28,15 +28,6 @@ const docTemplate = `{
                     "accounts"
                 ],
                 "summary": "アカウント一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "パスワードを取得するユーザのID",
-                        "name": "passerID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -194,32 +185,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/accounts/templates": {
-            "get": {
-                "description": "アカウントテンプレートの一覧取得",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "アカウントテンプレート一覧",
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handlers.AccountTemplateResponse"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/alive-checks": {
             "get": {
                 "description": "アライブチェック履歴一覧を取得する",
@@ -356,15 +321,6 @@ const docTemplate = `{
                     "devices"
                 ],
                 "summary": "デバイス一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "デバイスを取得するユーザのID",
-                        "name": "passerID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -375,8 +331,8 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "リクエストデータが不正です",
+                    "401": {
+                        "description": "認証に失敗しました",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
                         }
@@ -701,6 +657,176 @@ const docTemplate = `{
                 }
             }
         },
+        "/subscriptions": {
+            "get": {
+                "description": "ユーザが開示しているサブスクリプション一覧を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "サブスクリプション一覧取得",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.SubscriptionResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "既存のサブスクリプション情報を更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "サブスクリプション更新",
+                "parameters": [
+                    {
+                        "description": "サブスクリプション情報",
+                        "name": "subscription",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SubscriptionUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新しいサブスクリプションを作成する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "サブスクリプション作成",
+                "parameters": [
+                    {
+                        "description": "サブスクリプション情報",
+                        "name": "subscription",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SubscriptionCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "指定されたサブスクリプションを削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "サブスクリプション削除",
+                "parameters": [
+                    {
+                        "description": "削除するサブスクリプション情報",
+                        "name": "subscription",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.DeleteSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SubscriptionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "リクエストデータが不正です",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "データベース接続に失敗しました",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/trusts": {
             "get": {
                 "description": "ユーザが開示している相続関係一覧を取得する",
@@ -993,9 +1119,11 @@ const docTemplate = `{
                 "customData": {
                     "type": "array",
                     "items": {
-                        "type": "object",
-                        "additionalProperties": true
+                        "type": "integer"
                     }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "memo": {
                     "type": "string"
@@ -1033,12 +1161,19 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "encPassword": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -1059,23 +1194,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "trustID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handlers.AccountTemplateResponse": {
-            "type": "object",
-            "properties": {
-                "appDescription": {
-                    "type": "string"
-                },
-                "appIconUrl": {
-                    "type": "string"
-                },
-                "appName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "integer"
                 }
             }
@@ -1165,6 +1283,14 @@ const docTemplate = `{
                 },
                 "passerID": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.DeleteSubscriptionRequest": {
+            "type": "object",
+            "properties": {
+                "subscriptionID": {
+                    "type": "integer"
                 }
             }
         },
@@ -1357,6 +1483,162 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SubscriptionCreateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "billingCycle": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "iconUrl": {
+                    "type": "string"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "plsDelete": {
+                    "type": "boolean"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SubscriptionResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "billingCycle": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "encPassword": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "iconUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDisclosed": {
+                    "type": "boolean"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "plsDelete": {
+                    "type": "boolean"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "trustID": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SubscriptionUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "billingCycle": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "customData": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
+                },
+                "iconUrl": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "memo": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "passerID": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "plsDelete": {
+                    "type": "boolean"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

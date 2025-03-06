@@ -5,20 +5,19 @@
  * OpenAPI spec version: 2.0
  */
 
-export interface HandlersAccountResponse {
-  accountUsername?: string;
-  appDescription?: string;
-  appIconUrl?: string;
-  appName?: string;
-  appTemplateID?: number;
+export interface HandlersSubscriptionUpdateRequest {
+  amount?: number;
+  billingCycle?: string;
+  currency?: string;
   customData?: number[];
   email?: string;
-  encPassword?: number[];
+  iconUrl?: string;
   id?: number;
-  isDisclosed?: boolean;
   memo?: string;
   message?: string;
   passerID?: string;
+  password?: string;
   plsDelete?: boolean;
-  trustID?: number;
+  serviceName?: string;
+  username?: string;
 }

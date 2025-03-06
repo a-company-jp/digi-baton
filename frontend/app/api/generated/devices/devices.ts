@@ -23,7 +23,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetDevicesParams,
   HandlersDeleteDeviceCreateRequest,
   HandlersDeviceCreateRequestBody,
   HandlersDeviceResponse,
@@ -137,35 +136,28 @@ export type getDevicesResponse200 = {
   status: 200
 }
 
-export type getDevicesResponse400 = {
+export type getDevicesResponse401 = {
   data: HandlersErrorResponse
-  status: 400
+  status: 401
 }
     
-export type getDevicesResponseComposite = getDevicesResponse200 | getDevicesResponse400;
+export type getDevicesResponseComposite = getDevicesResponse200 | getDevicesResponse401;
     
 export type getDevicesResponse = getDevicesResponseComposite & {
   headers: Headers;
 }
 
-export const getGetDevicesUrl = (params: GetDevicesParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetDevicesUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/devices?${stringifiedParams}` : `/devices`
+  return `/devices`
 }
 
-export const getDevices = async (params: GetDevicesParams, options?: RequestInit): Promise<getDevicesResponse> => {
+export const getDevices = async ( options?: RequestInit): Promise<getDevicesResponse> => {
   
-  return getDevicesMutator<getDevicesResponse>(getGetDevicesUrl(params),
+  return getDevicesMutator<getDevicesResponse>(getGetDevicesUrl(),
   {      
     ...options,
     method: 'GET'
@@ -176,21 +168,21 @@ export const getDevices = async (params: GetDevicesParams, options?: RequestInit
 
 
 
-export const getGetDevicesQueryKey = (params: GetDevicesParams,) => {
-    return [`/devices`, ...(params ? [params]: [])] as const;
+export const getGetDevicesQueryKey = () => {
+    return [`/devices`] as const;
     }
 
     
-export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(params: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
+export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetDevicesQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetDevicesQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevices>>> = ({ signal }) => getDevices(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevices>>> = ({ signal }) => getDevices({ signal, ...requestOptions });
 
       
 
@@ -204,7 +196,7 @@ export type GetDevicesQueryError = HandlersErrorResponse
 
 
 export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
- params: GetDevicesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
           TError,
@@ -214,7 +206,7 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
- params: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
           TError,
@@ -224,7 +216,7 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
- params: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -232,11 +224,11 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
  */
 
 export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
- params: GetDevicesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetDevicesQueryOptions(params,options)
+  const queryOptions = getGetDevicesQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
