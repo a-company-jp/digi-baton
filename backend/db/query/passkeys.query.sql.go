@@ -11,29 +11,79 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getPasskeyByUserAndRp = `-- name: GetPasskeyByUserAndRp :one
+const getPasskeysByUserAndRp = `-- name: GetPasskeysByUserAndRp :one
 SELECT id,
        user_id,
        rp_id,
-       private_key
+       credential_id,
+       user_name,
+       public_key,
+       private_key,
+       sign_count
 FROM passkeys
 WHERE user_id = $1
   AND rp_id = $2
 `
 
-type GetPasskeyByUserAndRpParams struct {
+type GetPasskeysByUserAndRpParams struct {
 	UserID pgtype.UUID
 	RpID   string
 }
 
-func (q *Queries) GetPasskeyByUserAndRp(ctx context.Context, arg GetPasskeyByUserAndRpParams) (Passkey, error) {
-	row := q.db.QueryRow(ctx, getPasskeyByUserAndRp, arg.UserID, arg.RpID)
+func (q *Queries) GetPasskeysByUserAndRp(ctx context.Context, arg GetPasskeysByUserAndRpParams) (Passkey, error) {
+	row := q.db.QueryRow(ctx, getPasskeysByUserAndRp, arg.UserID, arg.RpID)
 	var i Passkey
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.RpID,
+		&i.CredentialID,
+		&i.UserName,
+		&i.PublicKey,
 		&i.PrivateKey,
+		&i.SignCount,
 	)
 	return i, err
+}
+
+const getPasskeysByUserID = `-- name: GetPasskeysByUserID :many
+SELECT id,
+       user_id,
+       rp_id,
+       credential_id,
+       user_name,
+       public_key,
+       private_key,
+       sign_count
+FROM passkeys
+WHERE user_id = $1
+`
+
+func (q *Queries) GetPasskeysByUserID(ctx context.Context, userID pgtype.UUID) ([]Passkey, error) {
+	rows, err := q.db.Query(ctx, getPasskeysByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Passkey
+	for rows.Next() {
+		var i Passkey
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.RpID,
+			&i.CredentialID,
+			&i.UserName,
+			&i.PublicKey,
+			&i.PrivateKey,
+			&i.SignCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

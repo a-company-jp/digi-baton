@@ -11,31 +11,71 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const savePasskey = `-- name: SavePasskey :one
+const createPasskey = `-- name: CreatePasskey :one
 INSERT INTO passkeys (user_id,
                       rp_id,
-                      private_key)
+                      credential_id,
+                      user_name,
+                      public_key,
+                      private_key,
+                      sign_count)
 VALUES ($1, -- user_id
         $2, -- rp_id
-        $3 -- private_key
+        $3, -- credential_id
+        $4, -- user_name
+        $5, -- public_key
+        $6, -- private_key
+        $7 -- sign_count
        )
-RETURNING id, user_id, rp_id, private_key
+RETURNING id, user_id, rp_id, credential_id, user_name, public_key, private_key, sign_count
 `
 
-type SavePasskeyParams struct {
-	UserID     pgtype.UUID
-	RpID       string
-	PrivateKey []byte
+type CreatePasskeyParams struct {
+	UserID       pgtype.UUID
+	RpID         string
+	CredentialID string
+	UserName     string
+	PublicKey    []byte
+	PrivateKey   []byte
+	SignCount    int64
 }
 
-func (q *Queries) SavePasskey(ctx context.Context, arg SavePasskeyParams) (Passkey, error) {
-	row := q.db.QueryRow(ctx, savePasskey, arg.UserID, arg.RpID, arg.PrivateKey)
+func (q *Queries) CreatePasskey(ctx context.Context, arg CreatePasskeyParams) (Passkey, error) {
+	row := q.db.QueryRow(ctx, createPasskey,
+		arg.UserID,
+		arg.RpID,
+		arg.CredentialID,
+		arg.UserName,
+		arg.PublicKey,
+		arg.PrivateKey,
+		arg.SignCount,
+	)
 	var i Passkey
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.RpID,
+		&i.CredentialID,
+		&i.UserName,
+		&i.PublicKey,
 		&i.PrivateKey,
+		&i.SignCount,
 	)
 	return i, err
+}
+
+const updateSignCount = `-- name: UpdateSignCount :exec
+UPDATE passkeys
+SET sign_count = $2
+WHERE credential_id = $1
+`
+
+type UpdateSignCountParams struct {
+	CredentialID string
+	SignCount    int64
+}
+
+func (q *Queries) UpdateSignCount(ctx context.Context, arg UpdateSignCountParams) error {
+	_, err := q.db.Exec(ctx, updateSignCount, arg.CredentialID, arg.SignCount)
+	return err
 }

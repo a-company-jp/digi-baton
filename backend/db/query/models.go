@@ -65,10 +65,14 @@ type Disclosure struct {
 }
 
 type Passkey struct {
-	ID         int32
-	UserID     pgtype.UUID
-	RpID       string
-	PrivateKey []byte
+	ID           int32
+	UserID       pgtype.UUID
+	RpID         string
+	CredentialID string
+	UserName     string
+	PublicKey    []byte
+	PrivateKey   []byte
+	SignCount    int64
 }
 
 type Subscription struct {
