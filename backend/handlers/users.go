@@ -18,14 +18,13 @@ func NewUsersHandler(q *query.Queries) *UsersHandler {
 	return &UsersHandler{queries: q}
 }
 
-
 type UserCreateRequest struct {
 	DefaultReceiverID *uuid.UUID `json:"defaultReceiverID"`
-	ClerkUserID       string `json:"clerkUserID"`
+	ClerkUserID       string     `json:"clerkUserID"`
 }
 
 type UserResponse struct {
-	UserID 		  string `json:"userID"`
+	UserID            string `json:"userID"`
 	DefaultReceiverID string `json:"defaultReceiverID"`
 	ClerkUserID       string `json:"clerkUserID"`
 }
@@ -65,9 +64,9 @@ func (h *UsersHandler) Create(c *gin.Context) {
 }
 
 type UserUpdateRequest struct {
-	UserID			*uuid.UUID `json:"userID"`
+	UserID            *uuid.UUID `json:"userID"`
 	DefaultReceiverID *uuid.UUID `json:"defaultReceiverID"`
-	ClerkUserID       string `json:"clerkUserID"`
+	ClerkUserID       string     `json:"clerkUserID"`
 }
 
 // @Summary ユーザ更新
@@ -160,8 +159,8 @@ func reqToUpdateUserParams(req UserUpdateRequest) (query.UpdateUserParams, error
 
 func userToResponse(user query.User) UserResponse {
 	return UserResponse{
-		UserID: user.ID.String(),
+		UserID:            user.ID.String(),
 		DefaultReceiverID: user.DefaultReceiverID.String(),
-		ClerkUserID: user.ClerkUserID,
+		ClerkUserID:       user.ClerkUserID,
 	}
 }

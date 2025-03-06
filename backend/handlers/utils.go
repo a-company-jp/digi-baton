@@ -3,10 +3,9 @@ package handlers
 import (
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
-
 
 func toPGUUID(id string) (pgtype.UUID, error) {
 	UUID, err := uuid.Parse(id)
@@ -19,6 +18,6 @@ func toPGUUID(id string) (pgtype.UUID, error) {
 	return pgtype.UUID{Bytes: u, Valid: true}, nil
 }
 
-func toPGTimestamp(time time.Time) (pgtype.Timestamp) {
+func toPGTimestamp(time time.Time) pgtype.Timestamp {
 	return pgtype.Timestamp{Time: time, Valid: true}
 }
