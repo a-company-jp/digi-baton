@@ -484,23 +484,63 @@ export function AccountsTable() {
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          前へ
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          次へ
-        </Button>
+      {/* ページネーションコントロール */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm text-muted-foreground">
+            全 {table.getFilteredRowModel().rows.length} 件中
+            {table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+              1}
+            -
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}
+            件を表示
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            前へ
+          </Button>
+          {Array.from({ length: table.getPageCount() })
+            .map((_, index) => (
+              <Button
+                key={index}
+                variant={
+                  table.getState().pagination.pageIndex === index
+                    ? "default"
+                    : "outline"
+                }
+                size="sm"
+                onClick={() => table.setPageIndex(index)}
+              >
+                {index + 1}
+              </Button>
+            ))
+            .slice(
+              Math.max(0, table.getState().pagination.pageIndex - 1),
+              Math.min(
+                table.getPageCount(),
+                table.getState().pagination.pageIndex + 4
+              )
+            )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            次へ
+          </Button>
+        </div>
       </div>
     </div>
   );
