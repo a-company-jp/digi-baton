@@ -1,0 +1,903 @@
+definitions:
+  handlers.AccountCreateRequest:
+    properties:
+      accountUsername:
+        type: string
+      appDescription:
+        type: string
+      appIconUrl:
+        type: string
+      appName:
+        type: string
+      appTemplateID:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+      plsDelete:
+        type: boolean
+    type: object
+  handlers.AccountResponse:
+    properties:
+      accountUsername:
+        type: string
+      appDescription:
+        type: string
+      appIconUrl:
+        type: string
+      appName:
+        type: string
+      appTemplateID:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      encPassword:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      isDisclosed:
+        type: boolean
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      plsDelete:
+        type: boolean
+      trustID:
+        type: integer
+    type: object
+  handlers.AliveCheckHistoryCreateRequest:
+    properties:
+      checkMethod:
+        type: integer
+      customedData:
+        items:
+          type: integer
+        type: array
+      targetUserID:
+        type: string
+    type: object
+  handlers.AliveCheckHistoryResponse:
+    properties:
+      checkMethod:
+        type: integer
+      checkSuccess:
+        type: boolean
+      checkSuccessTime:
+        type: string
+      checkTime:
+        type: string
+      customedData:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      targetUserID:
+        type: string
+    type: object
+  handlers.AliveCheckHistoryUpdateRequest:
+    properties:
+      checkMethod:
+        type: integer
+      checkSuccess:
+        type: boolean
+      customedData:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+    type: object
+  handlers.DeleteAccountCreateRequest:
+    properties:
+      deviceID:
+        type: integer
+      passerID:
+        type: string
+    type: object
+  handlers.DeleteDeviceCreateRequest:
+    properties:
+      deviceID:
+        type: integer
+      passerID:
+        type: string
+    type: object
+  handlers.DeleteTrustRequest:
+    properties:
+      passerID:
+        type: string
+      trustID:
+        type: integer
+    type: object
+  handlers.DeviceCreateRequest:
+    properties:
+      credentialType:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      deviceDescription:
+        type: string
+      deviceType:
+        type: integer
+      deviceUsername:
+        type: string
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+    type: object
+  handlers.DeviceResponse:
+    properties:
+      credentialType:
+        type: integer
+      customData:
+        items:
+          type: integer
+        type: array
+      deviceDescription:
+        type: string
+      deviceType:
+        type: integer
+      deviceUsername:
+        type: string
+      encPassword:
+        type: string
+      id:
+        type: integer
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      trustID:
+        type: integer
+    type: object
+  handlers.DisclosureCreateRequest:
+    properties:
+      customData:
+        items:
+          type: integer
+        type: array
+      deadlineDuration:
+        type: integer
+      passerID:
+        type: string
+      requesterID:
+        type: string
+    type: object
+  handlers.DisclosureDeleteRequest:
+    properties:
+      id:
+        type: integer
+      requesterID:
+        type: string
+    type: object
+  handlers.DisclosureResponse:
+    properties:
+      customData:
+        type: string
+      deadline:
+        type: string
+      disclosed:
+        type: boolean
+      id:
+        type: integer
+      inProgress:
+        type: boolean
+      issuedTime:
+        type: string
+      passerID:
+        type: string
+      preventedBy:
+        type: string
+      requesterID:
+        type: string
+    type: object
+  handlers.DisclosureUpdateRequest:
+    properties:
+      customData:
+        items:
+          type: integer
+        type: array
+      deadLine:
+        type: string
+      disclosed:
+        type: boolean
+      id:
+        type: integer
+      inProgress:
+        type: boolean
+      passerID:
+        type: string
+      preventedBy:
+        type: string
+      requesterID:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      details:
+        type: string
+      error:
+        type: string
+    type: object
+  handlers.TrustRequest:
+    properties:
+      passerID:
+        type: string
+      reviverID:
+        type: string
+    type: object
+  handlers.TrustResponse:
+    properties:
+      id:
+        type: integer
+      passerID:
+        type: string
+      reviverID:
+        type: string
+    type: object
+  handlers.UpdateTrustRequest:
+    properties:
+      passerID:
+        type: string
+      reviverID:
+        type: string
+      trustID:
+        type: integer
+    type: object
+  handlers.UserCreateRequest:
+    properties:
+      clerkUserID:
+        type: string
+      defaultReceiverID:
+        type: string
+    type: object
+  handlers.UserResponse:
+    properties:
+      clerkUserID:
+        type: string
+      defaultReceiverID:
+        type: string
+      userID:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /accounts:
+    delete:
+      consumes:
+      - application/json
+      description: アカウントを削除する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteAccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント削除
+      tags:
+      - accounts
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているアカウント一覧を取得する
+      parameters:
+      - description: パスワードを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AccountResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント一覧取得
+      tags:
+      - accounts
+    post:
+      consumes:
+      - application/json
+      description: アカウントを作成する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント作成
+      tags:
+      - accounts
+    put:
+      consumes:
+      - application/json
+      description: アカウントを更新する
+      parameters:
+      - description: アカウント情報
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AccountResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アカウント更新
+      tags:
+      - accounts
+  /alive-checks:
+    get:
+      consumes:
+      - application/json
+      description: アライブチェック履歴一覧を取得する
+      parameters:
+      - description: アライブチェック履歴を取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+            type: array
+      summary: アライブチェック履歴一覧取得
+      tags:
+      - aliveChecks
+    post:
+      consumes:
+      - application/json
+      description: アライブチェック履歴を作成する
+      parameters:
+      - description: アライブチェック履歴作成リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AliveCheckHistoryCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アライブチェック履歴作成
+      tags:
+      - aliveChecks
+    put:
+      consumes:
+      - application/json
+      description: アライブチェック履歴を更新する
+      parameters:
+      - description: アライブチェック履歴更新リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AliveCheckHistoryUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アライブチェック履歴更新
+      tags:
+      - aliveChecks
+  /devices:
+    delete:
+      consumes:
+      - application/json
+      description: デバイスを削除する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteDeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス削除
+      tags:
+      - devices
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているデバイス一覧を取得する
+      parameters:
+      - description: デバイスを取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.DeviceResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス一覧取得
+      tags:
+      - devices
+    post:
+      consumes:
+      - application/json
+      description: デバイスを追加する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス追加
+      tags:
+      - devices
+    put:
+      consumes:
+      - application/json
+      description: デバイスを更新する
+      parameters:
+      - description: デバイス情報
+        in: body
+        name: device
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeviceCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DeviceResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: デバイス更新
+      tags:
+      - devices
+  /disclosures:
+    delete:
+      consumes:
+      - application/json
+      description: 開示申請を削除する
+      parameters:
+      - description: 開示申請情報
+        in: body
+        name: disclosure
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DisclosureDeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DisclosureResponse'
+        "400":
+          description: リクエストが不正
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: 開示申請の削除に失敗
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 開示申請削除
+      tags:
+      - disclosures
+    get:
+      consumes:
+      - application/json
+      description: ユーザが受けた開示請求一覧を取得する
+      parameters:
+      - description: 開示請求を出したユーザのID
+        in: query
+        name: requesterID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.DisclosureResponse'
+            type: array
+        "400":
+          description: リクエストが不正
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: 開示請求が見つかりませんでした
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 開示申請一覧取得
+      tags:
+      - disclosures
+    post:
+      consumes:
+      - application/json
+      description: ユーザが他のユーザに開示請求を出す
+      parameters:
+      - description: 開示請求情報
+        in: body
+        name: disclosure
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DisclosureCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DisclosureResponse'
+        "400":
+          description: リクエストが不正
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: 開示請求の作成に失敗
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 開示申請作成
+      tags:
+      - disclosures
+    put:
+      consumes:
+      - application/json
+      description: 開示申請のステータスを更新する
+      parameters:
+      - description: 開示申請情報
+        in: body
+        name: disclosure
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DisclosureUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.DisclosureResponse'
+        "400":
+          description: リクエストが不正
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: 開示申請の更新に失敗
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 開示申請更新
+      tags:
+      - disclosures
+  /trusts:
+    delete:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を削除する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteTrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の削除
+      tags:
+      - trusts
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示している相続関係一覧を取得する
+      parameters:
+      - description: 相続関係を取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.TrustResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の一覧取得
+      tags:
+      - trusts
+    post:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を作成する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の作成
+      tags:
+      - trusts
+    put:
+      consumes:
+      - application/json
+      description: ユーザ間の相続関係を更新する
+      parameters:
+      - description: 相続関係
+        in: body
+        name: trust
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateTrustRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.TrustResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: 相続関係の更新
+      tags:
+      - trusts
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
+      parameters:
+      - description: ユーザ情報
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.UserResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ユーザ登録
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント
+      parameters:
+      - description: ユーザ情報
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.UserResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: ユーザ更新
+      tags:
+      - users
+swagger: "2.0"

@@ -1,0 +1,30 @@
+name: "[Frontend] Lint"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/frontend-lint.yml'
+      - 'frontend/**'
+jobs:
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Setup pnpm
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: cd frontend && pnpm install
+      - name: Lint
+        run: cd frontend && pnpm lint
+      - name: Run typecheck
+        run: cd frontend && pnpm run typecheck

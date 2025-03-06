@@ -25,6 +25,16 @@ type Account struct {
 	CustomData      []byte
 }
 
+type AliveCheckHistory struct {
+	ID               pgtype.UUID
+	TargetUserID     pgtype.UUID
+	CheckTime        pgtype.Timestamp
+	CheckMethod      int32
+	CheckSuccess     bool
+	CheckSuccessTime pgtype.Timestamp
+	CustomData       []byte
+}
+
 type Device struct {
 	ID                int32
 	DeviceType        int32
@@ -38,4 +48,29 @@ type Device struct {
 	TrustID           pgtype.Int4
 	IsDisclosed       bool
 	CustomData        []byte
+}
+
+type Disclosure struct {
+	ID          int32
+	RequesterID pgtype.UUID
+	PasserID    pgtype.UUID
+	IssuedTime  pgtype.Timestamp
+	InProgress  bool
+	Disclosed   bool
+	DisclosedAt pgtype.Timestamp
+	PreventedBy pgtype.UUID
+	Deadline    pgtype.Timestamp
+	CustomData  []byte
+}
+
+type Trust struct {
+	ID             int32
+	ReceiverUserID pgtype.UUID
+	PasserUserID   pgtype.UUID
+}
+
+type User struct {
+	ID                pgtype.UUID
+	DefaultReceiverID pgtype.UUID
+	ClerkUserID       string
 }

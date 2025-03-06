@@ -1,4 +1,4 @@
-name: "Run Terragrunt Apply on main branch push"
+name: "[Infra] Run Terragrunt Apply on main branch push"
 on:
   push:
     branches:

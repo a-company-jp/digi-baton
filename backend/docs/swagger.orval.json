@@ -1,0 +1,749 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "contact": {},
+    "title": "Digi Baton",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/accounts": {
+      "get": {
+        "description": "ユーザが開示しているアカウント一覧を取得する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "accounts"
+        ],
+        "summary": "アカウント一覧取得",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "パスワードを取得するユーザのID",
+            "name": "passerID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/handlers.AccountResponse"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "アカウントを更新する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "accounts"
+        ],
+        "summary": "アカウント更新",
+        "parameters": [
+          {
+            "description": "アカウント情報",
+            "name": "account",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.AccountCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.AccountResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "アカウントを作成する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "accounts"
+        ],
+        "summary": "アカウント作成",
+        "parameters": [
+          {
+            "description": "アカウント情報",
+            "name": "account",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.AccountCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.AccountResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "アカウントを削除する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "accounts"
+        ],
+        "summary": "アカウント削除",
+        "parameters": [
+          {
+            "description": "アカウント情報",
+            "name": "account",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.DeleteAccountCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.AccountResponse"
+            }
+          }
+        }
+      }
+    },
+    "/devices": {
+      "get": {
+        "description": "ユーザが開示しているデバイス一覧を取得する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "devices"
+        ],
+        "summary": "デバイス一覧取得",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "デバイスを取得するユーザのID",
+            "name": "passerID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/handlers.DeviceResponse"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "デバイスを更新する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "devices"
+        ],
+        "summary": "デバイス更新",
+        "parameters": [
+          {
+            "description": "デバイス情報",
+            "name": "device",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.DeviceCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.DeviceResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "デバイスを追加する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "devices"
+        ],
+        "summary": "デバイス追加",
+        "parameters": [
+          {
+            "description": "デバイス情報",
+            "name": "device",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.DeviceCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.DeviceResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "デバイスを削除する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "devices"
+        ],
+        "summary": "デバイス削除",
+        "parameters": [
+          {
+            "description": "デバイス情報",
+            "name": "device",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.DeleteDeviceCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.DeviceResponse"
+            }
+          }
+        }
+      }
+    },
+    "/trusts": {
+      "get": {
+        "description": "ユーザが開示している相続関係一覧を取得する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "trusts"
+        ],
+        "summary": "相続関係の一覧取得",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "相続関係を取得するユーザのID",
+            "name": "passerID",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/handlers.TrustResponse"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "ユーザ間の相続関係を更新する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "trusts"
+        ],
+        "summary": "相続関係の更新",
+        "parameters": [
+          {
+            "description": "相続関係",
+            "name": "trust",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.UpdateTrustRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.TrustResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "ユーザ間の相続関係を作成する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "trusts"
+        ],
+        "summary": "相続関係の作成",
+        "parameters": [
+          {
+            "description": "相続関係",
+            "name": "trust",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.TrustRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.TrustResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "ユーザ間の相続関係を削除する",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "trusts"
+        ],
+        "summary": "相続関係の削除",
+        "parameters": [
+          {
+            "description": "相続関係",
+            "name": "trust",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.DeleteTrustRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.TrustResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "put": {
+        "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "ユーザ更新",
+        "parameters": [
+          {
+            "description": "ユーザ情報",
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.UserCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.UserResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "ユーザ登録",
+        "parameters": [
+          {
+            "description": "ユーザ情報",
+            "name": "user",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.UserCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "$ref": "#/definitions/handlers.UserResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "handlers.AccountCreateRequest": {
+      "type": "object",
+      "properties": {
+        "accountUsername": {
+          "type": "string"
+        },
+        "appDescription": {
+          "type": "string"
+        },
+        "appIconUrl": {
+          "type": "string"
+        },
+        "appName": {
+          "type": "string"
+        },
+        "appTemplateID": {
+          "type": "integer"
+        },
+        "customData": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "memo": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "passerID": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "plsDelete": {
+          "type": "boolean"
+        }
+      }
+    },
+    "handlers.AccountResponse": {
+      "type": "object",
+      "properties": {
+        "accountUsername": {
+          "type": "string"
+        },
+        "appDescription": {
+          "type": "string"
+        },
+        "appIconUrl": {
+          "type": "string"
+        },
+        "appName": {
+          "type": "string"
+        },
+        "appTemplateID": {
+          "type": "integer"
+        },
+        "customData": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "encPassword": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "id": {
+          "type": "integer"
+        },
+        "isDisclosed": {
+          "type": "boolean"
+        },
+        "memo": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "passerID": {
+          "type": "string"
+        },
+        "plsDelete": {
+          "type": "boolean"
+        },
+        "trustID": {
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.DeleteAccountCreateRequest": {
+      "type": "object",
+      "properties": {
+        "deviceID": {
+          "type": "integer"
+        },
+        "passerID": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.DeleteDeviceCreateRequest": {
+      "type": "object",
+      "properties": {
+        "deviceID": {
+          "type": "integer"
+        },
+        "passerID": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.DeleteTrustRequest": {
+      "type": "object",
+      "properties": {
+        "passerID": {
+          "type": "string"
+        },
+        "trustID": {
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.DeviceCreateRequest": {
+      "type": "object",
+      "properties": {
+        "credentialType": {
+          "type": "integer"
+        },
+        "customData": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "deviceDescription": {
+          "type": "string"
+        },
+        "deviceType": {
+          "type": "integer"
+        },
+        "deviceUsername": {
+          "type": "string"
+        },
+        "memo": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "passerID": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.DeviceResponse": {
+      "type": "object",
+      "properties": {
+        "credentialType": {
+          "type": "integer"
+        },
+        "customData": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "deviceDescription": {
+          "type": "string"
+        },
+        "deviceType": {
+          "type": "integer"
+        },
+        "deviceUsername": {
+          "type": "string"
+        },
+        "encPassword": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "memo": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "passerID": {
+          "type": "string"
+        },
+        "trustID": {
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "details": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.TrustRequest": {
+      "type": "object",
+      "properties": {
+        "passerID": {
+          "type": "string"
+        },
+        "reviverID": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.TrustResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "passerID": {
+          "type": "string"
+        },
+        "reviverID": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.UpdateTrustRequest": {
+      "type": "object",
+      "properties": {
+        "passerID": {
+          "type": "string"
+        },
+        "reviverID": {
+          "type": "string"
+        },
+        "trustID": {
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.UserCreateRequest": {
+      "type": "object",
+      "properties": {
+        "clerkUserID": {
+          "type": "string"
+        },
+        "defaultReceiverID": {
+          "type": "string"
+        }
+      }
+    },
+    "handlers.UserResponse": {
+      "type": "object",
+      "properties": {
+        "clerkUserID": {
+          "type": "string"
+        },
+        "defaultReceiverID": {
+          "type": "string"
+        },
+        "userID": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

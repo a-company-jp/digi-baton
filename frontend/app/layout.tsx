@@ -4,7 +4,8 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { CircleIcon } from "lucide-react";
-import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/components/query-provider";
+
 export const viewport: Viewport = {
   maximumScale: 1,
 };
@@ -45,15 +46,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ClerkProvider>
-        <body
-          className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}
-        >
-          <Header />
-          <div className="pt-[60px]">{children}</div>
-          <Toaster />
-        </body>
-      </ClerkProvider>
+      <QueryProvider>
+        <ClerkProvider>
+          <body
+            className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}
+          >
+            <Header />
+            <div className="pt-[60px]">{children}</div>
+          </body>
+        </ClerkProvider>
+      </QueryProvider>
     </html>
   );
 }

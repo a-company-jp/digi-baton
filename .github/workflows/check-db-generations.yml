@@ -1,4 +1,4 @@
-name: migrate and validate schema-dump and sqlc generation
+name: "[Backend] migrate and validate schema-dump and sqlc generation"
 
 on:
   push:
