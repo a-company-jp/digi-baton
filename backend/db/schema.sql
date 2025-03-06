@@ -214,7 +214,11 @@ CREATE TABLE public.passkeys (
     id integer NOT NULL,
     user_id uuid NOT NULL,
     rp_id text NOT NULL,
-    private_key bytea NOT NULL
+    credential_id text NOT NULL,
+    user_name text NOT NULL,
+    public_key bytea NOT NULL,
+    private_key bytea NOT NULL,
+    sign_count bigint NOT NULL
 );
 
 
@@ -449,6 +453,14 @@ ALTER TABLE ONLY public.devices
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: passkeys passkeys_credential_id_unique; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_credential_id_unique UNIQUE (credential_id);
 
 
 --
