@@ -18,28 +18,27 @@ func NewUsersHandler(q *query.Queries) *UsersHandler {
 	return &UsersHandler{queries: q}
 }
 
-
 type UserCreateRequest struct {
 	DefaultReceiverID *uuid.UUID `json:"defaultReceiverID"`
-	ClerkUserID       string `json:"clerkUserID"`
+	ClerkUserID       string     `json:"clerkUserID"`
 }
 
 type UserResponse struct {
-	UserID 		  string `json:"userID"`
+	UserID            string `json:"userID"`
 	DefaultReceiverID string `json:"defaultReceiverID"`
 	ClerkUserID       string `json:"clerkUserID"`
 }
 
-// @Summary ユーザ登録
-// @Description clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body UserCreateRequest true "ユーザ情報"
-// @Success 200 {object} UserResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
-// @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /users [post]
+// @Summary		ユーザ登録
+// @Description	clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			user	body		UserCreateRequest	true	"ユーザ情報"
+// @Success		200		{object}	UserResponse		"成功"
+// @Failure		400		{object}	ErrorResponse		"リクエストデータが不正です"
+// @Failure		500		{object}	ErrorResponse		"データベース接続に失敗しました"
+// @Router			/users [post]
 func (h *UsersHandler) Create(c *gin.Context) {
 	var req UserCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,21 +64,21 @@ func (h *UsersHandler) Create(c *gin.Context) {
 }
 
 type UserUpdateRequest struct {
-	UserID			*uuid.UUID `json:"userID"`
+	UserID            *uuid.UUID `json:"userID"`
 	DefaultReceiverID *uuid.UUID `json:"defaultReceiverID"`
-	ClerkUserID       string `json:"clerkUserID"`
+	ClerkUserID       string     `json:"clerkUserID"`
 }
 
-// @Summary ユーザ更新
-// @Description clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param user body UserCreateRequest true "ユーザ情報"
-// @Success 200 {object} UserResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
-// @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
-// @Router /users [put]
+// @Summary		ユーザ更新
+// @Description	clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			user	body		UserCreateRequest	true	"ユーザ情報"
+// @Success		200		{object}	UserResponse		"成功"
+// @Failure		400		{object}	ErrorResponse		"リクエストデータが不正です"
+// @Failure		500		{object}	ErrorResponse		"データベース接続に失敗しました"
+// @Router			/users [put]
 func (h *UsersHandler) Update(c *gin.Context) {
 	var req UserUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -160,8 +159,8 @@ func reqToUpdateUserParams(req UserUpdateRequest) (query.UpdateUserParams, error
 
 func userToResponse(user query.User) UserResponse {
 	return UserResponse{
-		UserID: user.ID.String(),
+		UserID:            user.ID.String(),
 		DefaultReceiverID: user.DefaultReceiverID.String(),
-		ClerkUserID: user.ClerkUserID,
+		ClerkUserID:       user.ClerkUserID,
 	}
 }

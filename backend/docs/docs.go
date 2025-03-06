@@ -194,6 +194,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/templates": {
+            "get": {
+                "description": "アカウントテンプレートの一覧取得",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウントテンプレート一覧",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AccountTemplateResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/alive-checks": {
             "get": {
                 "description": "アライブチェック履歴一覧を取得する",
@@ -967,7 +993,8 @@ const docTemplate = `{
                 "customData": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "object",
+                        "additionalProperties": true
                     }
                 },
                 "memo": {
@@ -1006,16 +1033,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "encPassword": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string",
+                    "format": "binary"
                 },
                 "id": {
                     "type": "integer"
@@ -1036,6 +1059,23 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "trustID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handlers.AccountTemplateResponse": {
+            "type": "object",
+            "properties": {
+                "appDescription": {
+                    "type": "string"
+                },
+                "appIconUrl": {
+                    "type": "string"
+                },
+                "appName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "integer"
                 }
             }
@@ -1390,11 +1430,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "2.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "",
+	Title:            "Digi Baton API",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

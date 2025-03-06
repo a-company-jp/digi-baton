@@ -15,7 +15,7 @@ const assignReceiverToAccount = `-- name: AssignReceiverToAccount :one
 UPDATE accounts
 SET trust_id = $2
 WHERE id = $1
-RETURNING id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type AssignReceiverToAccountParams struct {
@@ -32,7 +32,8 @@ func (q *Queries) AssignReceiverToAccount(ctx context.Context, arg AssignReceive
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,
@@ -50,7 +51,8 @@ INSERT INTO accounts(app_template_id,
                     app_name,
                     app_description,
                     app_icon_url,
-                    account_username,
+                    username,
+                    email,
                     enc_password,
                     memo,
                     pls_delete,
@@ -59,21 +61,22 @@ INSERT INTO accounts(app_template_id,
                     trust_id,
                     is_disclosed,
                     custom_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8, $9, null, false, $10)
-RETURNING id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, null, false, $11)
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type CreateAccountParams struct {
-	AppTemplateID   pgtype.Int4
-	AppName         pgtype.Text
-	AppDescription  pgtype.Text
-	AppIconUrl      pgtype.Text
-	AccountUsername string
-	EncPassword     []byte
-	Memo            string
-	Message         string
-	PasserID        pgtype.UUID
-	CustomData      []byte
+	AppTemplateID  pgtype.Int4
+	AppName        pgtype.Text
+	AppDescription pgtype.Text
+	AppIconUrl     pgtype.Text
+	Username       string
+	Email          string
+	EncPassword    []byte
+	Memo           string
+	Message        string
+	PasserID       pgtype.UUID
+	CustomData     []byte
 }
 
 func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (Account, error) {
@@ -82,7 +85,8 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.AppName,
 		arg.AppDescription,
 		arg.AppIconUrl,
-		arg.AccountUsername,
+		arg.Username,
+		arg.Email,
 		arg.EncPassword,
 		arg.Memo,
 		arg.Message,
@@ -96,7 +100,8 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,
@@ -112,7 +117,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 const deleteAccount = `-- name: DeleteAccount :one
 DELETE FROM accounts
 WHERE id = $1 AND passer_id = $2
-RETURNING id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type DeleteAccountParams struct {
@@ -129,7 +134,45 @@ func (q *Queries) DeleteAccount(ctx context.Context, arg DeleteAccountParams) (A
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
+		&i.EncPassword,
+		&i.Memo,
+		&i.PlsDelete,
+		&i.Message,
+		&i.PasserID,
+		&i.TrustID,
+		&i.IsDisclosed,
+		&i.CustomData,
+	)
+	return i, err
+}
+
+const setAccountDisclosureStatus = `-- name: SetAccountDisclosureStatus :one
+UPDATE accounts
+SET is_disclosed = $2,
+    trust_id = $3
+WHERE id = $1
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+`
+
+type SetAccountDisclosureStatusParams struct {
+	ID          int32
+	IsDisclosed bool
+	TrustID     pgtype.Int4
+}
+
+func (q *Queries) SetAccountDisclosureStatus(ctx context.Context, arg SetAccountDisclosureStatusParams) (Account, error) {
+	row := q.db.QueryRow(ctx, setAccountDisclosureStatus, arg.ID, arg.IsDisclosed, arg.TrustID)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.AppTemplateID,
+		&i.AppName,
+		&i.AppDescription,
+		&i.AppIconUrl,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,
@@ -148,27 +191,29 @@ SET app_template_id = $2,
     app_name = $3,
     app_description = $4,
     app_icon_url = $5,
-    account_username = $6,
-    enc_password = $7,
-    memo = $8,
-    message = $9,
-    custom_data = $10
-WHERE id = $1 AND passer_id = $11
-RETURNING id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+    username = $6,
+    email = $7,
+    enc_password = $8,
+    memo = $9,
+    message = $10,
+    custom_data = $11
+WHERE id = $1 AND passer_id = $12
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type UpdateAccountParams struct {
-	ID              int32
-	AppTemplateID   pgtype.Int4
-	AppName         pgtype.Text
-	AppDescription  pgtype.Text
-	AppIconUrl      pgtype.Text
-	AccountUsername string
-	EncPassword     []byte
-	Memo            string
-	Message         string
-	CustomData      []byte
-	PasserID        pgtype.UUID
+	ID             int32
+	AppTemplateID  pgtype.Int4
+	AppName        pgtype.Text
+	AppDescription pgtype.Text
+	AppIconUrl     pgtype.Text
+	Username       string
+	Email          string
+	EncPassword    []byte
+	Memo           string
+	Message        string
+	CustomData     []byte
+	PasserID       pgtype.UUID
 }
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
@@ -178,7 +223,8 @@ func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (A
 		arg.AppName,
 		arg.AppDescription,
 		arg.AppIconUrl,
-		arg.AccountUsername,
+		arg.Username,
+		arg.Email,
 		arg.EncPassword,
 		arg.Memo,
 		arg.Message,
@@ -192,7 +238,8 @@ func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (A
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,
@@ -209,7 +256,7 @@ const updateDeleteRequest = `-- name: UpdateDeleteRequest :one
 UPDATE accounts
 SET pls_delete = $2
 WHERE id = $1
-RETURNING id, app_template_id, app_name, app_description, app_icon_url, account_username, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type UpdateDeleteRequestParams struct {
@@ -226,7 +273,8 @@ func (q *Queries) UpdateDeleteRequest(ctx context.Context, arg UpdateDeleteReque
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,

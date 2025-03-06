@@ -12,7 +12,7 @@ import (
 )
 
 const getAccount = `-- name: GetAccount :one
-SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.account_username, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
+SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.username, accounts.email, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
 FROM accounts
 WHERE accounts.id = $1
 `
@@ -26,7 +26,8 @@ func (q *Queries) GetAccount(ctx context.Context, id int32) (Account, error) {
 		&i.AppName,
 		&i.AppDescription,
 		&i.AppIconUrl,
-		&i.AccountUsername,
+		&i.Username,
+		&i.Email,
 		&i.EncPassword,
 		&i.Memo,
 		&i.PlsDelete,
@@ -40,7 +41,7 @@ func (q *Queries) GetAccount(ctx context.Context, id int32) (Account, error) {
 }
 
 const listAccountsByPasserId = `-- name: ListAccountsByPasserId :many
-SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.account_username, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
+SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.username, accounts.email, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
 FROM accounts
 WHERE accounts.passer_id = $1
 ORDER BY accounts.id DESC
@@ -61,7 +62,8 @@ func (q *Queries) ListAccountsByPasserId(ctx context.Context, passerID pgtype.UU
 			&i.AppName,
 			&i.AppDescription,
 			&i.AppIconUrl,
-			&i.AccountUsername,
+			&i.Username,
+			&i.Email,
 			&i.EncPassword,
 			&i.Memo,
 			&i.PlsDelete,
@@ -82,7 +84,7 @@ func (q *Queries) ListAccountsByPasserId(ctx context.Context, passerID pgtype.UU
 }
 
 const listDisclosedAccountsByReceiverId = `-- name: ListDisclosedAccountsByReceiverId :many
-SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.account_username, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
+SELECT accounts.id, accounts.app_template_id, accounts.app_name, accounts.app_description, accounts.app_icon_url, accounts.username, accounts.email, accounts.enc_password, accounts.memo, accounts.pls_delete, accounts.message, accounts.passer_id, accounts.trust_id, accounts.is_disclosed, accounts.custom_data
 FROM accounts
 JOIN trusts t ON accounts.trust_id = t.id
 WHERE t.receiver_user_id = $1 AND accounts.is_disclosed = true
@@ -103,7 +105,8 @@ func (q *Queries) ListDisclosedAccountsByReceiverId(ctx context.Context, receive
 			&i.AppName,
 			&i.AppDescription,
 			&i.AppIconUrl,
-			&i.AccountUsername,
+			&i.Username,
+			&i.Email,
 			&i.EncPassword,
 			&i.Memo,
 			&i.PlsDelete,

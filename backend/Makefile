@@ -19,6 +19,9 @@ migrate-setup:
 migrate-up: ## マイグレーション実行
 	migrate -source file://db/migrations -database $(DATABASE_URL) up
 
+migrate-status: ## マイグレーションの状態確認
+	migrate -source file://db/migrations -database $(DATABASE_URL) version
+
 migrate-down: ## マイグレーションロールバック
 	migrate -source file://db/migrations -database $(DATABASE_URL) down 1
 
