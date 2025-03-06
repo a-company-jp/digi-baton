@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AccountTemplate struct {
+	ID             int32  `json:"id"`
+	AppName        string `json:"appName"`
+	AppDescription string `json:"appDescription"`
+	AppIconUrl     string `json:"appIconUrl"`
+}
+
+type AccountTemplateResponse AccountTemplate // 他と仕様を合わせるため
+
+var accountTemplateMap map[int32]AccountTemplate = map[int32]AccountTemplate{
+	1: {
+		ID:             1,
+		AppName:        "Google",
+		AppDescription: "Google",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/google.webp",
+	},
+	2: {
+		ID:             2,
+		AppName:        "X",
+		AppDescription: "X",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/x.webp",
+	},
+	3: {
+		ID:             3,
+		AppName:        "Instagram",
+		AppDescription: "Instagram",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/instagram.webp",
+	},
+}
+
 type AccountsHandler struct {
 	queries *query.Queries
 }
@@ -208,6 +238,22 @@ func (h *AccountsHandler) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, account)
 
+}
+
+// ListTemplate
+// @Summary アカウントテンプレート一覧
+// @Description アカウントテンプレートの一覧取得
+// @Tags accounts
+// @Accept json
+// @Produce json
+// @Success 200 {array} AccountTemplateResponse "成功"
+// @Router /accounts/templates [get]
+func (h *AccountsHandler) ListTemplate(c *gin.Context) {
+	templates := make([]AccountTemplate, 0, len(accountTemplateMap))
+	for _, template := range accountTemplateMap {
+		templates = append(templates, template)
+	}
+	c.JSON(http.StatusOK, templates)
 }
 
 func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountParams, error) {
