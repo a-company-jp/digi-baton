@@ -64,6 +64,13 @@ type Disclosure struct {
 	CustomData  []byte
 }
 
+type Passkey struct {
+	ID         int32
+	UserID     pgtype.UUID
+	RpID       string
+	PrivateKey []byte
+}
+
 type Subscription struct {
 	ID           int32
 	ServiceName  pgtype.Text
