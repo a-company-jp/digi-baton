@@ -13,16 +13,29 @@ export default function App() {
     { name: 'Charlie@example.com', initial: 'C' },
   ];
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [reqId, setReqId] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState(new Date().toTimeString());
+
   useEffect(() => {
-    const handleMessage = (request: { reqType: string }) => {
+    const handleMessage = (request: { reqType: string; reqId: number }) => {
       switch (request.reqType) {
         case 'passkey-creation':
+          setLastUpdated(new Date().toTimeString());
           setIsLogin(false);
+          setIsLoading(false);
+          setIsComplete(false);
           setShowPasskeyPopup(true);
+          setReqId(request.reqId);
           break;
-        case 'passkey-use':
+        case 'passkey-get':
+          setLastUpdated(new Date().toTimeString());
           setIsLogin(true);
+          setIsLoading(false);
+          setIsComplete(false);
           setShowPasskeyPopup(true);
+          setReqId(request.reqId);
           break;
         default:
           console.log('unknown request type');
@@ -36,12 +49,44 @@ export default function App() {
 
   const loginWithAccount = (a: AccountInfo) => {
     console.log('Login triggered');
-    setShowPasskeyPopup(false);
+    setIsLoading(true);
+    const port = chrome.runtime.connect({ name: 'passkeyGetRequest' });
+    port.postMessage({ reqId });
+    port.onMessage.addListener((msg: { success: boolean }) => {
+      if (msg.success) {
+        const time = lastUpdated;
+        setIsLoading(false);
+        setIsComplete(true);
+        setTimeout(() => {
+          if (time === lastUpdated) {
+            setShowPasskeyPopup(false);
+            setIsComplete(false);
+          }
+        }, 3000);
+      }
+    });
   };
 
   const registerWithAccount = (a: AccountInfo) => {
     console.log('Register triggered');
-    setShowPasskeyPopup(false);
+    setIsLoading(true);
+    const port = chrome.runtime.connect({ name: 'passkeyCreateRequest' });
+    port.postMessage({ reqId });
+    port.onMessage.addListener((msg: { success: boolean }) => {
+      if (msg.success) {
+        const time = lastUpdated;
+        setIsLoading(false);
+        setIsComplete(true);
+        setTimeout(() => {
+          setShowPasskeyPopup(false);
+          setIsComplete(false);
+          if (time === lastUpdated) {
+            setShowPasskeyPopup(false);
+            setIsComplete(false);
+          }
+        }, 3000);
+      }
+    });
   };
 
   const continueWithDeviceAuthRegister = () => {
@@ -61,8 +106,8 @@ export default function App() {
       {showPasskeyPopup ? (
         isLogin ? (
           <PasskeyLoginPopUp
-            isLoading={false}
-            isComplete={false}
+            isLoading={isLoading}
+            isComplete={isComplete}
             accounts={accounts}
             handleLogin={loginWithAccount}
             handleDeviceAuth={continueWithDeviceAuthGet}
@@ -70,8 +115,8 @@ export default function App() {
           />
         ) : (
           <PasskeyCreatePopUp
-            isLoading={false}
-            isComplete={false}
+            isLoading={isLoading}
+            isComplete={isComplete}
             accounts={accounts}
             handleRegister={registerWithAccount}
             handleDeviceAuth={continueWithDeviceAuthRegister}
