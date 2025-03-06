@@ -16,7 +16,7 @@ export default defineConfig({
       },
     },
     input: {
-      target: "../backend/docs/swagger.orval.json",
+      target: "../backend/docs/swagger.yaml",
     },
   },
 });

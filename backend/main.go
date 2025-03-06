@@ -17,6 +17,10 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title		Digi Baton API
+// @version	2.0
+// @host		localhost:8080
+// @BasePath	/api
 func main() {
 	ctx := context.Background()
 	config := config.LoadConfig()
