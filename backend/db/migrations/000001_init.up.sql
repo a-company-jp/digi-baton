@@ -54,7 +54,8 @@ CREATE TABLE accounts
     app_name         TEXT,
     app_description  TEXT,
     app_icon_url     TEXT,
-    account_username TEXT    NOT NULL,
+    username TEXT    NOT NULL DEFAULT '',
+    email TEXT NOT NULL DEFAULT '',
     enc_password     BYTEA   NOT NULL,
     memo             TEXT    NOT NULL,
     pls_delete       BOOLEAN NOT NULL,
@@ -107,8 +108,7 @@ CREATE POLICY accounts_modification
 CREATE TABLE devices
 (
     id                 SERIAL PRIMARY KEY,
-    device_type        INTEGER NOT NULL, -- 1=PC, 2=mobile
-    credential_type    INTEGER NOT NULL, -- 1=password, 2=passkey
+    device_type        INTEGER NOT NULL, -- 1=PC, 2=mobile etc
     device_description TEXT,
     device_username    TEXT,
     enc_password       BYTEA   NOT NULL,
@@ -167,4 +167,26 @@ CREATE TABLE disclosures
     prevented_by UUID REFERENCES alive_check_histories (id),
     deadline     TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     custom_data  JSONB
+);
+
+-- ===============================
+-- 8. Subscriptions (RLSを適用)
+-- ===============================
+CREATE TABLE subscriptions
+(
+    id               SERIAL PRIMARY KEY,
+    service_name         TEXT,
+    username TEXT    NOT NULL DEFAULT '',
+    email TEXT NOT NULL DEFAULT '',
+    enc_password     BYTEA   NOT NULL,
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    billing_cycle TEXT NOT NULL,
+    memo             TEXT    NOT NULL,
+    pls_delete       BOOLEAN NOT NULL,
+    message          TEXT    NOT NULL,
+    passer_id        UUID    NOT NULL REFERENCES users (id),
+    trust_id         INTEGER REFERENCES trusts (id),
+    is_disclosed     BOOLEAN NOT NULL,
+    custom_data      JSONB
 );
