@@ -7,6 +7,8 @@ package query
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getSubscription = `-- name: GetSubscription :one
@@ -47,6 +49,50 @@ ORDER BY id
 
 func (q *Queries) ListSubscriptions(ctx context.Context) ([]Subscription, error) {
 	rows, err := q.db.Query(ctx, listSubscriptions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Subscription
+	for rows.Next() {
+		var i Subscription
+		if err := rows.Scan(
+			&i.ID,
+			&i.ServiceName,
+			&i.IconUrl,
+			&i.Username,
+			&i.Email,
+			&i.EncPassword,
+			&i.Amount,
+			&i.Currency,
+			&i.BillingCycle,
+			&i.Memo,
+			&i.PlsDelete,
+			&i.Message,
+			&i.PasserID,
+			&i.TrustID,
+			&i.IsDisclosed,
+			&i.CustomData,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSubscriptionsByPasserId = `-- name: ListSubscriptionsByPasserId :many
+SELECT id, service_name, icon_url, username, email, enc_password, amount, currency, billing_cycle, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
+FROM subscriptions
+WHERE passer_id = $1
+ORDER BY id
+`
+
+func (q *Queries) ListSubscriptionsByPasserId(ctx context.Context, passerID pgtype.UUID) ([]Subscription, error) {
+	rows, err := q.db.Query(ctx, listSubscriptionsByPasserId, passerID)
 	if err != nil {
 		return nil, err
 	}
