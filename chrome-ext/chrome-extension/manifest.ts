@@ -30,7 +30,7 @@ const manifest = {
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
   host_permissions: ['<all_urls>'],
-  permissions: ['storage', 'scripting', 'tabs', 'notifications', 'sidePanel'],
+  permissions: ['storage', 'scripting', 'tabs', 'notifications', 'sidePanel', 'webAuthenticationProxy'],
   options_page: 'options/index.html',
   background: {
     service_worker: 'background.js',
@@ -67,6 +67,7 @@ const manifest = {
   side_panel: {
     default_path: 'side-panel/index.html',
   },
-} satisfies chrome.runtime.ManifestV3;
+};
+// satisfies chrome.runtime.ManifestV3;
 
 export default manifest;
