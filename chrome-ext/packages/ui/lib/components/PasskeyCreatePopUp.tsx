@@ -57,15 +57,9 @@ export default function KeyperPopup(props: {
           </div>
           <div className="text-base font-medium">{mainAccount.name}</div>
         </div>
-        <button
-          className="mt-2 px-3 py-1 text-sm bg-white/20 rounded-md hover:bg-white/30 disabled:bg-white/10"
-          onClick={e => {
-            e.stopPropagation();
-            console.log('Dummy login button clicked for', mainAccount);
-          }}
-          disabled={props.isLoading}>
+        <div className="mt-2 px-3 py-1 text-sm bg-white/20 rounded-md hover:bg-white/30 disabled:bg-white/10">
           Login
-        </button>
+        </div>
       </button>
 
       <div className="flex justify-end pt-2">
