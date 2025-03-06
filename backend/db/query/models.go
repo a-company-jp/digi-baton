@@ -40,6 +40,19 @@ type Device struct {
 	CustomData        []byte
 }
 
+type Disclosure struct {
+	ID          int32
+	RequesterID pgtype.UUID
+	PasserID    pgtype.UUID
+	IssuedTime  pgtype.Timestamp
+	InProgress  bool
+	Disclosed   bool
+	DisclosedAt pgtype.Timestamp
+	PreventedBy pgtype.UUID
+	Deadline    pgtype.Timestamp
+	CustomData  []byte
+}
+
 type Trust struct {
 	ID             int32
 	ReceiverUserID pgtype.UUID
