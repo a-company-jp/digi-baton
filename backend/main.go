@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/a-company-jp/digi-baton/backend/config"
-	"github.com/jackc/pgx/v5"
-
 	"github.com/a-company-jp/digi-baton/backend/db/query"
 	"github.com/a-company-jp/digi-baton/backend/docs"
 	"github.com/a-company-jp/digi-baton/backend/handlers"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
+	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -24,6 +26,13 @@ import (
 func main() {
 	ctx := context.Background()
 	config := config.LoadConfig()
+
+	// Clerk APIキーの初期化
+	secretKey := os.Getenv("CLERK_SECRET_KEY")
+	if secretKey == "" {
+		panic("CLERK_SECRET_KEY environment variable is not set")
+	}
+	clerk.SetKey(secretKey)
 
 	conn, err := pgx.Connect(ctx, config.DB.GetConnStr())
 	if err != nil {
@@ -57,39 +66,44 @@ func main() {
 		api.POST("/users", usersHandler.Create)
 		api.PUT("/users", usersHandler.Update)
 
-		// accounts
-		accountHandlers := handlers.NewAccountsHandler(q)
-		api.GET("/accounts", accountHandlers.List)
-		api.POST("/accounts", accountHandlers.Create)
-		api.PUT("/accounts", accountHandlers.Update)
-		api.DELETE("/accounts", accountHandlers.Delete)
+		// 認証が必要なルートに対してClerkAuth middlewareを適用
+		authenticated := api.Group("/")
+		authenticated.Use(middleware.ClerkAuth())
+		{
+			// accounts
+			accountHandlers := handlers.NewAccountsHandler(q)
+			authenticated.GET("/accounts", accountHandlers.List)
+			authenticated.POST("/accounts", accountHandlers.Create)
+			authenticated.PUT("/accounts", accountHandlers.Update)
+			authenticated.DELETE("/accounts", accountHandlers.Delete)
 
-		// devices
-		devicesHandler := handlers.NewDevicesHandler(q)
-		api.GET("/devices", devicesHandler.List)
-		api.POST("/devices", devicesHandler.Create)
-		api.PUT("/devices", devicesHandler.Update)
-		api.DELETE("/devices", devicesHandler.Delete)
+			// devices
+			devicesHandler := handlers.NewDevicesHandler(q)
+			authenticated.GET("/devices", devicesHandler.List)
+			authenticated.POST("/devices", devicesHandler.Create)
+			authenticated.PUT("/devices", devicesHandler.Update)
+			authenticated.DELETE("/devices", devicesHandler.Delete)
 
-		// trusts(相続の関係性）
-		trustsHandler := handlers.NewTrustsHandler(q)
-		api.GET("/trusts", trustsHandler.List)
-		api.POST("/trusts", trustsHandler.Create)
-		api.PUT("/trusts", trustsHandler.Update)
-		api.DELETE("/trusts", trustsHandler.Delete)
+			// trusts(相続の関係性）
+			trustsHandler := handlers.NewTrustsHandler(q)
+			authenticated.GET("/trusts", trustsHandler.List)
+			authenticated.POST("/trusts", trustsHandler.Create)
+			authenticated.PUT("/trusts", trustsHandler.Update)
+			authenticated.DELETE("/trusts", trustsHandler.Delete)
 
-		// disclosures
-		disclosuresHandler := handlers.NewDisclosuresHandler(q)
-		api.GET("/disclosures", disclosuresHandler.List)
-		api.POST("/disclosures", disclosuresHandler.Create)
-		api.PUT("/disclosures", disclosuresHandler.Update)
-		api.DELETE("/disclosures", disclosuresHandler.Delete)
+			// disclosures
+			disclosuresHandler := handlers.NewDisclosuresHandler(q)
+			authenticated.GET("/disclosures", disclosuresHandler.List)
+			authenticated.POST("/disclosures", disclosuresHandler.Create)
+			authenticated.PUT("/disclosures", disclosuresHandler.Update)
+			authenticated.DELETE("/disclosures", disclosuresHandler.Delete)
 
-		// alive check
-		aliveChecksHandler := handlers.NewAliveChecksHandler(q)
-		api.GET("/alive-checks", aliveChecksHandler.List)
-		api.POST("/alive-checks", aliveChecksHandler.Create)
-		api.PUT("/alive-checks", aliveChecksHandler.Update)
+			// alive check
+			aliveChecksHandler := handlers.NewAliveChecksHandler(q)
+			authenticated.GET("/alive-checks", aliveChecksHandler.List)
+			authenticated.POST("/alive-checks", aliveChecksHandler.Create)
+			authenticated.PUT("/alive-checks", aliveChecksHandler.Update)
+		}
 	}
 
 	router.Run(":" + config.Server.Port)
