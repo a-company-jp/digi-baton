@@ -61,6 +61,49 @@ definitions:
       trustID:
         type: integer
     type: object
+  handlers.AliveCheckHistoryCreateRequest:
+    properties:
+      checkMethod:
+        type: integer
+      customedData:
+        items:
+          type: integer
+        type: array
+      targetUserID:
+        type: string
+    type: object
+  handlers.AliveCheckHistoryResponse:
+    properties:
+      checkMethod:
+        type: integer
+      checkSuccess:
+        type: boolean
+      checkSuccessTime:
+        type: string
+      checkTime:
+        type: string
+      customedData:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      targetUserID:
+        type: string
+    type: object
+  handlers.AliveCheckHistoryUpdateRequest:
+    properties:
+      checkMethod:
+        type: integer
+      checkSuccess:
+        type: boolean
+      customedData:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+    type: object
   handlers.DeleteAccountCreateRequest:
     properties:
       deviceID:
@@ -363,6 +406,87 @@ paths:
       summary: アカウント更新
       tags:
       - accounts
+  /alive-checks:
+    get:
+      consumes:
+      - application/json
+      description: アライブチェック履歴一覧を取得する
+      parameters:
+      - description: アライブチェック履歴を取得するユーザのID
+        in: query
+        name: passerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+            type: array
+      summary: アライブチェック履歴一覧取得
+      tags:
+      - aliveChecks
+    post:
+      consumes:
+      - application/json
+      description: アライブチェック履歴を作成する
+      parameters:
+      - description: アライブチェック履歴作成リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AliveCheckHistoryCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アライブチェック履歴作成
+      tags:
+      - aliveChecks
+    put:
+      consumes:
+      - application/json
+      description: アライブチェック履歴を更新する
+      parameters:
+      - description: アライブチェック履歴更新リクエスト
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AliveCheckHistoryUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.AliveCheckHistoryResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: アライブチェック履歴更新
+      tags:
+      - aliveChecks
   /devices:
     delete:
       consumes:
