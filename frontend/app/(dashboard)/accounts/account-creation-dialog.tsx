@@ -44,7 +44,7 @@ const accountSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください").optional(),
   username: z.string().optional(),
   password: z.string().min(1, "パスワードは必須です"),
-  trustID: z.number().min(1, "信頼ユーザーは必須です"),
+  trustID: z.number().nonnegative("信頼ユーザーは必須です"),
   memo: z.string().optional(),
 });
 
@@ -67,7 +67,6 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
   useEffect(() => {
     (async () => {
       const t = await getToken();
-      console.log(t);
       setToken(t);
     })();
   }, [getToken]);
@@ -97,6 +96,9 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
   // フォームの初期化
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
+    defaultValues: {
+      trustID: -1,
+    },
   });
 
   const handleSubmit = async (values: AccountFormValues) => {
@@ -291,8 +293,10 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
                       <FormLabel>信頼ユーザー</FormLabel>
                       <FormControl>
                         <TrustUserSelect
-                          selectedUserId={field.value}
-                          onSelect={field.onChange}
+                          selectedTrustUserId={field.value}
+                          onSelect={(trustId: number) =>
+                            field.onChange(trustId)
+                          }
                         />
                       </FormControl>
                       <FormMessage />

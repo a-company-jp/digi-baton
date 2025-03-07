@@ -23,17 +23,19 @@ import { useGetReceivers } from "@/app/api/generated/receivers/receivers";
 import { HandlersReceiverResponse } from "@/app/api/generated/schemas";
 
 interface TrustUserSelectProps {
-  selectedUserId: string | number | undefined;
-  onSelect: (userId: string) => void;
+  selectedTrustUserId: number | undefined;
+  onSelect: (trustId: number) => void;
 }
 
 export function TrustUserSelect({
-  selectedUserId,
+  selectedTrustUserId,
   onSelect,
 }: TrustUserSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] =
+    useState<HandlersReceiverResponse | null>(null);
   const { getToken } = useAuth();
 
   // TokenをSecureに取得
@@ -44,7 +46,7 @@ export function TrustUserSelect({
     })();
   }, [getToken]);
 
-  const { data, isLoading: isTrustUsersLoading } = useGetReceivers({
+  const { data: trustUsers, isLoading: isTrustUsersLoading } = useGetReceivers({
     query: {
       enabled: !!token,
     },
@@ -55,44 +57,48 @@ export function TrustUserSelect({
     },
   });
 
-  // APIレスポンスからtrustsUsersを抽出
-  const trustUsers: HandlersReceiverResponse[] =
-    data?.status === 200 ? data.data : [];
-
-  // 選択されているユーザーを取得
-  const selectedUser = selectedUserId
-    ? trustUsers.find(
-        (user) =>
-          user.id === Number(selectedUserId) || user.id === selectedUserId
-      )
-    : undefined;
+  // 選択されたユーザーを見つける
+  useEffect(() => {
+    if (
+      selectedTrustUserId !== -1 &&
+      trustUsers?.data &&
+      Array.isArray(trustUsers.data)
+    ) {
+      const user = trustUsers.data.find(
+        (user: HandlersReceiverResponse) => user.id === selectedTrustUserId
+      );
+      if (user) {
+        setSelectedUser(user);
+      }
+    } else {
+      setSelectedUser(null);
+    }
+  }, [selectedTrustUserId, trustUsers?.data]);
 
   // 検索クエリに基づいてフィルタリング
-  const filteredUsers = trustUsers.filter((user) => {
-    if (!searchQuery) return true;
+  const filteredUsers =
+    trustUsers?.data && Array.isArray(trustUsers.data)
+      ? trustUsers.data.filter((user: HandlersReceiverResponse) => {
+          if (!searchQuery) return true;
 
-    const query = searchQuery.toLowerCase();
-    return (
-      user.name?.toLowerCase().includes(query) ||
-      false ||
-      user.email?.toLowerCase().includes(query) ||
-      false
-    );
-  });
+          const query = searchQuery.toLowerCase();
+          return (
+            (user.name?.toLowerCase().includes(query) ?? false) ||
+            (user.email?.toLowerCase().includes(query) ?? false)
+          );
+        })
+      : [];
 
   // コマンドアイテムが選択されたときの処理
-  const handleSelect = (userId: string | number | undefined) => {
-    if (userId !== undefined) {
-      onSelect(String(userId));
+  const handleSelect = (trustId: number | undefined) => {
+    if (trustId !== undefined) {
+      onSelect(Number(trustId));
       setOpen(false);
     }
   };
 
   // ユーザーが選択されていない場合のボタンスタイル
-  const buttonStyles = cn(
-    "w-full justify-between",
-    !selectedUser && "border-red-300 focus:ring-red-500"
-  );
+  const buttonStyles = cn("w-full justify-between");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -105,28 +111,26 @@ export function TrustUserSelect({
         >
           {selectedUser ? (
             <div className="flex items-center gap-2">
-              {selectedUser.iconUrl ? (
-                <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                {selectedUser.iconUrl ? (
                   <Image
                     src={selectedUser.iconUrl}
-                    alt={selectedUser.name || ""}
+                    alt={""}
                     width={24}
                     height={24}
                   />
-                </div>
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">
-                  {selectedUser.name ? selectedUser.name.charAt(0) : ""}
-                </div>
-              )}
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">
+                    {selectedUser.name ? selectedUser.name.charAt(0) : ""}
+                  </div>
+                )}
+              </div>
               <span className="truncate">
                 {selectedUser.name} ({selectedUser.email})
               </span>
             </div>
           ) : (
-            <span className="text-rose-500">
-              相続ユーザーを選択してください
-            </span>
+            <span>相続ユーザーを選択してください</span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -145,7 +149,7 @@ export function TrustUserSelect({
               <CommandEmpty>ユーザーが見つかりません</CommandEmpty>
             ) : (
               <CommandGroup>
-                {filteredUsers.map((user) => (
+                {filteredUsers.map((user: HandlersReceiverResponse) => (
                   <CommandItem
                     key={user.id}
                     onSelect={() => handleSelect(user.id)}
@@ -172,7 +176,7 @@ export function TrustUserSelect({
                       <Check
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selectedUserId === user.id
+                          selectedTrustUserId === user.id
                             ? "opacity-100"
                             : "opacity-0"
                         )}
