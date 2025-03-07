@@ -28,15 +28,6 @@ const docTemplate = `{
                     "accounts"
                 ],
                 "summary": "アカウント一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "パスワードを取得するユーザのID",
-                        "name": "passerID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -189,32 +180,6 @@ const docTemplate = `{
                         "description": "データベース接続に失敗しました",
                         "schema": {
                             "$ref": "#/definitions/handlers.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/accounts/templates": {
-            "get": {
-                "description": "アカウントテンプレートの一覧取得",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "アカウントテンプレート一覧",
-                "responses": {
-                    "200": {
-                        "description": "成功",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handlers.AccountTemplateResponse"
-                            }
                         }
                     }
                 }
@@ -993,9 +958,11 @@ const docTemplate = `{
                 "customData": {
                     "type": "array",
                     "items": {
-                        "type": "object",
-                        "additionalProperties": true
+                        "type": "integer"
                     }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "memo": {
                     "type": "string"
@@ -1033,12 +1000,19 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "email": {
+                    "type": "string"
                 },
                 "encPassword": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "id": {
                     "type": "integer"
@@ -1059,23 +1033,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "trustID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "handlers.AccountTemplateResponse": {
-            "type": "object",
-            "properties": {
-                "appDescription": {
-                    "type": "string"
-                },
-                "appIconUrl": {
-                    "type": "string"
-                },
-                "appName": {
-                    "type": "string"
-                },
-                "id": {
                     "type": "integer"
                 }
             }
