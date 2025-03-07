@@ -352,7 +352,7 @@ INSERT INTO disclosures (
     custom_data
 ) VALUES
 (
-    1,
+    0,
     '00000000-0000-0000-0000-000000000002', -- 被相続人ID (田中太郎)
     '00000000-0000-0000-0000-000000000001', -- 申請者ID (山田花子)
     NOW() - INTERVAL '5 days',
@@ -363,7 +363,7 @@ INSERT INTO disclosures (
     '{"reason": "家族のサポート", "relationship": "daughter"}'::jsonb
 ),
 (
-    2,
+    1,
     '00000000-0000-0000-0000-000000000003', -- 被相続人ID (田中太郎)
     '00000000-0000-0000-0000-000000000001', -- 申請者ID (鈴木一郎)
     NOW() - INTERVAL '10 days',
