@@ -52,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./crypto
-          file: ./crypto/build/Dockerfile.prod
+          file: ./crypto/Dockerfile
           tags: digibaton.azurecr.io/crypto-dev:latest
           push: true
       - name: Create a new revison for containerapp
