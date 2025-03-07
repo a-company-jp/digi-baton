@@ -51,3 +51,6 @@ dev:
 
 gen/docs:
 	swag init
+
+gen:
+	make gen/docs
