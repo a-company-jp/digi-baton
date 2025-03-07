@@ -22,7 +22,8 @@ const eslintConfig = [
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react-hooks/exhaustive-deps": "error",
-    }
+    },
+    ignorePatterns: ["components/ui/**"],
   }),
 ]
 

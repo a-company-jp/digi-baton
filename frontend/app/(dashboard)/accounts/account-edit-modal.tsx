@@ -84,11 +84,11 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
                     <div className="w-12 h-12 aspect-square flex-shrink-0 flex items-center justify-center rounded-md bg-gray-50 overflow-hidden">
                       {account.appIconUrl ? (
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                          {account.appName.charAt(0)}
+                          {account.appName?.charAt(0)}
                         </div>
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                          {account.appName.charAt(0)}
+                          {account.appName?.charAt(0)}
                         </div>
                       )}
                     </div>
