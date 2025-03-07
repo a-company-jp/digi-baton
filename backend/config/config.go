@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	Server ServerConfig
-	DB    DBConfig
+	DB     DBConfig
 }
 
 var (
@@ -31,11 +31,12 @@ func LoadConfig() *Config {
 				Port: getEnv("SERVER_PORT", "8080"),
 			},
 			DB: DBConfig{
-				Host:     getEnv("DB_HOST", "localhost"),
-				Port:     getEnv("DB_PORT", "5432"),
-				User:     getEnv("DB_USER", "user"),
-				Password: getEnv("DB_PASSWORD", "password"),
-				Name:     getEnv("DB_NAME", "digi_baton"),
+				Host:         getEnv("DB_HOST", "localhost"),
+				Port:         getEnv("DB_PORT", "5432"),
+				User:         getEnv("DB_USER", "user"),
+				Password:     getEnv("DB_PASSWORD", "password"),
+				Name:         getEnv("DB_NAME", "digi_baton"),
+				AzureConnStr: getEnv("AZURE_SQL_HOST", ""),
 			},
 		}
 	})
@@ -49,4 +50,3 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
-
