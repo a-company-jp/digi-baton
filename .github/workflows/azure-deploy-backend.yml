@@ -56,7 +56,7 @@ jobs:
           tags: digibaton.azurecr.io/backend-dev:latest
           push: true
       - name: Create a new revison for containerapp
-        runs:
+        runs: |
            az containerapp update \                                                                                                                  in zsh at 00:58:29
               --resource-group digi-baton \
               --name backend-dev \
