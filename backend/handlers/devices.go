@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -36,25 +37,19 @@ type DeviceResponse struct {
 // @Tags			devices
 // @Accept			json
 // @Produce		json
-// @Param			passerID	query		string			true	"デバイスを取得するユーザのID"
 // @Success		200			{array}		DeviceResponse	"成功"
-// @Failure		400			{object}	ErrorResponse	"リクエストデータが不正です"
+// @Failure		401			{object}	ErrorResponse	"認証に失敗しました"
 // @Failure		500			{object}	ErrorResponse	"データベース接続に失敗しました"
 // @Router			/devices [get]
 func (h *DevicesHandler) List(c *gin.Context) {
-	passerID := c.Query("passerID")
-	if passerID == "" {
-		c.JSON(http.StatusBadRequest, ErrorResponse{"パラメータが不正です", "passerIDが指定されていません"})
+	// コンテキストからユーザーIDを取得する
+	userID, exists := middleware.GetUserIdUUID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, ErrorResponse{"認証に失敗しました", "ユーザーIDが見つかりません"})
 		return
 	}
 
-	pID, err := toPGUUID(passerID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{"UUID変換に失敗しました", err.Error()})
-		return
-	}
-
-	devices, err := h.queries.ListDisclosedDevicesByReceiverId(c, pID)
+	devices, err := h.queries.ListDisclosedDevicesByReceiverId(c, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"デバイス一覧取得に失敗しました", err.Error()})
 		return

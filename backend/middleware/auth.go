@@ -125,7 +125,7 @@ func GetUserIdUUID(c *gin.Context) (pgtype.UUID, bool) {
 	}
 
 	var pgUUID pgtype.UUID
-	err = pgUUID.Scan(parsedUUID)
+	err = pgUUID.Scan(parsedUUID.String())
 	if err != nil {
 		return pgtype.UUID{}, false
 	}

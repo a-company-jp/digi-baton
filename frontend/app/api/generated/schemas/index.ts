@@ -6,7 +6,6 @@
  */
 
 export * from './getAliveChecksParams';
-export * from './getDevicesParams';
 export * from './getDisclosuresParams';
 export * from './getTrustsParams';
 export * from './handlersAccountCreateRequest';
@@ -17,6 +16,7 @@ export * from './handlersAliveCheckHistoryResponse';
 export * from './handlersAliveCheckHistoryUpdateRequest';
 export * from './handlersDeleteAccountCreateRequest';
 export * from './handlersDeleteDeviceCreateRequest';
+export * from './handlersDeleteSubscriptionRequest';
 export * from './handlersDeleteTrustRequest';
 export * from './handlersDeviceCreateRequest';
 export * from './handlersDeviceCreateRequestBody';
@@ -26,6 +26,9 @@ export * from './handlersDisclosureDeleteRequest';
 export * from './handlersDisclosureResponse';
 export * from './handlersDisclosureUpdateRequest';
 export * from './handlersErrorResponse';
+export * from './handlersSubscriptionCreateRequest';
+export * from './handlersSubscriptionResponse';
+export * from './handlersSubscriptionUpdateRequest';
 export * from './handlersTrustRequest';
 export * from './handlersTrustResponse';
 export * from './handlersUpdateTrustRequest';

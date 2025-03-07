@@ -98,6 +98,13 @@ func main() {
 			authenticated.PUT("/disclosures", disclosuresHandler.Update)
 			authenticated.DELETE("/disclosures", disclosuresHandler.Delete)
 
+			// subscriptions
+			subscriptionsHandler := handlers.NewSubscriptionsHandler(q)
+			authenticated.GET("/subscriptions", subscriptionsHandler.List)
+			authenticated.POST("/subscriptions", subscriptionsHandler.Create)
+			authenticated.PUT("/subscriptions", subscriptionsHandler.Update)
+			authenticated.DELETE("/subscriptions", subscriptionsHandler.Delete)
+
 			// alive check
 			aliveChecksHandler := handlers.NewAliveChecksHandler(q)
 			authenticated.GET("/alive-checks", aliveChecksHandler.List)

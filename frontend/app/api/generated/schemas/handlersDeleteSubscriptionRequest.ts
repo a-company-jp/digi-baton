@@ -5,9 +5,6 @@
  * OpenAPI spec version: 2.0
  */
 
-export type GetDevicesParams = {
-/**
- * デバイスを取得するユーザのID
- */
-passerID: string;
-};
+export interface HandlersDeleteSubscriptionRequest {
+  subscriptionID?: number;
+}
