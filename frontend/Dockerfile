@@ -4,6 +4,7 @@ ENV NODE_ENV=production
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --ignore-scripts --frozen-lockfile
 COPY . .
+COPY .env .env
 RUN pnpm run build
 EXPOSE 3000
 CMD ["node_modules/.bin/next", "start"]
