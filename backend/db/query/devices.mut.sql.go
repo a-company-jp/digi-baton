@@ -37,7 +37,7 @@ type CreateDeviceParams struct {
 	Memo              string
 	Message           string
 	PasserID          pgtype.UUID
-	TrustID           pgtype.Int4
+	TrustID           int32
 	CustomData        []byte
 }
 
@@ -114,7 +114,7 @@ RETURNING id, device_type, device_description, device_username, device_icon_url,
 type SetDeviceDisclosureStatusParams struct {
 	ID          int32
 	IsDisclosed bool
-	TrustID     pgtype.Int4
+	TrustID     int32
 }
 
 func (q *Queries) SetDeviceDisclosureStatus(ctx context.Context, arg SetDeviceDisclosureStatusParams) (Device, error) {

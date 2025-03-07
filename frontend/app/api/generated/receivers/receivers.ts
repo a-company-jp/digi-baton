@@ -19,7 +19,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetReceiversParams,
   HandlersErrorResponse,
   HandlersReceiverResponse
 } from '.././schemas';
@@ -51,24 +50,17 @@ export type getReceiversResponse = getReceiversResponseComposite & {
   headers: Headers;
 }
 
-export const getGetReceiversUrl = (params: GetReceiversParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetReceiversUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/receivers?${stringifiedParams}` : `/receivers`
+  return `/receivers`
 }
 
-export const getReceivers = async (params: GetReceiversParams, options?: RequestInit): Promise<getReceiversResponse> => {
+export const getReceivers = async ( options?: RequestInit): Promise<getReceiversResponse> => {
   
-  return getReceiversMutator<getReceiversResponse>(getGetReceiversUrl(params),
+  return getReceiversMutator<getReceiversResponse>(getGetReceiversUrl(),
   {      
     ...options,
     method: 'GET'
@@ -79,21 +71,21 @@ export const getReceivers = async (params: GetReceiversParams, options?: Request
 
 
 
-export const getGetReceiversQueryKey = (params: GetReceiversParams,) => {
-    return [`/receivers`, ...(params ? [params]: [])] as const;
+export const getGetReceiversQueryKey = () => {
+    return [`/receivers`] as const;
     }
 
     
-export const getGetReceiversQueryOptions = <TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>(params: GetReceiversParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
+export const getGetReceiversQueryOptions = <TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetReceiversQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetReceiversQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReceivers>>> = ({ signal }) => getReceivers(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getReceivers>>> = ({ signal }) => getReceivers({ signal, ...requestOptions });
 
       
 
@@ -107,7 +99,7 @@ export type GetReceiversQueryError = HandlersErrorResponse
 
 
 export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>(
- params: GetReceiversParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>> & Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getReceivers>>,
           TError,
@@ -117,7 +109,7 @@ export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>(
- params: GetReceiversParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>> & Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getReceivers>>,
           TError,
@@ -127,7 +119,7 @@ export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>(
- params: GetReceiversParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -135,11 +127,11 @@ export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>
  */
 
 export function useGetReceivers<TData = Awaited<ReturnType<typeof getReceivers>>, TError = HandlersErrorResponse>(
- params: GetReceiversParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getReceivers>>, TError, TData>>, request?: SecondParameter<typeof getReceiversMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetReceiversQueryOptions(params,options)
+  const queryOptions = getGetReceiversQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

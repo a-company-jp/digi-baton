@@ -13,7 +13,7 @@ INSERT INTO accounts(app_template_id,
                     trust_id,
                     is_disclosed,
                     custom_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, null, false, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, $11, false, $12)
 RETURNING *;
 
 -- name: UpdateAccount :one

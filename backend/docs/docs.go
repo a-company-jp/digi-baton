@@ -696,15 +696,6 @@ const docTemplate = `{
                     "receivers"
                 ],
                 "summary": "相続人の一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ユーザーID",
-                        "name": "userId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1080,6 +1071,27 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "description": "clerkIDからユーザーを取得するためのエンドポイント",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ユーザー取得",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UserResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
                 "consumes": [
@@ -1173,6 +1185,13 @@ const docTemplate = `{
     "definitions": {
         "handlers.AccountCreateRequest": {
             "type": "object",
+            "required": [
+                "appName",
+                "passerID",
+                "password",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1208,6 +1227,9 @@ const docTemplate = `{
                 "plsDelete": {
                     "type": "boolean"
                 },
+                "trustID": {
+                    "type": "integer"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -1215,6 +1237,16 @@ const docTemplate = `{
         },
         "handlers.AccountResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appName",
+                "id",
+                "isDisclosed",
+                "passerID",
+                "password",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1235,10 +1267,6 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "encPassword": {
-                    "type": "string",
-                    "format": "binary"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1254,6 +1282,9 @@ const docTemplate = `{
                 "passerID": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                },
                 "plsDelete": {
                     "type": "boolean"
                 },
@@ -1267,6 +1298,12 @@ const docTemplate = `{
         },
         "handlers.AccountTemplateResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appIconUrl",
+                "appName",
+                "id"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1570,7 +1607,13 @@ const docTemplate = `{
         "handlers.ReceiverResponse": {
             "type": "object",
             "properties": {
+                "clerkUserId": {
+                    "type": "string"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "iconUrl": {
                     "type": "string"
                 },
                 "id": {
@@ -1778,6 +1821,9 @@ const docTemplate = `{
         },
         "handlers.UserCreateRequest": {
             "type": "object",
+            "required": [
+                "clerkUserID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"
@@ -1789,6 +1835,11 @@ const docTemplate = `{
         },
         "handlers.UserResponse": {
             "type": "object",
+            "required": [
+                "clerkUserID",
+                "defaultReceiverID",
+                "userID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"

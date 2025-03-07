@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,15 +10,16 @@ import (
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
 	"github.com/a-company-jp/digi-baton/backend/middleware"
+	"github.com/a-company-jp/digi-baton/proto/crypto"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type AccountTemplate struct {
-	ID             int32  `json:"id"`
-	AppName        string `json:"appName"`
-	AppDescription string `json:"appDescription"`
-	AppIconUrl     string `json:"appIconUrl"`
+	ID             int32  `json:"id" validate:"required"`
+	AppName        string `json:"appName" validate:"required"`
+	AppDescription string `json:"appDescription" validate:"required"`
+	AppIconUrl     string `json:"appIconUrl" validate:"required"`
 }
 
 type AccountTemplateResponse AccountTemplate // 他と仕様を合わせるため
@@ -44,44 +46,46 @@ var accountTemplateMap map[int32]AccountTemplate = map[int32]AccountTemplate{
 }
 
 type AccountsHandler struct {
-	queries *query.Queries
+	queries      *query.Queries
+	cryptoClient crypto.EncryptionServiceClient
 }
 
-func NewAccountsHandler(q *query.Queries) *AccountsHandler {
-	return &AccountsHandler{queries: q}
+func NewAccountsHandler(q *query.Queries, cryptoClient crypto.EncryptionServiceClient) *AccountsHandler {
+	return &AccountsHandler{queries: q, cryptoClient: cryptoClient}
 }
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID             int32                  `json:"id"`
+	ID             int32                  `json:"id" validate:"required"`
 	AppTemplateID  *int32                 `json:"appTemplateID"`
-	AppName        string                 `json:"appName"`
-	AppDescription string                 `json:"appDescription"`
+	AppName        string                 `json:"appName" validate:"required"`
+	AppDescription string                 `json:"appDescription" validate:"required"`
 	AppIconUrl     string                 `json:"appIconUrl"`
 	Username       string                 `json:"username"`
 	Email          string                 `json:"email"`
-	EncPassword    []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
+	Password       string                 `json:"password" validate:"required"`
 	Memo           string                 `json:"memo"`
-	PlsDelete      bool                   `json:"plsDelete"`
+	PlsDelete      bool                   `json:"plsDelete"  validate:"required"`
 	Message        string                 `json:"message"`
-	PasserID       string                 `json:"passerID"`
-	TrustID        *int32                 `json:"trustID"`
-	IsDisclosed    bool                   `json:"isDisclosed"`
+	PasserID       string                 `json:"passerID"  validate:"required"`
+	TrustID        int32                  `json:"trustID" validate:"required"`
+	IsDisclosed    bool                   `json:"isDisclosed" validate:"required"`
 	CustomData     map[string]interface{} `json:"customData"`
 }
 
 type AccountCreateRequest struct {
 	AppTemplateID  *int32                  `json:"appTemplateID"`
-	AppName        string                  `json:"appName"`
+	AppName        string                  `json:"appName" validate:"required"`
 	AppDescription string                  `json:"appDescription"`
 	AppIconUrl     string                  `json:"appIconUrl"`
 	Username       string                  `json:"username"`
 	Email          string                  `json:"email"`
-	Password       string                  `json:"password"`
+	Password       string                  `json:"password" validate:"required"`
 	Memo           string                  `json:"memo"`
-	PlsDelete      bool                    `json:"plsDelete"`
+	PlsDelete      bool                    `json:"plsDelete" validate:"required"`
 	Message        string                  `json:"message"`
-	PasserID       string                  `json:"passerID"`
+	PasserID       string                  `json:"passerID" validate:"required"`
+	TrustID        int32                   `json:"trustID" validate:"required"`
 	CustomData     *map[string]interface{} `json:"customData"`
 }
 
@@ -111,7 +115,12 @@ func (h *AccountsHandler) List(c *gin.Context) {
 
 	response := make([]AccountResponse, len(accounts))
 	for i, account := range accounts {
-		response[i] = accountToResponse(account)
+		resp, err := accountToResponse(account, h.cryptoClient, c.Request.Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント情報の変換に失敗しました", "details": err.Error()})
+			return
+		}
+		response[i] = resp
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -142,6 +151,19 @@ func (h *AccountsHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// パスワードを暗号化する
+	if req.Password != "" {
+		encResp, err := h.cryptoClient.Encrypt(c, &crypto.EncryptRequest{
+			UserId:    req.PasserID,
+			Plaintext: []byte(req.Password),
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "パスワードの暗号化に失敗しました", "details": err.Error()})
+			return
+		}
+		params.EncPassword = encResp.GetCiphertext()
+	}
+
 	account, err := h.queries.CreateAccount(c, params)
 
 	if err != nil {
@@ -149,7 +171,11 @@ func (h *AccountsHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response := accountToResponse(account)
+	response, err := accountToResponse(account, h.cryptoClient, c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント情報の変換に失敗しました", "details": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, response)
 }
@@ -184,6 +210,19 @@ func (h *AccountsHandler) Update(c *gin.Context) {
 		return
 	}
 
+	// パスワードを暗号化する
+	if req.Password != "" {
+		encResp, err := h.cryptoClient.Encrypt(c, &crypto.EncryptRequest{
+			UserId:    req.PasserID,
+			Plaintext: []byte(req.Password),
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "パスワードの暗号化に失敗しました", "details": err.Error()})
+			return
+		}
+		params.EncPassword = encResp.GetCiphertext()
+	}
+
 	account, err := h.queries.GetAccount(c, params.ID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "アカウントが見つかりません", "details": err.Error()})
@@ -196,10 +235,13 @@ func (h *AccountsHandler) Update(c *gin.Context) {
 		return
 	}
 
-	response := accountToResponse(account)
+	response, err := accountToResponse(account, h.cryptoClient, c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント情報の変換に失敗しました", "details": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, response)
-
 }
 
 type DeleteAccountCreateRequest struct {
@@ -239,7 +281,6 @@ func (h *AccountsHandler) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, account)
-
 }
 
 // ListTemplate
@@ -268,6 +309,7 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	params.Email = req.Email
 	params.Memo = req.Memo
 	params.Message = req.Message
+	params.TrustID = pgtype.Int4{Int32: req.TrustID, Valid: true}
 
 	if req.PasserID != "" {
 		uuid, err := toPGUUID(req.PasserID)
@@ -287,7 +329,6 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 		return params, errors.New("パスワードは必須です。")
 	}
 	strings.ReplaceAll(req.Password, " ", "")
-	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
 	if req.CustomData == nil {
 		params.CustomData = nil
@@ -312,7 +353,6 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 	params.AppIconUrl = pgtype.Text{String: req.AppIconUrl, Valid: req.AppIconUrl != ""}
 	params.Username = req.Username
 	params.Email = req.Email
-	params.EncPassword = []byte(req.Password) // TODO: encrypt
 	params.Memo = req.Memo
 	params.Message = req.Message
 
@@ -334,7 +374,6 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 		return params, errors.New("パスワードは必須です。")
 	}
 	strings.ReplaceAll(req.Password, " ", "")
-	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
 	if req.CustomData == nil {
 		params.CustomData = nil
@@ -350,7 +389,7 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 	return params, nil
 }
 
-func accountToResponse(account query.Account) AccountResponse {
+func accountToResponse(account query.Account, cryptoClient crypto.EncryptionServiceClient, ctx context.Context) (AccountResponse, error) {
 	var appTemplateID *int32
 	var appName, appDescription, appIconUrl string
 
@@ -368,11 +407,23 @@ func accountToResponse(account query.Account) AccountResponse {
 		appIconUrl = account.AppIconUrl.String
 	}
 
-	var trustID *int32
-	if account.TrustID.Valid {
-		trustID = &account.TrustID.Int32
-	} else {
-		trustID = nil
+	var trustID int32
+	trustID = account.TrustID.Int32
+
+	// 暗号化されたパスワードを復号化
+	password := ""
+	// 暗号化されたパスワードがある場合のみ復号化を試みる
+	if len(account.EncPassword) > 0 && cryptoClient != nil && ctx != nil {
+		// パスワードの復号化を行う
+		decResp, err := cryptoClient.Decrypt(ctx, &crypto.DecryptRequest{
+			UserId:     account.PasserID.String(),
+			Ciphertext: account.EncPassword,
+		})
+		if err != nil {
+			fmt.Println(err)
+			return AccountResponse{}, fmt.Errorf("パスワードの復号化に失敗しました: %w", err)
+		}
+		password = string(decResp.GetPlaintext()) // byte[]をstringに変換
 	}
 
 	// CustomDataをJSONからmap[string]interface{}に変換
@@ -394,7 +445,7 @@ func accountToResponse(account query.Account) AccountResponse {
 		AppIconUrl:     appIconUrl,
 		Username:       account.Username,
 		Email:          account.Email,
-		EncPassword:    account.EncPassword,
+		Password:       password,
 		Memo:           account.Memo,
 		PlsDelete:      account.PlsDelete,
 		Message:        account.Message,
@@ -402,5 +453,5 @@ func accountToResponse(account query.Account) AccountResponse {
 		TrustID:        trustID,
 		IsDisclosed:    account.IsDisclosed,
 		CustomData:     customData,
-	}
+	}, nil
 }

@@ -6,7 +6,7 @@
  */
 
 export interface HandlersUserResponse {
-  clerkUserID?: string;
-  defaultReceiverID?: string;
-  userID?: string;
+  clerkUserID: string;
+  defaultReceiverID: string;
+  userID: string;
 }

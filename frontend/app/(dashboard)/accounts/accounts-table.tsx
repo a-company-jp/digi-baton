@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { HandlersAccountResponse } from "@/app/api/generated/schemas/handlersAccountResponse";
+import { HandlersReceiverResponse } from "@/app/api/generated/schemas/handlersReceiverResponse";
+import { useGetReceivers } from "@/app/api/generated/receivers/receivers";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +50,7 @@ import {
 import { AccountEditModal } from "./account-edit-modal";
 import { AccountCreationDialog } from "./account-creation-dialog";
 import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 
 // 値のコピーボタン付きテキストセル
 function CopyableCell({ value, label }: { value: string; label: string }) {
@@ -204,81 +207,6 @@ function ActionCell({
   );
 }
 
-// テーブルのカラム定義
-const columns: ColumnDef<HandlersAccountResponse>[] = [
-  {
-    accessorKey: "appName",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          アプリ
-          {{
-            asc: <ChevronUp className="ml-2 h-4 w-4" />,
-            desc: <ChevronDown className="ml-2 h-4 w-4" />,
-          }[column.getIsSorted() as string] ?? (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const appName = row.getValue("appName") as string;
-      const appIconUrl = row.original.appIconUrl as string | undefined;
-
-      return (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-gray-50 flex items-center justify-center">
-            {appIconUrl ? (
-              <Image src={appIconUrl} alt={appName} width={20} height={20} />
-            ) : (
-              <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                {appName?.charAt(0) || "?"}
-              </div>
-            )}
-          </div>
-          <span>{appName || "不明"}</span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "email",
-    header: "メールアドレス",
-    cell: ({ row }) => {
-      const email = row.getValue("email") as string | undefined;
-      return email ? (
-        <CopyableCell value={email} label="メールアドレス" />
-      ) : (
-        <span className="text-muted-foreground">未設定</span>
-      );
-    },
-  },
-  {
-    accessorKey: "encPassword",
-    header: "パスワード",
-    cell: () => {
-      // 実際のアプリケーションでは暗号化されたパスワードを復号化するロジックが必要
-      // ダミーパスワードを使用
-      return <PasswordCell value="********" />;
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <ActionCell
-        account={row.original}
-        onDelete={(id) => {
-          // 削除処理
-          console.log(`ID: ${id}のアカウントを削除`);
-        }}
-      />
-    ),
-  },
-];
-
 interface AccountsTableProps {
   accountsData: HandlersAccountResponse[];
 }
@@ -286,6 +214,143 @@ interface AccountsTableProps {
 export function AccountsTable({ accountsData }: AccountsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    (async () => {
+      const t = await getToken();
+      setToken(t);
+    })();
+  }, [getToken]);
+
+  // 相続人データを取得
+  const { data } = useGetReceivers({
+    query: {
+      enabled: !!token,
+    },
+    request: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+  const receivers: HandlersReceiverResponse[] =
+    data?.data && Array.isArray(data.data)
+      ? (data.data as HandlersReceiverResponse[])
+      : [];
+
+  // テーブルのカラム定義
+  const columns: ColumnDef<HandlersAccountResponse>[] = [
+    {
+      accessorKey: "appName",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            アプリ
+            {{
+              asc: <ChevronUp className="ml-2 h-4 w-4" />,
+              desc: <ChevronDown className="ml-2 h-4 w-4" />,
+            }[column.getIsSorted() as string] ?? (
+              <ChevronsUpDown className="ml-2 h-4 w-4" />
+            )}
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const appName = row.getValue("appName") as string;
+        const appIconUrl = row.original.appIconUrl as string | undefined;
+
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
+              {appIconUrl ? (
+                <Image src={appIconUrl} alt={appName} width={20} height={20} />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                  {appName?.charAt(0) || "?"}
+                </div>
+              )}
+            </div>
+            <span>{appName || "不明"}</span>
+          </div>
+        );
+      },
+    },
+
+    {
+      accessorKey: "email",
+      header: "メールアドレス",
+      cell: ({ row }) => {
+        const email = row.getValue("email") as string | undefined;
+        return email ? (
+          <CopyableCell value={email} label="メールアドレス" />
+        ) : (
+          <span className="text-muted-foreground">未設定</span>
+        );
+      },
+    },
+    {
+      accessorKey: "password",
+      header: "パスワード",
+      cell: ({ row }) => {
+        // 実際のアプリケーションでは暗号化されたパスワードを復号化するロジックが必要
+        // ダミーパスワードを使用
+        return <PasswordCell value={row.original.password} />;
+      },
+    },
+
+    {
+      accessorKey: "trustID",
+      header: "相続人",
+      cell: ({ row }) => {
+        const trustID = row.getValue("trustID") as number | undefined;
+
+        // 該当する相続人を見つける
+        const receiver = receivers.find((r) => r.id === trustID);
+
+        if (!receiver) {
+          return <span className="text-muted-foreground">未設定</span>;
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
+              {receiver.iconUrl ? (
+                <Image
+                  src={receiver.iconUrl}
+                  alt={receiver.name || ""}
+                  width={24}
+                  height={24}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                  {receiver.name?.charAt(0) || "?"}
+                </div>
+              )}
+            </div>
+            <span>{receiver.name || "不明"}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <ActionCell
+          account={row.original}
+          onDelete={(id) => {
+            // 削除処理
+            console.log(`ID: ${id}のアカウントを削除`);
+          }}
+        />
+      ),
+    },
+  ];
 
   const table = useReactTable({
     data: accountsData,

@@ -20,7 +20,7 @@ RETURNING id, app_template_id, app_name, app_description, app_icon_url, username
 
 type AssignReceiverToAccountParams struct {
 	ID      int32
-	TrustID pgtype.Int4
+	TrustID int32
 }
 
 func (q *Queries) AssignReceiverToAccount(ctx context.Context, arg AssignReceiverToAccountParams) (Account, error) {
@@ -61,7 +61,7 @@ INSERT INTO accounts(app_template_id,
                     trust_id,
                     is_disclosed,
                     custom_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, null, false, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, $11, false, $12)
 RETURNING id, app_template_id, app_name, app_description, app_icon_url, username, email, enc_password, memo, pls_delete, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
@@ -76,6 +76,7 @@ type CreateAccountParams struct {
 	Memo           string
 	Message        string
 	PasserID       pgtype.UUID
+	TrustID        int32
 	CustomData     []byte
 }
 
@@ -91,6 +92,7 @@ func (q *Queries) CreateAccount(ctx context.Context, arg CreateAccountParams) (A
 		arg.Memo,
 		arg.Message,
 		arg.PasserID,
+		arg.TrustID,
 		arg.CustomData,
 	)
 	var i Account
@@ -159,7 +161,7 @@ RETURNING id, app_template_id, app_name, app_description, app_icon_url, username
 type SetAccountDisclosureStatusParams struct {
 	ID          int32
 	IsDisclosed bool
-	TrustID     pgtype.Int4
+	TrustID     int32
 }
 
 func (q *Queries) SetAccountDisclosureStatus(ctx context.Context, arg SetAccountDisclosureStatusParams) (Account, error) {

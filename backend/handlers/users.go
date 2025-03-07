@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -20,13 +22,38 @@ func NewUsersHandler(q *query.Queries) *UsersHandler {
 
 type UserCreateRequest struct {
 	DefaultReceiverID *uuid.UUID `json:"defaultReceiverID"`
-	ClerkUserID       string     `json:"clerkUserID"`
+	ClerkUserID       string     `json:"clerkUserID" validate:"required"`
 }
 
 type UserResponse struct {
-	UserID            string `json:"userID"`
-	DefaultReceiverID string `json:"defaultReceiverID"`
-	ClerkUserID       string `json:"clerkUserID"`
+	UserID            string `json:"userID" validate:"required"`
+	DefaultReceiverID string `json:"defaultReceiverID" validate:"required"`
+	ClerkUserID       string `json:"clerkUserID" validate:"required"`
+}
+
+// @Summary		ユーザー取得
+// @Description	clerkIDからユーザーを取得するためのエンドポイント
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	UserResponse		"成功"
+// @Router			/users [get]
+func (h *UsersHandler) GetByClerkID(c *gin.Context) {
+	clerkUserID, ok := middleware.GetClerkUserId(c)
+	fmt.Println(clerkUserID)
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "リクエストデータが不正です", "details": errors.New("")})
+		return
+	}
+	user, err := h.queries.GetUserByClerkID(c, clerkUserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "データベースエラー", "details": err.Error()})
+		return
+	}
+
+	response := userToResponse(user)
+
+	c.JSON(http.StatusOK, response)
 }
 
 // @Summary		ユーザ登録
