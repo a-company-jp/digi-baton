@@ -4,16 +4,16 @@
  * Digi Baton API
  * OpenAPI spec version: 2.0
  */
+import type { HandlersAccountResponseCustomData } from './handlersAccountResponseCustomData';
 
 export interface HandlersAccountResponse {
-  accountUsername?: string;
   appDescription?: string;
   appIconUrl?: string;
   appName?: string;
   appTemplateID?: number;
-  customData?: number[];
+  customData?: HandlersAccountResponseCustomData;
   email?: string;
-  encPassword?: number[];
+  encPassword?: Blob;
   id?: number;
   isDisclosed?: boolean;
   memo?: string;
@@ -21,4 +21,5 @@ export interface HandlersAccountResponse {
   passerID?: string;
   plsDelete?: boolean;
   trustID?: number;
+  username?: string;
 }

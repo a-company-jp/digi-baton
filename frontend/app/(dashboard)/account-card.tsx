@@ -13,7 +13,7 @@ interface Account {
   appIconUrl?: string;
   appDescription: string;
   username: string;
-  encodedPassword: string;
+  encodedPassword: Blob;
 }
 
 interface AccountCardProps {
@@ -28,8 +28,9 @@ export default function AccountCard({
     appName: account.appName || "",
     appIconUrl: account.appIconUrl,
     appDescription: account.appDescription || "",
-    username: account.accountUsername || account.email || "",
-    encodedPassword: Buffer.from(account.encPassword || []).toString("base64"),
+    username: account.username || account.email || "",
+    email: account.email || "",
+    encodedPassword: account.encPassword || new Blob(),
   }));
   const router = useRouter();
 

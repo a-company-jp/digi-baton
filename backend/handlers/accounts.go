@@ -53,36 +53,36 @@ func NewAccountsHandler(q *query.Queries) *AccountsHandler {
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID              int32                  `json:"id"`
-	AppTemplateID   *int32                 `json:"appTemplateID"`
-	AppName         string                 `json:"appName"`
-	AppDescription  string                 `json:"appDescription"`
-	AppIconUrl      string                 `json:"appIconUrl"`
-	Username       string `json:"accountUsername"`
-	Email          string `json:"email"`
-	EncPassword     []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
-	Memo            string                 `json:"memo"`
-	PlsDelete       bool                   `json:"plsDelete"`
-	Message         string                 `json:"message"`
-	PasserID        string                 `json:"passerID"`
-	TrustID         *int32                 `json:"trustID"`
-	IsDisclosed     bool                   `json:"isDisclosed"`
-	CustomData      map[string]interface{} `json:"customData"`
+	ID             int32                  `json:"id"`
+	AppTemplateID  *int32                 `json:"appTemplateID"`
+	AppName        string                 `json:"appName"`
+	AppDescription string                 `json:"appDescription"`
+	AppIconUrl     string                 `json:"appIconUrl"`
+	Username       string                 `json:"username"`
+	Email          string                 `json:"email"`
+	EncPassword    []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
+	Memo           string                 `json:"memo"`
+	PlsDelete      bool                   `json:"plsDelete"`
+	Message        string                 `json:"message"`
+	PasserID       string                 `json:"passerID"`
+	TrustID        *int32                 `json:"trustID"`
+	IsDisclosed    bool                   `json:"isDisclosed"`
+	CustomData     map[string]interface{} `json:"customData"`
 }
 
 type AccountCreateRequest struct {
-	AppTemplateID   *int32                    `json:"appTemplateID"`
-	AppName         string                    `json:"appName"`
-	AppDescription  string                    `json:"appDescription"`
-	AppIconUrl      string                    `json:"appIconUrl"`
-	Username       string  `json:"accountUsername"`
-	Email          string  `json:"email"`
-	Password        string                    `json:"password"`
-	Memo            string                    `json:"memo"`
-	PlsDelete       bool                      `json:"plsDelete"`
-	Message         string                    `json:"message"`
-	PasserID        string                    `json:"passerID"`
-	CustomData      *[]map[string]interface{} `json:"customData"`
+	AppTemplateID  *int32                  `json:"appTemplateID"`
+	AppName        string                  `json:"appName"`
+	AppDescription string                  `json:"appDescription"`
+	AppIconUrl     string                  `json:"appIconUrl"`
+	Username       string                  `json:"username"`
+	Email          string                  `json:"email"`
+	Password       string                  `json:"password"`
+	Memo           string                  `json:"memo"`
+	PlsDelete      bool                    `json:"plsDelete"`
+	Message        string                  `json:"message"`
+	PasserID       string                  `json:"passerID"`
+	CustomData     *map[string]interface{} `json:"customData"`
 }
 
 // List アカウント一覧取得
@@ -387,20 +387,20 @@ func accountToResponse(account query.Account) AccountResponse {
 	}
 
 	return AccountResponse{
-		ID:                account.ID,
-		AppTemplateID:     appTemplateID,
-		AppName:         appName,
-		AppDescription:  appDescription,
-		AppIconUrl:      appIconUrl,
+		ID:             account.ID,
+		AppTemplateID:  appTemplateID,
+		AppName:        appName,
+		AppDescription: appDescription,
+		AppIconUrl:     appIconUrl,
 		Username:       account.Username,
 		Email:          account.Email,
-		EncPassword:     account.EncPassword,
-		Memo:            account.Memo,
-		PlsDelete:       account.PlsDelete,
-		Message:         account.Message,
-		PasserID:        account.PasserID.String(),
-		TrustID:         trustID,
-		IsDisclosed:     account.IsDisclosed,
-		CustomData:      customData,
+		EncPassword:    account.EncPassword,
+		Memo:           account.Memo,
+		PlsDelete:      account.PlsDelete,
+		Message:        account.Message,
+		PasserID:       account.PasserID.String(),
+		TrustID:        trustID,
+		IsDisclosed:    account.IsDisclosed,
+		CustomData:     customData,
 	}
 }

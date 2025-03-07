@@ -1,16 +1,11 @@
 import { AlertCircle } from "lucide-react";
 import { AccountsTable } from "./accounts-table";
-import { AccountsCardView } from "./accounts-card-view";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { auth } from "@clerk/nextjs/server";
 import { getAccounts } from "@/app/api/generated/accounts/accounts"; // 生成されたAPI関数を使用
 import { HandlersAccountResponse } from "@/app/api/generated/schemas"; // 型定義をインポート
 
 export default async function AccountsPage() {
-  // デフォルトでテーブル表示
-  // NOTE: あまり良くないかも
-  const viewMode = "table";
-
   // Clerk認証を使用
   const authData = await auth();
   const token = await authData.getToken();
@@ -58,11 +53,7 @@ export default async function AccountsPage() {
       </div>
 
       <div className="mt-6">
-        {viewMode === "table" ? (
-          <AccountsTable accountsData={accountsData} />
-        ) : (
-          <AccountsCardView accountsData={accountsData} />
-        )}
+        <AccountsTable accountsData={accountsData} />
       </div>
     </div>
   );

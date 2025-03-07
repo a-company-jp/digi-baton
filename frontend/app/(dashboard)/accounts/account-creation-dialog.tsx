@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -31,7 +32,7 @@ import { postAccounts } from "@/app/api/generated/accounts/accounts";
 const accountSchema = z.object({
   appName: z.string().min(1, "アプリ名は必須です"),
   email: z.string().email("有効なメールアドレスを入力してください").optional(),
-  accountUsername: z.string().optional(),
+  username: z.string().optional(),
   appIconUrl: z.string().optional(),
   memo: z.string().optional(),
 });
@@ -53,7 +54,7 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
     defaultValues: {
       appName: "",
       email: "",
-      accountUsername: "",
+      username: "",
       appIconUrl: "",
       memo: "",
     },
@@ -67,7 +68,7 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
       const createData: HandlersAccountCreateRequestBody = {
         appName: values.appName,
         email: values.email,
-        accountUsername: values.accountUsername,
+        username: values.username,
         appIconUrl: values.appIconUrl,
         memo: values.memo,
       };
@@ -103,6 +104,7 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
         <DialogHeader>
           <DialogTitle>新規アカウント作成</DialogTitle>
         </DialogHeader>
+        <DialogDescription>新規アカウントを作成します。</DialogDescription>
 
         <Form {...form}>
           <form
@@ -125,7 +127,7 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
 
             <FormField
               control={form.control}
-              name="accountUsername"
+              name="username"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>アカウント名</FormLabel>

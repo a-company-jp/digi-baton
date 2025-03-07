@@ -21,7 +21,7 @@ const accountSchema = z.object({
   id: z.number().optional(),
   appName: z.string().min(1, "アプリ名は必須です"),
   email: z.string().email("有効なメールアドレスを入力してください").optional(),
-  accountUsername: z.string().optional(),
+  username: z.string().optional(),
   appIconUrl: z.string().optional(),
   memo: z.string().optional(),
   trustID: z.number().optional(),
@@ -43,7 +43,7 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
       id: account.id,
       appName: account.appName || "",
       email: account.email || "",
-      accountUsername: account.accountUsername || "",
+      username: account.username || "",
       appIconUrl: account.appIconUrl || "",
       memo: account.memo || "",
       trustID: account.trustID,
@@ -144,7 +144,7 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
 
         <FormField
           control={form.control}
-          name="accountUsername"
+          name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel>アカウント名</FormLabel>
