@@ -31,9 +31,9 @@ export default async function AccountsPage() {
     isError = true;
   }
 
-  // if (isError) {
-  //   return <ErrorFlashMessage message="アカウント情報の取得中にエラーが発生しました。" />;
-  // }
+  if (isError) {
+    return <ErrorFlashMessage message="アカウント情報の取得中にエラーが発生しました。" />;
+  }
 
   return (
     <div className="p-6">

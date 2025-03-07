@@ -66,7 +66,7 @@ function EditDialog({
   );
 }
 
-function DeleteDialog<T>({
+function DeleteDialog({
   resource,
   onDelete,
 }: {

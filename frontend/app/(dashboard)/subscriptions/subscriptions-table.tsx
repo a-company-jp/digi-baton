@@ -1,11 +1,7 @@
 "use client";
-
-import Image from "next/image";
-
-import { HandlersDeviceResponse, HandlersSubscriptionResponse } from "@/app/api/generated/schemas";
+import { HandlersSubscriptionResponse } from "@/app/api/generated/schemas";
 import {
     ColumnDef,
-    flexRender,
     getCoreRowModel,
     getSortedRowModel,
     SortingState,
@@ -17,12 +13,6 @@ import {
 import {
   CopyableCell,
   PasswordCell,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
 import { TablePagination, TableSearch, TableUI } from "../table-common";

@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { ColumnDef, Table as ReactTable, useReactTable, flexRender } from "@tanstack/react-table";
+import { ColumnDef, Table as ReactTable, flexRender } from "@tanstack/react-table";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

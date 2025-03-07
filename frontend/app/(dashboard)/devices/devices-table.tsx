@@ -1,11 +1,8 @@
 "use client";
 
-import Image from "next/image";
-
 import { HandlersDeviceResponse } from "@/app/api/generated/schemas";
 import {
     ColumnDef,
-    flexRender,
     getCoreRowModel,
     getSortedRowModel,
     SortingState,
