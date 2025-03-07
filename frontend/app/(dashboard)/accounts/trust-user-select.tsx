@@ -17,8 +17,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User, users as mockUsers } from "./mock-data";
 import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
+import { useGetReceivers } from "@/app/api/generated/receivers/receivers";
+import { HandlersReceiverResponse } from "@/app/api/generated/schemas";
 
 interface TrustUserSelectProps {
   selectedUserId: string | number | undefined;
@@ -31,40 +33,59 @@ export function TrustUserSelect({
 }: TrustUserSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [users, setUsers] = useState<User[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+  const { getToken } = useAuth();
 
-  // ユーザーデータの取得
+  // TokenをSecureに取得
   useEffect(() => {
-    // TODO: バックエンドのGoのAPIを叩いてユーザーデータを取得する予定
-    // 例: fetch('/api/users').then(res => res.json()).then(data => setUsers(data));
+    (async () => {
+      const t = await getToken();
+      setToken(t);
+    })();
+  }, [getToken]);
 
-    // 現状はモックデータを使用
-    setUsers(mockUsers);
-  }, []);
+  const { data, isLoading: isTrustUsersLoading } = useGetReceivers({
+    query: {
+      enabled: !!token,
+    },
+    request: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  });
+
+  // APIレスポンスからtrustsUsersを抽出
+  const trustUsers: HandlersReceiverResponse[] =
+    data?.status === 200 ? data.data : [];
 
   // 選択されているユーザーを取得
   const selectedUser = selectedUserId
-    ? users.find((user) => user.id === String(selectedUserId))
+    ? trustUsers.find(
+        (user) =>
+          user.id === Number(selectedUserId) || user.id === selectedUserId
+      )
     : undefined;
 
-  // 確実に配列が存在することを保証
-  const safeUsers = Array.isArray(users) ? users : [];
-
   // 検索クエリに基づいてフィルタリング
-  const filteredUsers = safeUsers.filter((user) => {
+  const filteredUsers = trustUsers.filter((user) => {
     if (!searchQuery) return true;
 
     const query = searchQuery.toLowerCase();
     return (
-      user.name.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query)
+      user.name?.toLowerCase().includes(query) ||
+      false ||
+      user.email?.toLowerCase().includes(query) ||
+      false
     );
   });
 
   // コマンドアイテムが選択されたときの処理
-  const handleSelect = (userId: string) => {
-    onSelect(userId);
-    setOpen(false);
+  const handleSelect = (userId: string | number | undefined) => {
+    if (userId !== undefined) {
+      onSelect(String(userId));
+      setOpen(false);
+    }
   };
 
   // ユーザーが選択されていない場合のボタンスタイル
@@ -84,18 +105,18 @@ export function TrustUserSelect({
         >
           {selectedUser ? (
             <div className="flex items-center gap-2">
-              {selectedUser.avatarUrl ? (
+              {selectedUser.iconUrl ? (
                 <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
                   <Image
-                    src={selectedUser.avatarUrl}
-                    alt={selectedUser.name}
+                    src={selectedUser.iconUrl}
+                    alt={selectedUser.name || ""}
                     width={24}
                     height={24}
                   />
                 </div>
               ) : (
                 <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">
-                  {selectedUser.name.charAt(0)}
+                  {selectedUser.name ? selectedUser.name.charAt(0) : ""}
                 </div>
               )}
               <span className="truncate">
@@ -118,44 +139,49 @@ export function TrustUserSelect({
             onValueChange={setSearchQuery}
           />
           <CommandList>
-            {filteredUsers.length === 0 && (
+            {isTrustUsersLoading ? (
+              <CommandEmpty>読み込み中...</CommandEmpty>
+            ) : filteredUsers.length === 0 ? (
               <CommandEmpty>ユーザーが見つかりません</CommandEmpty>
-            )}
-            <CommandGroup>
-              {filteredUsers.map((user) => (
-                <CommandItem
-                  key={user.id}
-                  onSelect={() => handleSelect(user.id)}
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    {user.avatarUrl ? (
-                      <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-                        <Image
-                          src={user.avatarUrl}
-                          alt={user.name}
-                          width={24}
-                          height={24}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">
-                        {user.name.charAt(0)}
-                      </div>
-                    )}
-                    <span className="flex-1 truncate">{user.name}</span>
-                    <span className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </span>
-                    <Check
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        selectedUserId === user.id ? "opacity-100" : "opacity-0"
+            ) : (
+              <CommandGroup>
+                {filteredUsers.map((user) => (
+                  <CommandItem
+                    key={user.id}
+                    onSelect={() => handleSelect(user.id)}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      {user.iconUrl ? (
+                        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                          <Image
+                            src={user.iconUrl}
+                            alt={user.name || ""}
+                            width={24}
+                            height={24}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs flex-shrink-0">
+                          {user.name ? user.name.charAt(0) : ""}
+                        </div>
                       )}
-                    />
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+                      <span className="flex-1 truncate">{user.name}</span>
+                      <span className="text-xs text-gray-500 truncate">
+                        {user.email}
+                      </span>
+                      <Check
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          selectedUserId === user.id
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                    </div>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

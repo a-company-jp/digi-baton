@@ -284,7 +284,11 @@ definitions:
     type: object
   handlers.ReceiverResponse:
     properties:
+      clerkUserId:
+        type: string
       email:
+        type: string
+      iconUrl:
         type: string
       id:
         type: integer
@@ -892,12 +896,6 @@ paths:
       consumes:
       - application/json
       description: 相続人の一覧を取得します
-      parameters:
-      - description: ユーザーID
-        in: query
-        name: userId
-        required: true
-        type: string
       produces:
       - application/json
       responses:

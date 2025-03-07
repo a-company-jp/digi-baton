@@ -12,19 +12,16 @@ import (
 )
 
 const listReceiversByUserId = `-- name: ListReceiversByUserId :many
-SELECT trusts.id, receiver_user_id, passer_user_id, users.id, default_receiver_id, clerk_user_id
+SELECT trusts.id, users.clerk_user_id, users.id AS user_id 
 FROM trusts
 JOIN users ON trusts.receiver_user_id = users.id
 WHERE trusts.passer_user_id = $1
 `
 
 type ListReceiversByUserIdRow struct {
-	ID                int32
-	ReceiverUserID    pgtype.UUID
-	PasserUserID      pgtype.UUID
-	ID_2              pgtype.UUID
-	DefaultReceiverID pgtype.UUID
-	ClerkUserID       string
+	ID          int32
+	ClerkUserID string
+	UserID      pgtype.UUID
 }
 
 func (q *Queries) ListReceiversByUserId(ctx context.Context, passerUserID pgtype.UUID) ([]ListReceiversByUserIdRow, error) {
@@ -36,14 +33,7 @@ func (q *Queries) ListReceiversByUserId(ctx context.Context, passerUserID pgtype
 	var items []ListReceiversByUserIdRow
 	for rows.Next() {
 		var i ListReceiversByUserIdRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.ReceiverUserID,
-			&i.PasserUserID,
-			&i.ID_2,
-			&i.DefaultReceiverID,
-			&i.ClerkUserID,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.ClerkUserID, &i.UserID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

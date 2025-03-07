@@ -696,15 +696,6 @@ const docTemplate = `{
                     "receivers"
                 ],
                 "summary": "相続人の一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ユーザーID",
-                        "name": "userId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1617,7 +1608,13 @@ const docTemplate = `{
         "handlers.ReceiverResponse": {
             "type": "object",
             "properties": {
+                "clerkUserId": {
+                    "type": "string"
+                },
                 "email": {
+                    "type": "string"
+                },
+                "iconUrl": {
                     "type": "string"
                 },
                 "id": {
