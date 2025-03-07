@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         hostname: "digibatonmainstorageacct.blob.core.windows.net",
         protocol: "https",
       },
+      {
+        hostname: "img.clerk.com",
+        protocol: "https",
+      },
     ],
   },
 };
