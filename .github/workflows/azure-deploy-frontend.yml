@@ -46,9 +46,7 @@ jobs:
         run: |
           echo ${{ secrets.ENV_FILE }} > ./frontend/.env
       - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          tags: digibaton.azurecr.io/frontend-dev:latest
-          push: true
+        run: |
+          cd frontend
+          docker build -t digibaton.azurecr.io/frontend-dev:latest .
+          docker push digibaton.azurecr.io/frontend-dev:latest
