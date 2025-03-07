@@ -2,18 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  CopyableCell,
+  PasswordCell,
 } from "@/components/ui/table";
 import {
   ColumnDef,
-  flexRender,
   getCoreRowModel,
   getSortedRowModel,
   SortingState,
@@ -26,11 +20,6 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronsUpDown,
-  Copy,
-  Check,
-  Eye,
-  EyeOff,
-  SearchIcon,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -47,88 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { AccountEditModal } from "./account-edit-modal";
 import { AccountCreationDialog } from "./account-creation-dialog";
-import { toast } from "sonner";
-
-// 値のコピーボタン付きテキストセル
-function CopyableCell({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast("コピーしました", {
-      description: `${label}をクリップボードにコピーしました。`,
-      duration: 2000,
-    });
-  };
-
-  return (
-    <div className="flex items-center justify-between">
-      <span>{value}</span>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={copyToClipboard}
-        className="h-8 w-8 ml-2 opacity-70 hover:opacity-100"
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </Button>
-    </div>
-  );
-}
-
-// パスワードセル
-function PasswordCell({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast("コピーしました", {
-      description: `パスワードをクリップボードにコピーしました。`,
-      duration: 2000,
-    });
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  return (
-    <div className="flex items-center justify-between">
-      <span>{showPassword ? value : "••••••••"}</span>
-      <div className="flex items-center">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={copyToClipboard}
-          className="h-8 w-8 ml-2 opacity-70 hover:opacity-100"
-        >
-          {copied ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={togglePasswordVisibility}
-          className="h-8 w-8 opacity-70 hover:opacity-100"
-        >
-          {showPassword ? (
-            <Eye className="h-4 w-4" />
-          ) : (
-            <EyeOff className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    </div>
-  );
-}
+import { TablePagination, TableSearch, TableUI } from "../table-common";
 
 // 編集ボタンセル
 function ActionCell({
@@ -140,6 +48,12 @@ function ActionCell({
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+  const onSave = (updatedAccount: HandlersAccountResponse) => {
+    // 実際のアプリケーションではここでデータ更新処理を行う
+    console.log("アカウント更新:", updatedAccount);
+    setIsEditOpen(false);
+  }
 
   return (
     <div className="flex items-center space-x-1">
@@ -156,11 +70,7 @@ function ActionCell({
           <DialogDescription>アカウント情報を編集します。</DialogDescription>
           <AccountEditModal
             account={account}
-            onSave={(updatedAccount) => {
-              // 実際のアプリケーションではここでデータ更新処理を行う
-              console.log("アカウント更新:", updatedAccount);
-              setIsEditOpen(false);
-            }}
+            onSave={onSave}
           />
         </DialogContent>
       </Dialog>
@@ -305,19 +215,7 @@ export function AccountsTable({ accountsData }: AccountsTableProps) {
   return (
     <div>
       <div className="flex items-center justify-between pb-4">
-        <div className="relative max-w-sm">
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="アプリ名、メールアドレスで検索..."
-            value={
-              (table.getColumn("appName")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("appName")?.setFilterValue(event.target.value)
-            }
-            className="w-80 pl-8"
-          />
-        </div>
+        <TableSearch<HandlersAccountResponse> table={table} key="appName" placeholder="アプリ名で検索" />
         <AccountCreationDialog
           onSave={(newAccount) => {
             // ここにアカウント作成処理を実装
@@ -325,74 +223,8 @@ export function AccountsTable({ accountsData }: AccountsTableProps) {
           }}
         />
       </div>
-
-      <div className="rounded-md border bg-card">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  登録されたアカウントがありません
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          前へ
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          次へ
-        </Button>
-      </div>
+      <TableUI<HandlersAccountResponse> table={table} columns={columns} noFoundMessage="アカウントが見つかりませんでした" />
+      <TablePagination<HandlersAccountResponse> table={table} />
     </div>
   );
 }

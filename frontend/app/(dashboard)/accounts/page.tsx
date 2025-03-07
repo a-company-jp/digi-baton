@@ -1,9 +1,9 @@
-import { AlertCircle } from "lucide-react";
+
 import { AccountsTable } from "./accounts-table";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { auth } from "@clerk/nextjs/server";
 import { getAccounts } from "@/app/api/generated/accounts/accounts"; // 生成されたAPI関数を使用
 import { HandlersAccountResponse } from "@/app/api/generated/schemas"; // 型定義をインポート
+import { ErrorFlashMessage, TableTitle } from "../common";
 
 export default async function AccountsPage() {
   // Clerk認証を使用
@@ -31,30 +31,14 @@ export default async function AccountsPage() {
     isError = true;
   }
 
-  // エラー状態の処理
-  if (isError) {
-    return (
-      <div className="p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>エラー</AlertTitle>
-          <AlertDescription>
-            アカウント情報の取得中にエラーが発生しました。
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // if (isError) {
+  //   return <ErrorFlashMessage message="アカウント情報の取得中にエラーが発生しました。" />;
+  // }
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">アカウント</h1>
-      </div>
-
-      <div className="mt-6">
-        <AccountsTable accountsData={accountsData} />
-      </div>
+      <TableTitle title="アカウント" />
+      <AccountsTable accountsData={accountsData} />
     </div>
   );
 }
