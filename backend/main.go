@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -34,12 +35,18 @@ func main() {
 	}
 	clerk.SetKey(secretKey)
 
-	conn, err := pgx.Connect(ctx, config.DB.GetConnStr())
-	if err != nil {
-		panic(err)
+	var pgConn *pgx.Conn
+	for true {
+		conn, err := pgx.Connect(ctx, config.DB.GetConnStr())
+		if err == nil {
+			pgConn = conn
+			break
+		}
+		log.Printf("failed to connect to db: %v", err)
+		time.Sleep(5 * time.Second)
 	}
-	defer conn.Close(ctx)
-	q := query.New(conn)
+	defer pgConn.Close(ctx)
+	q := query.New(pgConn)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
