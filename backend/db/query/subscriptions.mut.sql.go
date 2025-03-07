@@ -46,7 +46,7 @@ type CreateSubscriptionParams struct {
 	PlsDelete    bool
 	Message      string
 	PasserID     pgtype.UUID
-	TrustID      pgtype.Int4
+	TrustID      int32
 	CustomData   []byte
 }
 
@@ -171,7 +171,7 @@ RETURNING id, service_name, icon_url, username, email, enc_password, amount, cur
 type SetSubscriptionDisclosureStatusParams struct {
 	ID          int32
 	IsDisclosed bool
-	TrustID     pgtype.Int4
+	TrustID     int32
 }
 
 func (q *Queries) SetSubscriptionDisclosureStatus(ctx context.Context, arg SetSubscriptionDisclosureStatusParams) (Subscription, error) {

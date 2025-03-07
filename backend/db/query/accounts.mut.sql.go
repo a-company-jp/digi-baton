@@ -20,7 +20,7 @@ RETURNING id, app_template_id, app_name, app_description, app_icon_url, username
 
 type AssignReceiverToAccountParams struct {
 	ID      int32
-	TrustID pgtype.Int4
+	TrustID int32
 }
 
 func (q *Queries) AssignReceiverToAccount(ctx context.Context, arg AssignReceiverToAccountParams) (Account, error) {
@@ -76,7 +76,7 @@ type CreateAccountParams struct {
 	Memo           string
 	Message        string
 	PasserID       pgtype.UUID
-	TrustID        pgtype.Int4
+	TrustID        int32
 	CustomData     []byte
 }
 
@@ -161,7 +161,7 @@ RETURNING id, app_template_id, app_name, app_description, app_icon_url, username
 type SetAccountDisclosureStatusParams struct {
 	ID          int32
 	IsDisclosed bool
-	TrustID     pgtype.Int4
+	TrustID     int32
 }
 
 func (q *Queries) SetAccountDisclosureStatus(ctx context.Context, arg SetAccountDisclosureStatusParams) (Account, error) {
