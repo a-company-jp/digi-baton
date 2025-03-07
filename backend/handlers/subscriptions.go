@@ -265,11 +265,6 @@ func reqToUpdateSubscriptionParams(req SubscriptionUpdateRequest) (query.UpdateS
 }
 
 func subscriptionToResponse(subscription query.Subscription) SubscriptionResponse {
-	var trustID *int32
-	if subscription.TrustID.Valid {
-		trustID = &subscription.TrustID.Int32
-	}
-
 	var serviceName, iconUrl string
 	if subscription.ServiceName.Valid {
 		serviceName = subscription.ServiceName.String
@@ -291,7 +286,7 @@ func subscriptionToResponse(subscription query.Subscription) SubscriptionRespons
 		Memo:         subscription.Memo,
 		PlsDelete:    subscription.PlsDelete,
 		Message:      subscription.Message,
-		TrustID:      trustID,
+		TrustID:      &subscription.TrustID,
 		IsDisclosed:  subscription.IsDisclosed,
 		CustomData:   subscription.CustomData,
 	}
