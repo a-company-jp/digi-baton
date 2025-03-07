@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,7 +16,7 @@ import (
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -24,7 +26,6 @@ import (
 // @host		localhost:8080
 // @BasePath	/api
 func main() {
-	ctx := context.Background()
 	config := config.LoadConfig()
 
 	// Clerk APIキーの初期化
@@ -34,12 +35,12 @@ func main() {
 	}
 	clerk.SetKey(secretKey)
 
-	conn, err := pgx.Connect(ctx, config.DB.GetConnStr())
+	dbPool, err := initDatabasePool(config.DB.GetConnStr())
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close(ctx)
-	q := query.New(conn)
+	defer dbPool.Close()
+	q := query.New(dbPool)
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -74,12 +75,17 @@ func main() {
 			receiversHandler := handlers.NewReceiversHandler(q)
 			authenticated.GET("/receivers", receiversHandler.List)
 
+			// users
+			userHandlers := handlers.NewUsersHandler(q)
+			authenticated.GET("/users", userHandlers.GetByClerkID)
+
 			// accounts
 			accountHandlers := handlers.NewAccountsHandler(q)
 			authenticated.GET("/accounts", accountHandlers.List)
 			authenticated.POST("/accounts", accountHandlers.Create)
 			authenticated.PUT("/accounts", accountHandlers.Update)
 			authenticated.DELETE("/accounts", accountHandlers.Delete)
+			authenticated.GET("/accounts/templates", accountHandlers.ListTemplate)
 
 			// devices
 			devicesHandler := handlers.NewDevicesHandler(q)
@@ -118,4 +124,37 @@ func main() {
 	}
 
 	router.Run(":" + config.Server.Port)
+}
+
+// initDatabasePool はデータベース接続プールを初期化
+func initDatabasePool(connString string) (*pgxpool.Pool, error) {
+	// プール設定のパース
+	config, err := pgxpool.ParseConfig(connString)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse connection string: %v", err)
+	}
+
+	// プール設定のカスタマイズ
+	config.MaxConns = 20                      // 最大接続数
+	config.MinConns = 5                       // 最小維持接続数
+	config.MaxConnLifetime = 1 * time.Hour    // 接続の最大寿命
+	config.MaxConnIdleTime = 30 * time.Minute // アイドル接続のタイムアウト
+	config.ConnConfig.ConnectTimeout = 5 * time.Second
+
+	// プールの作成
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	pool, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create connection pool: %v", err)
+	}
+
+	// 接続確認
+	if err := pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("unable to ping database: %v", err)
+	}
+
+	log.Println("Database connection pool initialized successfully")
+	return pool, nil
 }
