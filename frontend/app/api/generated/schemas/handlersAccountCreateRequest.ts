@@ -4,14 +4,14 @@
  * Digi Baton API
  * OpenAPI spec version: 2.0
  */
-import type { HandlersAccountCreateRequestCustomDataItem } from './handlersAccountCreateRequestCustomDataItem';
+import type { HandlersAccountCreateRequestCustomData } from './handlersAccountCreateRequestCustomData';
 
 export interface HandlersAccountCreateRequest {
   appDescription?: string;
   appIconUrl?: string;
   appName?: string;
   appTemplateID?: number;
-  customData?: HandlersAccountCreateRequestCustomDataItem[];
+  customData?: HandlersAccountCreateRequestCustomData;
   email?: string;
   memo?: string;
   message?: string;

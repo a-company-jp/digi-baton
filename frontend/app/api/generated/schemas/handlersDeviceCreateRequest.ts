@@ -4,10 +4,11 @@
  * Digi Baton API
  * OpenAPI spec version: 2.0
  */
+import type { HandlersDeviceCreateRequestCustomData } from './handlersDeviceCreateRequestCustomData';
 
 export interface HandlersDeviceCreateRequest {
   credentialType?: number;
-  customData?: number[];
+  customData?: HandlersDeviceCreateRequestCustomData;
   deviceDescription?: string;
   deviceType?: number;
   deviceUsername?: string;

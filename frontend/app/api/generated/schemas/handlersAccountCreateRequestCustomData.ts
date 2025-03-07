@@ -5,4 +5,4 @@
  * OpenAPI spec version: 2.0
  */
 
-export type HandlersAccountCreateRequestCustomDataItem = { [key: string]: unknown };
+export type HandlersAccountCreateRequestCustomData = { [key: string]: unknown };
