@@ -10,7 +10,7 @@
     "format": "pnpm -r format",
     "prepare": "husky"
   },
-  "packageManager": "pnpm@9.12.3",
+  "packageManager": "pnpm",
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3"
