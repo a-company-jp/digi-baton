@@ -269,7 +269,7 @@ func deviceToResponse(device query.Device) DeviceResponse {
 	response.Memo = device.Memo
 	response.Message = device.Message
 	response.PasserID = device.PasserID.String()
-	response.TrustID = device.TrustID.Int32
+	response.TrustID = device.TrustID
 
 	// Parse CustomData JSON if it exists
 	if device.CustomData != nil {

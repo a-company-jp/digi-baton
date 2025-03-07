@@ -309,7 +309,7 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	params.Email = req.Email
 	params.Memo = req.Memo
 	params.Message = req.Message
-	params.TrustID = pgtype.Int4{Int32: req.TrustID, Valid: true}
+	params.TrustID = req.TrustID
 
 	if req.PasserID != "" {
 		uuid, err := toPGUUID(req.PasserID)
@@ -408,7 +408,7 @@ func accountToResponse(account query.Account, cryptoClient crypto.EncryptionServ
 	}
 
 	var trustID int32
-	trustID = account.TrustID.Int32
+	trustID = account.TrustID
 
 	// 暗号化されたパスワードを復号化
 	password := ""
