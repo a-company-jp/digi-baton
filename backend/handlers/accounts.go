@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,6 +12,36 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type AccountTemplate struct {
+	ID             int32  `json:"id"`
+	AppName        string `json:"appName"`
+	AppDescription string `json:"appDescription"`
+	AppIconUrl     string `json:"appIconUrl"`
+}
+
+type AccountTemplateResponse AccountTemplate // 他と仕様を合わせるため
+
+var accountTemplateMap map[int32]AccountTemplate = map[int32]AccountTemplate{
+	1: {
+		ID:             1,
+		AppName:        "Google",
+		AppDescription: "Google",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/google.webp",
+	},
+	2: {
+		ID:             2,
+		AppName:        "X",
+		AppDescription: "X",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/x.webp",
+	},
+	3: {
+		ID:             3,
+		AppName:        "Instagram",
+		AppDescription: "Instagram",
+		AppIconUrl:     "https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/instagram.webp",
+	},
+}
 
 type AccountsHandler struct {
 	queries *query.Queries
@@ -22,38 +53,39 @@ func NewAccountsHandler(q *query.Queries) *AccountsHandler {
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID             int32  `json:"id"`
-	AppTemplateID  *int32 `json:"appTemplateID"`
-	AppName        string `json:"appName"`
-	AppDescription string `json:"appDescription"`
-	AppIconUrl     string `json:"appIconUrl"`
+	ID              int32                  `json:"id"`
+	AppTemplateID   *int32                 `json:"appTemplateID"`
+	AppName         string                 `json:"appName"`
+	AppDescription  string                 `json:"appDescription"`
+	AppIconUrl      string                 `json:"appIconUrl"`
 	Username       string `json:"accountUsername"`
 	Email          string `json:"email"`
-	EncPassword    []byte `json:"encPassword"`
-	Memo           string `json:"memo"`
-	PlsDelete      bool   `json:"plsDelete"`
-	Message        string `json:"message"`
-	PasserID       string `json:"passerID"`
-	TrustID        *int32 `json:"trustID"`
-	IsDisclosed    bool   `json:"isDisclosed"`
-	CustomData     []byte `json:"customData"`
+	EncPassword     []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
+	Memo            string                 `json:"memo"`
+	PlsDelete       bool                   `json:"plsDelete"`
+	Message         string                 `json:"message"`
+	PasserID        string                 `json:"passerID"`
+	TrustID         *int32                 `json:"trustID"`
+	IsDisclosed     bool                   `json:"isDisclosed"`
+	CustomData      map[string]interface{} `json:"customData"`
 }
 
 type AccountCreateRequest struct {
-	AppTemplateID  *int32  `json:"appTemplateID"`
-	AppName        string  `json:"appName"`
-	AppDescription string  `json:"appDescription"`
-	AppIconUrl     string  `json:"appIconUrl"`
+	AppTemplateID   *int32                    `json:"appTemplateID"`
+	AppName         string                    `json:"appName"`
+	AppDescription  string                    `json:"appDescription"`
+	AppIconUrl      string                    `json:"appIconUrl"`
 	Username       string  `json:"accountUsername"`
 	Email          string  `json:"email"`
-	Password       string  `json:"password"`
-	Memo           string  `json:"memo"`
-	PlsDelete      bool    `json:"plsDelete"`
-	Message        string  `json:"message"`
-	PasserID       string  `json:"passerID"`
-	CustomData     *[]byte `json:"customData"`
+	Password        string                    `json:"password"`
+	Memo            string                    `json:"memo"`
+	PlsDelete       bool                      `json:"plsDelete"`
+	Message         string                    `json:"message"`
+	PasserID        string                    `json:"passerID"`
+	CustomData      *[]map[string]interface{} `json:"customData"`
 }
 
+// List アカウント一覧取得
 // @Summary アカウント一覧取得
 // @Description ユーザが開示しているアカウント一覧を取得する
 // @Tags accounts
@@ -85,6 +117,7 @@ func (h *AccountsHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// Create アカウント作成
 // @Summary アカウント作成
 // @Description アカウントを作成する
 // @Tags accounts
@@ -126,6 +159,7 @@ type AccountUpdateRequest struct {
 	AccountCreateRequest
 }
 
+// Update アカウント更新
 // @Summary アカウント更新
 // @Description アカウントを更新する
 // @Tags accounts
@@ -173,6 +207,7 @@ type DeleteAccountCreateRequest struct {
 	DeviceID int    `json:"deviceID"`
 }
 
+// Delete アカウント削除
 // @Summary アカウント削除
 // @Description アカウントを削除する
 // @Tags accounts
@@ -207,6 +242,22 @@ func (h *AccountsHandler) Delete(c *gin.Context) {
 
 }
 
+// ListTemplate
+// @Summary アカウントテンプレート一覧
+// @Description アカウントテンプレートの一覧取得
+// @Tags accounts
+// @Accept json
+// @Produce json
+// @Success 200 {array} AccountTemplateResponse "成功"
+// @Router /accounts/templates [get]
+func (h *AccountsHandler) ListTemplate(c *gin.Context) {
+	templates := make([]AccountTemplate, 0, len(accountTemplateMap))
+	for _, template := range accountTemplateMap {
+		templates = append(templates, template)
+	}
+	c.JSON(http.StatusOK, templates)
+}
+
 func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountParams, error) {
 	var params query.CreateAccountParams
 
@@ -238,10 +289,15 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	strings.ReplaceAll(req.Password, " ", "")
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
-	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
+	if req.CustomData == nil {
 		params.CustomData = nil
 	} else {
-		params.CustomData = *req.CustomData
+		// Convert []map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
 	}
 
 	return params, nil
@@ -280,22 +336,36 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 	strings.ReplaceAll(req.Password, " ", "")
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 
-	if req.CustomData == nil || bytes.Equal(*req.CustomData, []byte("\x00")) {
+	if req.CustomData == nil {
 		params.CustomData = nil
 	} else {
-		params.CustomData = *req.CustomData
+		// Convert []map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
 	}
 
 	return params, nil
 }
 
 func accountToResponse(account query.Account) AccountResponse {
-
 	var appTemplateID *int32
+	var appName, appDescription, appIconUrl string
+
 	if account.AppTemplateID.Valid {
 		appTemplateID = &account.AppTemplateID.Int32
+		if template, ok := accountTemplateMap[account.AppTemplateID.Int32]; ok {
+			appName = template.AppName
+			appDescription = template.AppDescription
+			appIconUrl = template.AppIconUrl
+		}
 	} else {
 		appTemplateID = nil
+		appName = account.AppName.String
+		appDescription = account.AppDescription.String
+		appIconUrl = account.AppIconUrl.String
 	}
 
 	var trustID *int32
@@ -305,21 +375,32 @@ func accountToResponse(account query.Account) AccountResponse {
 		trustID = nil
 	}
 
+	// CustomDataをJSONからmap[string]interface{}に変換
+	var customData map[string]interface{}
+	if account.CustomData != nil {
+		if err := json.Unmarshal(account.CustomData, &customData); err != nil {
+			// エラーが発生した場合は空のマップを使用
+			customData = make(map[string]interface{})
+		}
+	} else {
+		customData = make(map[string]interface{})
+	}
+
 	return AccountResponse{
-		ID:             account.ID,
-		AppTemplateID:  appTemplateID,
-		AppName:        account.AppName.String,
-		AppDescription: account.AppDescription.String,
-		AppIconUrl:     account.AppIconUrl.String,
+		ID:                account.ID,
+		AppTemplateID:     appTemplateID,
+		AppName:         appName,
+		AppDescription:  appDescription,
+		AppIconUrl:      appIconUrl,
 		Username:       account.Username,
 		Email:          account.Email,
-		EncPassword:    account.EncPassword,
-		Memo:           account.Memo,
-		PlsDelete:      account.PlsDelete,
-		Message:        account.Message,
-		PasserID:       account.PasserID.String(),
-		TrustID:        trustID,
-		IsDisclosed:    account.IsDisclosed,
-		CustomData:     account.CustomData,
+		EncPassword:     account.EncPassword,
+		Memo:            account.Memo,
+		PlsDelete:       account.PlsDelete,
+		Message:         account.Message,
+		PasserID:        account.PasserID.String(),
+		TrustID:         trustID,
+		IsDisclosed:     account.IsDisclosed,
+		CustomData:      customData,
 	}
 }
