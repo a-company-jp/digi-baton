@@ -5,17 +5,13 @@
  * OpenAPI spec version: 2.0
  */
 
-export * from './getAccountsParams';
 export * from './getAliveChecksParams';
 export * from './getDevicesParams';
 export * from './getDisclosuresParams';
 export * from './getTrustsParams';
 export * from './handlersAccountCreateRequest';
 export * from './handlersAccountCreateRequestBody';
-export * from './handlersAccountCreateRequestCustomDataItem';
 export * from './handlersAccountResponse';
-export * from './handlersAccountResponseCustomData';
-export * from './handlersAccountTemplateResponse';
 export * from './handlersAliveCheckHistoryCreateRequest';
 export * from './handlersAliveCheckHistoryResponse';
 export * from './handlersAliveCheckHistoryUpdateRequest';
