@@ -14,6 +14,7 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	ServerPort string
+	UseSSL     bool
 }
 
 var (
@@ -38,6 +39,7 @@ func loadConfig() (*Config, error) {
 	viper.AutomaticEnv()
 
 	viper.SetDefault("SERVER_PORT", "8080")
+	viper.SetDefault("USE_SSL", false)
 
 	c := &Config{
 		DBHost:     viper.GetString("DB_HOST"),
@@ -46,6 +48,7 @@ func loadConfig() (*Config, error) {
 		DBPassword: viper.GetString("DB_PASSWORD"),
 		DBName:     viper.GetString("DB_NAME"),
 		ServerPort: viper.GetString("SERVER_PORT"),
+		UseSSL:     viper.GetBool("USE_SSL"),
 	}
 
 	if !c.Validate() {
@@ -69,4 +72,12 @@ func (c *Config) Validate() bool {
 		c.DBPassword != "" &&
 		c.DBName != "" &&
 		c.ServerPort != ""
+}
+
+func (c *Config) DBConnStr() string {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", c.DBUser, c.DBPassword, c.DBHost, c.DBPort, c.DBName)
+	if !c.UseSSL {
+		connStr += " sslmode=disable"
+	}
+	return connStr
 }
