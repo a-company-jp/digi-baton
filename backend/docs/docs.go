@@ -1493,18 +1493,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "deadlineDuration": {
                     "type": "integer"
                 },
                 "passerID": {
-                    "type": "string"
-                },
-                "requesterID": {
                     "type": "string"
                 }
             }

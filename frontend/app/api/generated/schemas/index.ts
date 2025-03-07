@@ -26,6 +26,7 @@ export * from './handlersDeviceCreateRequestCustomData';
 export * from './handlersDeviceResponse';
 export * from './handlersDeviceResponseCustomData';
 export * from './handlersDisclosureCreateRequest';
+export * from './handlersDisclosureCreateRequestCustomData';
 export * from './handlersDisclosureDeleteRequest';
 export * from './handlersDisclosureResponse';
 export * from './handlersDisclosureUpdateRequest';

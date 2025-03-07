@@ -215,14 +215,11 @@ definitions:
   handlers.DisclosureCreateRequest:
     properties:
       customData:
-        items:
-          type: integer
-        type: array
+        additionalProperties: true
+        type: object
       deadlineDuration:
         type: integer
       passerID:
-        type: string
-      requesterID:
         type: string
     type: object
   handlers.DisclosureDeleteRequest:

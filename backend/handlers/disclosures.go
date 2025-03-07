@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -69,10 +70,9 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 }
 
 type DisclosureCreateRequest struct {
-	PasserID         string `json:"passerID"`
-	RequesterID      string `json:"requesterID"`
-	DeadlineDuration int32  `json:"deadlineDuration"`
-	CustomData       []byte `json:"customData"`
+	PasserID         string                 `json:"passerID"`
+	DeadlineDuration int32                  `json:"deadlineDuration"`
+	CustomData       map[string]interface{} `json:"customData"`
 }
 
 // @Summary		開示申請作成
@@ -86,13 +86,18 @@ type DisclosureCreateRequest struct {
 // @Failure		500			{object}	ErrorResponse			"開示請求の作成に失敗"
 // @Router			/disclosures [post]
 func (h *DisclosuresHandler) Create(c *gin.Context) {
+	requesterID, ok := middleware.GetUserIdUUID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: ""})
+		return
+	}
 	var req DisclosureCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: err.Error()})
 		return
 	}
 
-	params, err := reqToCreateDisclosureParams(req)
+	params, err := reqToCreateDisclosureParams(requesterID, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: err.Error()})
 		return
@@ -214,20 +219,23 @@ func (h *DisclosuresHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func reqToCreateDisclosureParams(req DisclosureCreateRequest) (query.CreateDisclosureParams, error) {
+func reqToCreateDisclosureParams(requesterID pgtype.UUID, req DisclosureCreateRequest) (query.CreateDisclosureParams, error) {
 
 	passerID, err := toPGUUID(req.PasserID)
 	if err != nil {
 		return query.CreateDisclosureParams{}, err
 	}
 
-	requesterID, err := toPGUUID(req.RequesterID)
-	if err != nil {
-		return query.CreateDisclosureParams{}, err
-	}
-
-	if len(req.CustomData) == 0 || string(req.CustomData) == "null" || bytes.Equal(req.CustomData, []byte("\x00")) {
-		req.CustomData = []byte("{}")
+	// CustomDataをJSONに変換
+	var customDataBytes []byte
+	if req.CustomData != nil {
+		var err error
+		customDataBytes, err = json.Marshal(req.CustomData)
+		if err != nil {
+			return query.CreateDisclosureParams{}, fmt.Errorf("failed to marshal custom data: %w", err)
+		}
+	} else {
+		customDataBytes = []byte("{}")
 	}
 
 	return query.CreateDisclosureParams{
@@ -235,7 +243,7 @@ func reqToCreateDisclosureParams(req DisclosureCreateRequest) (query.CreateDiscl
 		RequesterID: requesterID,
 		IssuedTime:  toPGTimestamp(time.Now()),
 		Deadline:    toPGTimestamp(time.Now().AddDate(0, 0, int(req.DeadlineDuration))),
-		CustomData:  req.CustomData,
+		CustomData:  customDataBytes,
 	}, nil
 }
 

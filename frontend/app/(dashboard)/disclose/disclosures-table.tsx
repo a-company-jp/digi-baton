@@ -38,6 +38,8 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { getReceivers } from "@/app/api/generated/receivers/receivers";
+import { toast } from "sonner";
+import { DisclosureCreationDialog } from "./disclosure-creation-dialog";
 
 interface DisclosuresTableProps {
   disclosuresData: HandlersDisclosureResponse[];
@@ -47,7 +49,14 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [receivers, setReceivers] = useState<HandlersReceiverResponse[]>([]);
+  const [data, setData] =
+    useState<HandlersDisclosureResponse[]>(disclosuresData);
   const { getToken } = useAuth();
+
+  // データ更新（親コンポーネントから渡されたデータが変更された場合）
+  useEffect(() => {
+    setData(disclosuresData);
+  }, [disclosuresData]);
 
   // 相続受取人（receivers）データを取得
   useEffect(() => {
@@ -59,17 +68,42 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
             Authorization: `Bearer ${token}`,
           },
         });
-        const data = await response.data;
-        if (data && Array.isArray(data)) {
-          setReceivers(data);
+        if (response && response.data && Array.isArray(response.data)) {
+          setReceivers(response.data);
         }
       } catch (error) {
         console.error("Error fetching receivers:", error);
+        toast.error("受取人データの取得に失敗しました");
       }
     };
 
     fetchReceivers();
   }, [getToken]);
+
+  // 申請作成後にデータを再取得
+  const handleSuccessfulCreation = async () => {
+    try {
+      const token = await getToken();
+      // APIから最新のデータを取得
+      const response = await fetch("/api/disclosures", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch updated data");
+      }
+
+      const result = await response.json();
+      if (result && result.data && Array.isArray(result.data)) {
+        setData(result.data);
+      }
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("データの更新に失敗しました");
+    }
+  };
 
   // 受取人（receiver）情報を表示するコンポーネント
   const ReceiverDisplay = ({ userId }: { userId: string }) => {
@@ -198,7 +232,7 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
   ];
 
   const table = useReactTable({
-    data: disclosuresData,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -228,6 +262,9 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
             className="w-80 pl-8"
           />
         </div>
+        <DisclosureCreationDialog
+          onSuccessfulCreation={handleSuccessfulCreation}
+        />
       </div>
 
       <div className="rounded-md border bg-card">
