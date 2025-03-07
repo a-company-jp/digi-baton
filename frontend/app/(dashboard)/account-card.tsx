@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import DashboardCard from "./dashboard-card";
 import { UserIcon } from "lucide-react";
+import type { HandlersAccountResponse } from "../api/generated/schemas/handlersAccountResponse";
 
 const MAX_DISPLAY_ACCOUNTS = 6;
 
@@ -16,67 +16,22 @@ interface Account {
   encodedPassword: string;
 }
 
-export default function AccountCard() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+interface AccountCardProps {
+  accounts: HandlersAccountResponse[];
+}
+
+export default function AccountCard({
+  accounts: accountsData,
+}: AccountCardProps) {
+  const accounts: Account[] = accountsData.map((account) => ({
+    id: account.id?.toString() || "",
+    appName: account.appName || "",
+    appIconUrl: account.appIconUrl,
+    appDescription: account.appDescription || "",
+    username: account.accountUsername || account.email || "",
+    encodedPassword: Buffer.from(account.encPassword || []).toString("base64"),
+  }));
   const router = useRouter();
-
-  useEffect(() => {
-    // call API
-
-    // mock data
-    setAccounts([
-      {
-        id: "1",
-        appName: "Google",
-        appDescription: "Googleアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-        appIconUrl: "/icons/google.png",
-      },
-      {
-        id: "2",
-        appName: "Spotify",
-        appDescription: "Spotifyアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-      {
-        id: "3",
-        appName: "X",
-        appDescription: "Xアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-      {
-        id: "4",
-        appName: "Instagram",
-        appDescription: "Instagramアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-      {
-        id: "5",
-        appName: "Facebook",
-        appDescription: "Facebookアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-      {
-        id: "6",
-        appName: "LinkedIn",
-        appDescription: "LinkedInアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-      {
-        id: "7",
-        appName: "GitHub",
-        appDescription: "GitHubアカウント",
-        username: "test@example.com",
-        encodedPassword: "encodedPassword",
-      },
-    ]);
-  }, []);
 
   const handleOnManage = () => {
     return router.push("/accounts");
@@ -92,28 +47,34 @@ export default function AccountCard() {
       count={accounts.length}
       countLabel="アカウント数"
     >
-      <div className="grid grid-cols-6 gap-4 mb-6">
-        {accounts.slice(0, MAX_DISPLAY_ACCOUNTS).map((account) => (
-          <div
-            key={account.id}
-            className="flex justify-center items-center p-4 border rounded-md"
-          >
-            {account.appIconUrl ? (
-              <Image
-                src={account.appIconUrl}
-                alt={account.appName}
-                width={32}
-                height={32}
-                className="object-contain"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium">
-                {account.appName.charAt(0)}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      {accounts.length === 0 ? (
+        <div className="text-center text-gray-500 py-4">
+          <p>アカウントがありません</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-6 gap-4 mb-6">
+          {accounts.slice(0, MAX_DISPLAY_ACCOUNTS).map((account) => (
+            <div
+              key={account.id}
+              className="flex justify-center items-center p-4 border rounded-md"
+            >
+              {account.appIconUrl ? (
+                <Image
+                  src={account.appIconUrl}
+                  alt={account.appName}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium">
+                  {account.appName.charAt(0)}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </DashboardCard>
   );
 }
