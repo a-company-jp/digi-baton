@@ -14,9 +14,10 @@ definitions:
         type: integer
       customData:
         items:
-          additionalProperties: true
-          type: object
+          type: integer
         type: array
+      email:
+        type: string
       memo:
         type: string
       message:
@@ -41,11 +42,15 @@ definitions:
       appTemplateID:
         type: integer
       customData:
-        additionalProperties: true
-        type: object
-      encPassword:
-        format: binary
+        items:
+          type: integer
+        type: array
+      email:
         type: string
+      encPassword:
+        items:
+          type: integer
+        type: array
       id:
         type: integer
       isDisclosed:
@@ -59,17 +64,6 @@ definitions:
       plsDelete:
         type: boolean
       trustID:
-        type: integer
-    type: object
-  handlers.AccountTemplateResponse:
-    properties:
-      appDescription:
-        type: string
-      appIconUrl:
-        type: string
-      appName:
-        type: string
-      id:
         type: integer
     type: object
   handlers.AliveCheckHistoryCreateRequest:
@@ -336,12 +330,6 @@ paths:
       consumes:
       - application/json
       description: ユーザが開示しているアカウント一覧を取得する
-      parameters:
-      - description: パスワードを取得するユーザのID
-        in: query
-        name: passerID
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -418,23 +406,6 @@ paths:
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
       summary: アカウント更新
-      tags:
-      - accounts
-  /accounts/templates:
-    get:
-      consumes:
-      - application/json
-      description: アカウントテンプレートの一覧取得
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 成功
-          schema:
-            items:
-              $ref: '#/definitions/handlers.AccountTemplateResponse'
-            type: array
-      summary: アカウントテンプレート一覧
       tags:
       - accounts
   /alive-checks:
