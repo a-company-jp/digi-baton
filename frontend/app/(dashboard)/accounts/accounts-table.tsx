@@ -43,6 +43,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { AccountEditModal } from "./account-edit-modal";
 import { AccountCreationDialog } from "./account-creation-dialog";
@@ -152,6 +153,7 @@ function ActionCell({
           <DialogHeader>
             <DialogTitle>アカウント編集</DialogTitle>
           </DialogHeader>
+          <DialogDescription>アカウント情報を編集します。</DialogDescription>
           <AccountEditModal
             account={account}
             onSave={(updatedAccount) => {
