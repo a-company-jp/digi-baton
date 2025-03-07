@@ -59,7 +59,7 @@ jobs:
           docker build -t digibaton.azurecr.io/frontend-dev:latest .
           docker push digibaton.azurecr.io/frontend-dev:latest
       - name: Create a new revison for containerapp
-        runs:
+        runs: |
            az containerapp update \
               --resource-group digi-baton \
               --name frontend-dev \
