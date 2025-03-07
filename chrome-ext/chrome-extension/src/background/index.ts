@@ -39,10 +39,10 @@ chrome.runtime.onConnect.addListener(function (port) {
   switch (port.name) {
     case 'passkeyCreateRequest':
       console.log('createRequest port connected');
-      port.onMessage.addListener(function (msg: unknown) {
+      port.onMessage.addListener(function (msg: { reqId: number | undefined }) {
         console.log('createRequest message:', msg);
         const reqId = msg.reqId;
-        if (!reqId || typeof reqId !== 'number') {
+        if (!reqId) {
           console.error('invalid reqId:', reqId);
           return;
         }
@@ -68,10 +68,10 @@ chrome.runtime.onConnect.addListener(function (port) {
       break;
     case 'passkeyGetRequest':
       console.log('getRequest port connected');
-      port.onMessage.addListener(function (msg: unknown) {
+      port.onMessage.addListener(function (msg: { reqId: number | undefined }) {
         console.log('getRequest message:', msg);
         const reqId = msg.reqId;
-        if (!reqId || typeof reqId !== 'number') {
+        if (!reqId) {
           console.error('invalid reqId:', reqId);
           return;
         }
@@ -95,6 +95,10 @@ chrome.runtime.onConnect.addListener(function (port) {
           );
         });
       });
+      break;
+    default:
+      console.error('Unknown port name:', port.name);
+      detachAndReattachLater();
   }
 });
 
