@@ -98,6 +98,13 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       trustID: -1,
+      email: "",
+      appName: "",
+      appDescription: "",
+      appIconUrl: "",
+      username: "",
+      password: "",
+      memo: "",
     },
   });
 
