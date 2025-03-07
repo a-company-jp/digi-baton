@@ -25,14 +25,13 @@ import type {
 import type {
   HandlersAccountCreateRequestBody,
   HandlersAccountResponse,
-  HandlersDeleteAccountCreateRequest,
-  HandlersErrorResponse
+  HandlersDeleteAccountCreateRequest
 } from '.././schemas';
 
-import deleteAccountsMutator from '../../../../lib/fetch';
 import getAccountsMutator from '../../../../lib/fetch';
-import postAccountsMutator from '../../../../lib/fetch';
 import putAccountsMutator from '../../../../lib/fetch';
+import postAccountsMutator from '../../../../lib/fetch';
+import deleteAccountsMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -40,94 +39,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * アカウントを削除する
- * @summary アカウント削除
- */
-export type deleteAccountsResponse200 = {
-  data: HandlersAccountResponse
-  status: 200
-}
-
-export type deleteAccountsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type deleteAccountsResponseComposite = deleteAccountsResponse200 | deleteAccountsResponse400;
-    
-export type deleteAccountsResponse = deleteAccountsResponseComposite & {
-  headers: Headers;
-}
-
-export const getDeleteAccountsUrl = () => {
-
-
-  
-
-  return `/accounts`
-}
-
-export const deleteAccounts = async (handlersDeleteAccountCreateRequest: HandlersDeleteAccountCreateRequest, options?: RequestInit): Promise<deleteAccountsResponse> => {
-  
-  return deleteAccountsMutator<deleteAccountsResponse>(getDeleteAccountsUrl(),
-  {      
-    ...options,
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersDeleteAccountCreateRequest,)
-  }
-);}
-
-
-
-
-export const getDeleteAccountsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext>, request?: SecondParameter<typeof deleteAccountsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext> => {
-    
-const mutationKey = ['deleteAccounts'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccounts>>, {data: HandlersDeleteAccountCreateRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  deleteAccounts(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteAccountsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccounts>>>
-    export type DeleteAccountsMutationBody = HandlersDeleteAccountCreateRequest
-    export type DeleteAccountsMutationError = HandlersErrorResponse
-
-    /**
- * @summary アカウント削除
- */
-export const useDeleteAccounts = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext>, request?: SecondParameter<typeof deleteAccountsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof deleteAccounts>>,
-        TError,
-        {data: HandlersDeleteAccountCreateRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteAccountsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * ユーザが開示しているアカウント一覧を取得する
  * @summary アカウント一覧取得
  */
@@ -135,13 +46,8 @@ export type getAccountsResponse200 = {
   data: HandlersAccountResponse[]
   status: 200
 }
-
-export type getAccountsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type getAccountsResponseComposite = getAccountsResponse200 | getAccountsResponse400;
+export type getAccountsResponseComposite = getAccountsResponse200;
     
 export type getAccountsResponse = getAccountsResponseComposite & {
   headers: Headers;
@@ -173,7 +79,7 @@ export const getGetAccountsQueryKey = () => {
     }
 
     
-export const getGetAccountsQueryOptions = <TData = Awaited<ReturnType<typeof getAccounts>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>>, request?: SecondParameter<typeof getAccountsMutator>}
+export const getGetAccountsQueryOptions = <TData = Awaited<ReturnType<typeof getAccounts>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>>, request?: SecondParameter<typeof getAccountsMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -192,10 +98,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetAccountsQueryResult = NonNullable<Awaited<ReturnType<typeof getAccounts>>>
-export type GetAccountsQueryError = HandlersErrorResponse
+export type GetAccountsQueryError = unknown
 
 
-export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = HandlersErrorResponse>(
+export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAccounts>>,
@@ -205,7 +111,7 @@ export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, 
       >, request?: SecondParameter<typeof getAccountsMutator>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = HandlersErrorResponse>(
+export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAccounts>>,
@@ -215,7 +121,7 @@ export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, 
       >, request?: SecondParameter<typeof getAccountsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = HandlersErrorResponse>(
+export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>>, request?: SecondParameter<typeof getAccountsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -223,7 +129,7 @@ export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, 
  * @summary アカウント一覧取得
  */
 
-export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = HandlersErrorResponse>(
+export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccounts>>, TError, TData>>, request?: SecondParameter<typeof getAccountsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -240,94 +146,6 @@ export function useGetAccounts<TData = Awaited<ReturnType<typeof getAccounts>>, 
 
 
 /**
- * アカウントを作成する
- * @summary アカウント作成
- */
-export type postAccountsResponse200 = {
-  data: HandlersAccountResponse
-  status: 200
-}
-
-export type postAccountsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postAccountsResponseComposite = postAccountsResponse200 | postAccountsResponse400;
-    
-export type postAccountsResponse = postAccountsResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostAccountsUrl = () => {
-
-
-  
-
-  return `/accounts`
-}
-
-export const postAccounts = async (handlersAccountCreateRequestBody: HandlersAccountCreateRequestBody, options?: RequestInit): Promise<postAccountsResponse> => {
-  
-  return postAccountsMutator<postAccountsResponse>(getPostAccountsUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersAccountCreateRequestBody,)
-  }
-);}
-
-
-
-
-export const getPostAccountsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof postAccountsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext> => {
-    
-const mutationKey = ['postAccounts'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAccounts>>, {data: HandlersAccountCreateRequestBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postAccounts(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostAccountsMutationResult = NonNullable<Awaited<ReturnType<typeof postAccounts>>>
-    export type PostAccountsMutationBody = HandlersAccountCreateRequestBody
-    export type PostAccountsMutationError = HandlersErrorResponse
-
-    /**
- * @summary アカウント作成
- */
-export const usePostAccounts = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof postAccountsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postAccounts>>,
-        TError,
-        {data: HandlersAccountCreateRequestBody},
-        TContext
-      > => {
-
-      const mutationOptions = getPostAccountsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * アカウントを更新する
  * @summary アカウント更新
  */
@@ -335,13 +153,8 @@ export type putAccountsResponse200 = {
   data: HandlersAccountResponse
   status: 200
 }
-
-export type putAccountsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putAccountsResponseComposite = putAccountsResponse200 | putAccountsResponse400;
+export type putAccountsResponseComposite = putAccountsResponse200;
     
 export type putAccountsResponse = putAccountsResponseComposite & {
   headers: Headers;
@@ -370,7 +183,7 @@ export const putAccounts = async (handlersAccountCreateRequestBody: HandlersAcco
 
 
 
-export const getPutAccountsMutationOptions = <TError = HandlersErrorResponse,
+export const getPutAccountsMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof putAccountsMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext> => {
     
@@ -397,12 +210,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutAccountsMutationResult = NonNullable<Awaited<ReturnType<typeof putAccounts>>>
     export type PutAccountsMutationBody = HandlersAccountCreateRequestBody
-    export type PutAccountsMutationError = HandlersErrorResponse
+    export type PutAccountsMutationError = unknown
 
     /**
  * @summary アカウント更新
  */
-export const usePutAccounts = <TError = HandlersErrorResponse,
+export const usePutAccounts = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof putAccountsMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putAccounts>>,
@@ -412,6 +225,172 @@ export const usePutAccounts = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutAccountsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * アカウントを作成する
+ * @summary アカウント作成
+ */
+export type postAccountsResponse200 = {
+  data: HandlersAccountResponse
+  status: 200
+}
+    
+export type postAccountsResponseComposite = postAccountsResponse200;
+    
+export type postAccountsResponse = postAccountsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostAccountsUrl = () => {
+
+
+  
+
+  return `/accounts`
+}
+
+export const postAccounts = async (handlersAccountCreateRequestBody: HandlersAccountCreateRequestBody, options?: RequestInit): Promise<postAccountsResponse> => {
+  
+  return postAccountsMutator<postAccountsResponse>(getPostAccountsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersAccountCreateRequestBody,)
+  }
+);}
+
+
+
+
+export const getPostAccountsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof postAccountsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext> => {
+    
+const mutationKey = ['postAccounts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAccounts>>, {data: HandlersAccountCreateRequestBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postAccounts(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostAccountsMutationResult = NonNullable<Awaited<ReturnType<typeof postAccounts>>>
+    export type PostAccountsMutationBody = HandlersAccountCreateRequestBody
+    export type PostAccountsMutationError = unknown
+
+    /**
+ * @summary アカウント作成
+ */
+export const usePostAccounts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAccounts>>, TError,{data: HandlersAccountCreateRequestBody}, TContext>, request?: SecondParameter<typeof postAccountsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postAccounts>>,
+        TError,
+        {data: HandlersAccountCreateRequestBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostAccountsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * アカウントを削除する
+ * @summary アカウント削除
+ */
+export type deleteAccountsResponse200 = {
+  data: HandlersAccountResponse
+  status: 200
+}
+    
+export type deleteAccountsResponseComposite = deleteAccountsResponse200;
+    
+export type deleteAccountsResponse = deleteAccountsResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteAccountsUrl = () => {
+
+
+  
+
+  return `/accounts`
+}
+
+export const deleteAccounts = async (handlersDeleteAccountCreateRequest: HandlersDeleteAccountCreateRequest, options?: RequestInit): Promise<deleteAccountsResponse> => {
+  
+  return deleteAccountsMutator<deleteAccountsResponse>(getDeleteAccountsUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersDeleteAccountCreateRequest,)
+  }
+);}
+
+
+
+
+export const getDeleteAccountsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext>, request?: SecondParameter<typeof deleteAccountsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext> => {
+    
+const mutationKey = ['deleteAccounts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAccounts>>, {data: HandlersDeleteAccountCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteAccounts(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAccountsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAccounts>>>
+    export type DeleteAccountsMutationBody = HandlersDeleteAccountCreateRequest
+    export type DeleteAccountsMutationError = unknown
+
+    /**
+ * @summary アカウント削除
+ */
+export const useDeleteAccounts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAccounts>>, TError,{data: HandlersDeleteAccountCreateRequest}, TContext>, request?: SecondParameter<typeof deleteAccountsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAccounts>>,
+        TError,
+        {data: HandlersDeleteAccountCreateRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteAccountsMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

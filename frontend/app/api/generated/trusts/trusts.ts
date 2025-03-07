@@ -25,16 +25,15 @@ import type {
 import type {
   GetTrustsParams,
   HandlersDeleteTrustRequest,
-  HandlersErrorResponse,
   HandlersTrustRequest,
   HandlersTrustResponse,
   HandlersUpdateTrustRequest
 } from '.././schemas';
 
-import deleteTrustsMutator from '../../../../lib/fetch';
 import getTrustsMutator from '../../../../lib/fetch';
-import postTrustsMutator from '../../../../lib/fetch';
 import putTrustsMutator from '../../../../lib/fetch';
+import postTrustsMutator from '../../../../lib/fetch';
+import deleteTrustsMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -42,94 +41,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * ユーザ間の相続関係を削除する
- * @summary 相続関係の削除
- */
-export type deleteTrustsResponse200 = {
-  data: HandlersTrustResponse
-  status: 200
-}
-
-export type deleteTrustsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type deleteTrustsResponseComposite = deleteTrustsResponse200 | deleteTrustsResponse400;
-    
-export type deleteTrustsResponse = deleteTrustsResponseComposite & {
-  headers: Headers;
-}
-
-export const getDeleteTrustsUrl = () => {
-
-
-  
-
-  return `/trusts`
-}
-
-export const deleteTrusts = async (handlersDeleteTrustRequest: HandlersDeleteTrustRequest, options?: RequestInit): Promise<deleteTrustsResponse> => {
-  
-  return deleteTrustsMutator<deleteTrustsResponse>(getDeleteTrustsUrl(),
-  {      
-    ...options,
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersDeleteTrustRequest,)
-  }
-);}
-
-
-
-
-export const getDeleteTrustsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext>, request?: SecondParameter<typeof deleteTrustsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext> => {
-    
-const mutationKey = ['deleteTrusts'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTrusts>>, {data: HandlersDeleteTrustRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  deleteTrusts(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteTrustsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTrusts>>>
-    export type DeleteTrustsMutationBody = HandlersDeleteTrustRequest
-    export type DeleteTrustsMutationError = HandlersErrorResponse
-
-    /**
- * @summary 相続関係の削除
- */
-export const useDeleteTrusts = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext>, request?: SecondParameter<typeof deleteTrustsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof deleteTrusts>>,
-        TError,
-        {data: HandlersDeleteTrustRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteTrustsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * ユーザが開示している相続関係一覧を取得する
  * @summary 相続関係の一覧取得
  */
@@ -137,13 +48,8 @@ export type getTrustsResponse200 = {
   data: HandlersTrustResponse[]
   status: 200
 }
-
-export type getTrustsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type getTrustsResponseComposite = getTrustsResponse200 | getTrustsResponse400;
+export type getTrustsResponseComposite = getTrustsResponse200;
     
 export type getTrustsResponse = getTrustsResponseComposite & {
   headers: Headers;
@@ -182,7 +88,7 @@ export const getGetTrustsQueryKey = (params: GetTrustsParams,) => {
     }
 
     
-export const getGetTrustsQueryOptions = <TData = Awaited<ReturnType<typeof getTrusts>>, TError = HandlersErrorResponse>(params: GetTrustsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>>, request?: SecondParameter<typeof getTrustsMutator>}
+export const getGetTrustsQueryOptions = <TData = Awaited<ReturnType<typeof getTrusts>>, TError = unknown>(params: GetTrustsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>>, request?: SecondParameter<typeof getTrustsMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -201,10 +107,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetTrustsQueryResult = NonNullable<Awaited<ReturnType<typeof getTrusts>>>
-export type GetTrustsQueryError = HandlersErrorResponse
+export type GetTrustsQueryError = unknown
 
 
-export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = HandlersErrorResponse>(
+export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = unknown>(
  params: GetTrustsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTrusts>>,
@@ -214,7 +120,7 @@ export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TErr
       >, request?: SecondParameter<typeof getTrustsMutator>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = HandlersErrorResponse>(
+export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = unknown>(
  params: GetTrustsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getTrusts>>,
@@ -224,7 +130,7 @@ export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TErr
       >, request?: SecondParameter<typeof getTrustsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = HandlersErrorResponse>(
+export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = unknown>(
  params: GetTrustsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>>, request?: SecondParameter<typeof getTrustsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -232,7 +138,7 @@ export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TErr
  * @summary 相続関係の一覧取得
  */
 
-export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = HandlersErrorResponse>(
+export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TError = unknown>(
  params: GetTrustsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getTrusts>>, TError, TData>>, request?: SecondParameter<typeof getTrustsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -249,94 +155,6 @@ export function useGetTrusts<TData = Awaited<ReturnType<typeof getTrusts>>, TErr
 
 
 /**
- * ユーザ間の相続関係を作成する
- * @summary 相続関係の作成
- */
-export type postTrustsResponse200 = {
-  data: HandlersTrustResponse
-  status: 200
-}
-
-export type postTrustsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postTrustsResponseComposite = postTrustsResponse200 | postTrustsResponse400;
-    
-export type postTrustsResponse = postTrustsResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostTrustsUrl = () => {
-
-
-  
-
-  return `/trusts`
-}
-
-export const postTrusts = async (handlersTrustRequest: HandlersTrustRequest, options?: RequestInit): Promise<postTrustsResponse> => {
-  
-  return postTrustsMutator<postTrustsResponse>(getPostTrustsUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersTrustRequest,)
-  }
-);}
-
-
-
-
-export const getPostTrustsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext>, request?: SecondParameter<typeof postTrustsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext> => {
-    
-const mutationKey = ['postTrusts'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postTrusts>>, {data: HandlersTrustRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postTrusts(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostTrustsMutationResult = NonNullable<Awaited<ReturnType<typeof postTrusts>>>
-    export type PostTrustsMutationBody = HandlersTrustRequest
-    export type PostTrustsMutationError = HandlersErrorResponse
-
-    /**
- * @summary 相続関係の作成
- */
-export const usePostTrusts = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext>, request?: SecondParameter<typeof postTrustsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postTrusts>>,
-        TError,
-        {data: HandlersTrustRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPostTrustsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * ユーザ間の相続関係を更新する
  * @summary 相続関係の更新
  */
@@ -344,13 +162,8 @@ export type putTrustsResponse200 = {
   data: HandlersTrustResponse
   status: 200
 }
-
-export type putTrustsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putTrustsResponseComposite = putTrustsResponse200 | putTrustsResponse400;
+export type putTrustsResponseComposite = putTrustsResponse200;
     
 export type putTrustsResponse = putTrustsResponseComposite & {
   headers: Headers;
@@ -379,7 +192,7 @@ export const putTrusts = async (handlersUpdateTrustRequest: HandlersUpdateTrustR
 
 
 
-export const getPutTrustsMutationOptions = <TError = HandlersErrorResponse,
+export const getPutTrustsMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putTrusts>>, TError,{data: HandlersUpdateTrustRequest}, TContext>, request?: SecondParameter<typeof putTrustsMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putTrusts>>, TError,{data: HandlersUpdateTrustRequest}, TContext> => {
     
@@ -406,12 +219,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutTrustsMutationResult = NonNullable<Awaited<ReturnType<typeof putTrusts>>>
     export type PutTrustsMutationBody = HandlersUpdateTrustRequest
-    export type PutTrustsMutationError = HandlersErrorResponse
+    export type PutTrustsMutationError = unknown
 
     /**
  * @summary 相続関係の更新
  */
-export const usePutTrusts = <TError = HandlersErrorResponse,
+export const usePutTrusts = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putTrusts>>, TError,{data: HandlersUpdateTrustRequest}, TContext>, request?: SecondParameter<typeof putTrustsMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putTrusts>>,
@@ -421,6 +234,172 @@ export const usePutTrusts = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutTrustsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * ユーザ間の相続関係を作成する
+ * @summary 相続関係の作成
+ */
+export type postTrustsResponse200 = {
+  data: HandlersTrustResponse
+  status: 200
+}
+    
+export type postTrustsResponseComposite = postTrustsResponse200;
+    
+export type postTrustsResponse = postTrustsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostTrustsUrl = () => {
+
+
+  
+
+  return `/trusts`
+}
+
+export const postTrusts = async (handlersTrustRequest: HandlersTrustRequest, options?: RequestInit): Promise<postTrustsResponse> => {
+  
+  return postTrustsMutator<postTrustsResponse>(getPostTrustsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersTrustRequest,)
+  }
+);}
+
+
+
+
+export const getPostTrustsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext>, request?: SecondParameter<typeof postTrustsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext> => {
+    
+const mutationKey = ['postTrusts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postTrusts>>, {data: HandlersTrustRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postTrusts(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostTrustsMutationResult = NonNullable<Awaited<ReturnType<typeof postTrusts>>>
+    export type PostTrustsMutationBody = HandlersTrustRequest
+    export type PostTrustsMutationError = unknown
+
+    /**
+ * @summary 相続関係の作成
+ */
+export const usePostTrusts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postTrusts>>, TError,{data: HandlersTrustRequest}, TContext>, request?: SecondParameter<typeof postTrustsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postTrusts>>,
+        TError,
+        {data: HandlersTrustRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPostTrustsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * ユーザ間の相続関係を削除する
+ * @summary 相続関係の削除
+ */
+export type deleteTrustsResponse200 = {
+  data: HandlersTrustResponse
+  status: 200
+}
+    
+export type deleteTrustsResponseComposite = deleteTrustsResponse200;
+    
+export type deleteTrustsResponse = deleteTrustsResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteTrustsUrl = () => {
+
+
+  
+
+  return `/trusts`
+}
+
+export const deleteTrusts = async (handlersDeleteTrustRequest: HandlersDeleteTrustRequest, options?: RequestInit): Promise<deleteTrustsResponse> => {
+  
+  return deleteTrustsMutator<deleteTrustsResponse>(getDeleteTrustsUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersDeleteTrustRequest,)
+  }
+);}
+
+
+
+
+export const getDeleteTrustsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext>, request?: SecondParameter<typeof deleteTrustsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext> => {
+    
+const mutationKey = ['deleteTrusts'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTrusts>>, {data: HandlersDeleteTrustRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteTrusts(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteTrustsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTrusts>>>
+    export type DeleteTrustsMutationBody = HandlersDeleteTrustRequest
+    export type DeleteTrustsMutationError = unknown
+
+    /**
+ * @summary 相続関係の削除
+ */
+export const useDeleteTrusts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTrusts>>, TError,{data: HandlersDeleteTrustRequest}, TContext>, request?: SecondParameter<typeof deleteTrustsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof deleteTrusts>>,
+        TError,
+        {data: HandlersDeleteTrustRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteTrustsMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

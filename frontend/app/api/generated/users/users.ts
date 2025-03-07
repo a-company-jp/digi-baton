@@ -14,13 +14,12 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  HandlersErrorResponse,
   HandlersUserCreateRequestBody,
   HandlersUserResponse
 } from '.././schemas';
 
-import postUsersMutator from '../../../../lib/fetch';
 import putUsersMutator from '../../../../lib/fetch';
+import postUsersMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -28,94 +27,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
- * @summary ユーザ登録
- */
-export type postUsersResponse200 = {
-  data: HandlersUserResponse
-  status: 200
-}
-
-export type postUsersResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postUsersResponseComposite = postUsersResponse200 | postUsersResponse400;
-    
-export type postUsersResponse = postUsersResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostUsersUrl = () => {
-
-
-  
-
-  return `/users`
-}
-
-export const postUsers = async (handlersUserCreateRequestBody: HandlersUserCreateRequestBody, options?: RequestInit): Promise<postUsersResponse> => {
-  
-  return postUsersMutator<postUsersResponse>(getPostUsersUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersUserCreateRequestBody,)
-  }
-);}
-
-
-
-
-export const getPostUsersMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof postUsersMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext> => {
-    
-const mutationKey = ['postUsers'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsers>>, {data: HandlersUserCreateRequestBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postUsers(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostUsersMutationResult = NonNullable<Awaited<ReturnType<typeof postUsers>>>
-    export type PostUsersMutationBody = HandlersUserCreateRequestBody
-    export type PostUsersMutationError = HandlersErrorResponse
-
-    /**
- * @summary ユーザ登録
- */
-export const usePostUsers = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof postUsersMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postUsers>>,
-        TError,
-        {data: HandlersUserCreateRequestBody},
-        TContext
-      > => {
-
-      const mutationOptions = getPostUsersMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント
  * @summary ユーザ更新
  */
@@ -123,13 +34,8 @@ export type putUsersResponse200 = {
   data: HandlersUserResponse
   status: 200
 }
-
-export type putUsersResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putUsersResponseComposite = putUsersResponse200 | putUsersResponse400;
+export type putUsersResponseComposite = putUsersResponse200;
     
 export type putUsersResponse = putUsersResponseComposite & {
   headers: Headers;
@@ -158,7 +64,7 @@ export const putUsers = async (handlersUserCreateRequestBody: HandlersUserCreate
 
 
 
-export const getPutUsersMutationOptions = <TError = HandlersErrorResponse,
+export const getPutUsersMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof putUsersMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext> => {
     
@@ -185,12 +91,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutUsersMutationResult = NonNullable<Awaited<ReturnType<typeof putUsers>>>
     export type PutUsersMutationBody = HandlersUserCreateRequestBody
-    export type PutUsersMutationError = HandlersErrorResponse
+    export type PutUsersMutationError = unknown
 
     /**
  * @summary ユーザ更新
  */
-export const usePutUsers = <TError = HandlersErrorResponse,
+export const usePutUsers = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof putUsersMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putUsers>>,
@@ -200,6 +106,89 @@ export const usePutUsers = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutUsersMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * clerkでユーザ認証した後にバックエンドのDBにユーザを登録するためのエンドポイント
+ * @summary ユーザ登録
+ */
+export type postUsersResponse200 = {
+  data: HandlersUserResponse
+  status: 200
+}
+    
+export type postUsersResponseComposite = postUsersResponse200;
+    
+export type postUsersResponse = postUsersResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostUsersUrl = () => {
+
+
+  
+
+  return `/users`
+}
+
+export const postUsers = async (handlersUserCreateRequestBody: HandlersUserCreateRequestBody, options?: RequestInit): Promise<postUsersResponse> => {
+  
+  return postUsersMutator<postUsersResponse>(getPostUsersUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersUserCreateRequestBody,)
+  }
+);}
+
+
+
+
+export const getPostUsersMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof postUsersMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext> => {
+    
+const mutationKey = ['postUsers'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsers>>, {data: HandlersUserCreateRequestBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postUsers(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostUsersMutationResult = NonNullable<Awaited<ReturnType<typeof postUsers>>>
+    export type PostUsersMutationBody = HandlersUserCreateRequestBody
+    export type PostUsersMutationError = unknown
+
+    /**
+ * @summary ユーザ登録
+ */
+export const usePostUsers = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: HandlersUserCreateRequestBody}, TContext>, request?: SecondParameter<typeof postUsersMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postUsers>>,
+        TError,
+        {data: HandlersUserCreateRequestBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostUsersMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

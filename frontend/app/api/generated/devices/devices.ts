@@ -25,14 +25,13 @@ import type {
 import type {
   HandlersDeleteDeviceCreateRequest,
   HandlersDeviceCreateRequestBody,
-  HandlersDeviceResponse,
-  HandlersErrorResponse
+  HandlersDeviceResponse
 } from '.././schemas';
 
-import deleteDevicesMutator from '../../../../lib/fetch';
 import getDevicesMutator from '../../../../lib/fetch';
-import postDevicesMutator from '../../../../lib/fetch';
 import putDevicesMutator from '../../../../lib/fetch';
+import postDevicesMutator from '../../../../lib/fetch';
+import deleteDevicesMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -40,94 +39,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * デバイスを削除する
- * @summary デバイス削除
- */
-export type deleteDevicesResponse200 = {
-  data: HandlersDeviceResponse
-  status: 200
-}
-
-export type deleteDevicesResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type deleteDevicesResponseComposite = deleteDevicesResponse200 | deleteDevicesResponse400;
-    
-export type deleteDevicesResponse = deleteDevicesResponseComposite & {
-  headers: Headers;
-}
-
-export const getDeleteDevicesUrl = () => {
-
-
-  
-
-  return `/devices`
-}
-
-export const deleteDevices = async (handlersDeleteDeviceCreateRequest: HandlersDeleteDeviceCreateRequest, options?: RequestInit): Promise<deleteDevicesResponse> => {
-  
-  return deleteDevicesMutator<deleteDevicesResponse>(getDeleteDevicesUrl(),
-  {      
-    ...options,
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersDeleteDeviceCreateRequest,)
-  }
-);}
-
-
-
-
-export const getDeleteDevicesMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext>, request?: SecondParameter<typeof deleteDevicesMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext> => {
-    
-const mutationKey = ['deleteDevices'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevices>>, {data: HandlersDeleteDeviceCreateRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  deleteDevices(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevices>>>
-    export type DeleteDevicesMutationBody = HandlersDeleteDeviceCreateRequest
-    export type DeleteDevicesMutationError = HandlersErrorResponse
-
-    /**
- * @summary デバイス削除
- */
-export const useDeleteDevices = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext>, request?: SecondParameter<typeof deleteDevicesMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof deleteDevices>>,
-        TError,
-        {data: HandlersDeleteDeviceCreateRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteDevicesMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * ユーザが開示しているデバイス一覧を取得する
  * @summary デバイス一覧取得
  */
@@ -135,13 +46,8 @@ export type getDevicesResponse200 = {
   data: HandlersDeviceResponse[]
   status: 200
 }
-
-export type getDevicesResponse401 = {
-  data: HandlersErrorResponse
-  status: 401
-}
     
-export type getDevicesResponseComposite = getDevicesResponse200 | getDevicesResponse401;
+export type getDevicesResponseComposite = getDevicesResponse200;
     
 export type getDevicesResponse = getDevicesResponseComposite & {
   headers: Headers;
@@ -173,7 +79,7 @@ export const getGetDevicesQueryKey = () => {
     }
 
     
-export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
+export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -192,10 +98,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetDevicesQueryResult = NonNullable<Awaited<ReturnType<typeof getDevices>>>
-export type GetDevicesQueryError = HandlersErrorResponse
+export type GetDevicesQueryError = unknown
 
 
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
+export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
@@ -205,7 +111,7 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
       >, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
+export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDevices>>,
@@ -215,7 +121,7 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
       >, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
+export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -223,7 +129,7 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
  * @summary デバイス一覧取得
  */
 
-export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = HandlersErrorResponse>(
+export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>>, request?: SecondParameter<typeof getDevicesMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -240,94 +146,6 @@ export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TE
 
 
 /**
- * デバイスを追加する
- * @summary デバイス追加
- */
-export type postDevicesResponse200 = {
-  data: HandlersDeviceResponse
-  status: 200
-}
-
-export type postDevicesResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postDevicesResponseComposite = postDevicesResponse200 | postDevicesResponse400;
-    
-export type postDevicesResponse = postDevicesResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostDevicesUrl = () => {
-
-
-  
-
-  return `/devices`
-}
-
-export const postDevices = async (handlersDeviceCreateRequestBody: HandlersDeviceCreateRequestBody, options?: RequestInit): Promise<postDevicesResponse> => {
-  
-  return postDevicesMutator<postDevicesResponse>(getPostDevicesUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersDeviceCreateRequestBody,)
-  }
-);}
-
-
-
-
-export const getPostDevicesMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof postDevicesMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext> => {
-    
-const mutationKey = ['postDevices'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevices>>, {data: HandlersDeviceCreateRequestBody}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postDevices(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof postDevices>>>
-    export type PostDevicesMutationBody = HandlersDeviceCreateRequestBody
-    export type PostDevicesMutationError = HandlersErrorResponse
-
-    /**
- * @summary デバイス追加
- */
-export const usePostDevices = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof postDevicesMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postDevices>>,
-        TError,
-        {data: HandlersDeviceCreateRequestBody},
-        TContext
-      > => {
-
-      const mutationOptions = getPostDevicesMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * デバイスを更新する
  * @summary デバイス更新
  */
@@ -335,13 +153,8 @@ export type putDevicesResponse200 = {
   data: HandlersDeviceResponse
   status: 200
 }
-
-export type putDevicesResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putDevicesResponseComposite = putDevicesResponse200 | putDevicesResponse400;
+export type putDevicesResponseComposite = putDevicesResponse200;
     
 export type putDevicesResponse = putDevicesResponseComposite & {
   headers: Headers;
@@ -370,7 +183,7 @@ export const putDevices = async (handlersDeviceCreateRequestBody: HandlersDevice
 
 
 
-export const getPutDevicesMutationOptions = <TError = HandlersErrorResponse,
+export const getPutDevicesMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof putDevicesMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext> => {
     
@@ -397,12 +210,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof putDevices>>>
     export type PutDevicesMutationBody = HandlersDeviceCreateRequestBody
-    export type PutDevicesMutationError = HandlersErrorResponse
+    export type PutDevicesMutationError = unknown
 
     /**
  * @summary デバイス更新
  */
-export const usePutDevices = <TError = HandlersErrorResponse,
+export const usePutDevices = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof putDevicesMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putDevices>>,
@@ -412,6 +225,172 @@ export const usePutDevices = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutDevicesMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * デバイスを追加する
+ * @summary デバイス追加
+ */
+export type postDevicesResponse200 = {
+  data: HandlersDeviceResponse
+  status: 200
+}
+    
+export type postDevicesResponseComposite = postDevicesResponse200;
+    
+export type postDevicesResponse = postDevicesResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostDevicesUrl = () => {
+
+
+  
+
+  return `/devices`
+}
+
+export const postDevices = async (handlersDeviceCreateRequestBody: HandlersDeviceCreateRequestBody, options?: RequestInit): Promise<postDevicesResponse> => {
+  
+  return postDevicesMutator<postDevicesResponse>(getPostDevicesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersDeviceCreateRequestBody,)
+  }
+);}
+
+
+
+
+export const getPostDevicesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof postDevicesMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext> => {
+    
+const mutationKey = ['postDevices'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDevices>>, {data: HandlersDeviceCreateRequestBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postDevices(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof postDevices>>>
+    export type PostDevicesMutationBody = HandlersDeviceCreateRequestBody
+    export type PostDevicesMutationError = unknown
+
+    /**
+ * @summary デバイス追加
+ */
+export const usePostDevices = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDevices>>, TError,{data: HandlersDeviceCreateRequestBody}, TContext>, request?: SecondParameter<typeof postDevicesMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postDevices>>,
+        TError,
+        {data: HandlersDeviceCreateRequestBody},
+        TContext
+      > => {
+
+      const mutationOptions = getPostDevicesMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * デバイスを削除する
+ * @summary デバイス削除
+ */
+export type deleteDevicesResponse200 = {
+  data: HandlersDeviceResponse
+  status: 200
+}
+    
+export type deleteDevicesResponseComposite = deleteDevicesResponse200;
+    
+export type deleteDevicesResponse = deleteDevicesResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteDevicesUrl = () => {
+
+
+  
+
+  return `/devices`
+}
+
+export const deleteDevices = async (handlersDeleteDeviceCreateRequest: HandlersDeleteDeviceCreateRequest, options?: RequestInit): Promise<deleteDevicesResponse> => {
+  
+  return deleteDevicesMutator<deleteDevicesResponse>(getDeleteDevicesUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersDeleteDeviceCreateRequest,)
+  }
+);}
+
+
+
+
+export const getDeleteDevicesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext>, request?: SecondParameter<typeof deleteDevicesMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext> => {
+    
+const mutationKey = ['deleteDevices'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDevices>>, {data: HandlersDeleteDeviceCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteDevices(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDevicesMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDevices>>>
+    export type DeleteDevicesMutationBody = HandlersDeleteDeviceCreateRequest
+    export type DeleteDevicesMutationError = unknown
+
+    /**
+ * @summary デバイス削除
+ */
+export const useDeleteDevices = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDevices>>, TError,{data: HandlersDeleteDeviceCreateRequest}, TContext>, request?: SecondParameter<typeof deleteDevicesMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDevices>>,
+        TError,
+        {data: HandlersDeleteDeviceCreateRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteDevicesMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

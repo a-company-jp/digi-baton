@@ -24,16 +24,15 @@ import type {
 
 import type {
   HandlersDeleteSubscriptionRequest,
-  HandlersErrorResponse,
   HandlersSubscriptionCreateRequest,
   HandlersSubscriptionResponse,
   HandlersSubscriptionUpdateRequest
 } from '.././schemas';
 
-import deleteSubscriptionsMutator from '../../../../lib/fetch';
 import getSubscriptionsMutator from '../../../../lib/fetch';
-import postSubscriptionsMutator from '../../../../lib/fetch';
 import putSubscriptionsMutator from '../../../../lib/fetch';
+import postSubscriptionsMutator from '../../../../lib/fetch';
+import deleteSubscriptionsMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -41,94 +40,6 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 /**
- * 指定されたサブスクリプションを削除する
- * @summary サブスクリプション削除
- */
-export type deleteSubscriptionsResponse200 = {
-  data: HandlersSubscriptionResponse
-  status: 200
-}
-
-export type deleteSubscriptionsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type deleteSubscriptionsResponseComposite = deleteSubscriptionsResponse200 | deleteSubscriptionsResponse400;
-    
-export type deleteSubscriptionsResponse = deleteSubscriptionsResponseComposite & {
-  headers: Headers;
-}
-
-export const getDeleteSubscriptionsUrl = () => {
-
-
-  
-
-  return `/subscriptions`
-}
-
-export const deleteSubscriptions = async (handlersDeleteSubscriptionRequest: HandlersDeleteSubscriptionRequest, options?: RequestInit): Promise<deleteSubscriptionsResponse> => {
-  
-  return deleteSubscriptionsMutator<deleteSubscriptionsResponse>(getDeleteSubscriptionsUrl(),
-  {      
-    ...options,
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersDeleteSubscriptionRequest,)
-  }
-);}
-
-
-
-
-export const getDeleteSubscriptionsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext>, request?: SecondParameter<typeof deleteSubscriptionsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext> => {
-    
-const mutationKey = ['deleteSubscriptions'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSubscriptions>>, {data: HandlersDeleteSubscriptionRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  deleteSubscriptions(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type DeleteSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSubscriptions>>>
-    export type DeleteSubscriptionsMutationBody = HandlersDeleteSubscriptionRequest
-    export type DeleteSubscriptionsMutationError = HandlersErrorResponse
-
-    /**
- * @summary サブスクリプション削除
- */
-export const useDeleteSubscriptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext>, request?: SecondParameter<typeof deleteSubscriptionsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof deleteSubscriptions>>,
-        TError,
-        {data: HandlersDeleteSubscriptionRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getDeleteSubscriptionsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * ユーザが開示しているサブスクリプション一覧を取得する
  * @summary サブスクリプション一覧取得
  */
@@ -136,13 +47,8 @@ export type getSubscriptionsResponse200 = {
   data: HandlersSubscriptionResponse[]
   status: 200
 }
-
-export type getSubscriptionsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type getSubscriptionsResponseComposite = getSubscriptionsResponse200 | getSubscriptionsResponse400;
+export type getSubscriptionsResponseComposite = getSubscriptionsResponse200;
     
 export type getSubscriptionsResponse = getSubscriptionsResponseComposite & {
   headers: Headers;
@@ -174,7 +80,7 @@ export const getGetSubscriptionsQueryKey = () => {
     }
 
     
-export const getGetSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>>, request?: SecondParameter<typeof getSubscriptionsMutator>}
+export const getGetSubscriptionsQueryOptions = <TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>>, request?: SecondParameter<typeof getSubscriptionsMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -193,10 +99,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetSubscriptionsQueryResult = NonNullable<Awaited<ReturnType<typeof getSubscriptions>>>
-export type GetSubscriptionsQueryError = HandlersErrorResponse
+export type GetSubscriptionsQueryError = unknown
 
 
-export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = HandlersErrorResponse>(
+export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = unknown>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSubscriptions>>,
@@ -206,7 +112,7 @@ export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscri
       >, request?: SecondParameter<typeof getSubscriptionsMutator>}
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = HandlersErrorResponse>(
+export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getSubscriptions>>,
@@ -216,7 +122,7 @@ export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscri
       >, request?: SecondParameter<typeof getSubscriptionsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = HandlersErrorResponse>(
+export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>>, request?: SecondParameter<typeof getSubscriptionsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -224,7 +130,7 @@ export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscri
  * @summary サブスクリプション一覧取得
  */
 
-export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = HandlersErrorResponse>(
+export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscriptions>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getSubscriptions>>, TError, TData>>, request?: SecondParameter<typeof getSubscriptionsMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -241,94 +147,6 @@ export function useGetSubscriptions<TData = Awaited<ReturnType<typeof getSubscri
 
 
 /**
- * 新しいサブスクリプションを作成する
- * @summary サブスクリプション作成
- */
-export type postSubscriptionsResponse200 = {
-  data: HandlersSubscriptionResponse
-  status: 200
-}
-
-export type postSubscriptionsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postSubscriptionsResponseComposite = postSubscriptionsResponse200 | postSubscriptionsResponse400;
-    
-export type postSubscriptionsResponse = postSubscriptionsResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostSubscriptionsUrl = () => {
-
-
-  
-
-  return `/subscriptions`
-}
-
-export const postSubscriptions = async (handlersSubscriptionCreateRequest: HandlersSubscriptionCreateRequest, options?: RequestInit): Promise<postSubscriptionsResponse> => {
-  
-  return postSubscriptionsMutator<postSubscriptionsResponse>(getPostSubscriptionsUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersSubscriptionCreateRequest,)
-  }
-);}
-
-
-
-
-export const getPostSubscriptionsMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext>, request?: SecondParameter<typeof postSubscriptionsMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext> => {
-    
-const mutationKey = ['postSubscriptions'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSubscriptions>>, {data: HandlersSubscriptionCreateRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postSubscriptions(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof postSubscriptions>>>
-    export type PostSubscriptionsMutationBody = HandlersSubscriptionCreateRequest
-    export type PostSubscriptionsMutationError = HandlersErrorResponse
-
-    /**
- * @summary サブスクリプション作成
- */
-export const usePostSubscriptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext>, request?: SecondParameter<typeof postSubscriptionsMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postSubscriptions>>,
-        TError,
-        {data: HandlersSubscriptionCreateRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPostSubscriptionsMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * 既存のサブスクリプション情報を更新する
  * @summary サブスクリプション更新
  */
@@ -336,13 +154,8 @@ export type putSubscriptionsResponse200 = {
   data: HandlersSubscriptionResponse
   status: 200
 }
-
-export type putSubscriptionsResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putSubscriptionsResponseComposite = putSubscriptionsResponse200 | putSubscriptionsResponse400;
+export type putSubscriptionsResponseComposite = putSubscriptionsResponse200;
     
 export type putSubscriptionsResponse = putSubscriptionsResponseComposite & {
   headers: Headers;
@@ -371,7 +184,7 @@ export const putSubscriptions = async (handlersSubscriptionUpdateRequest: Handle
 
 
 
-export const getPutSubscriptionsMutationOptions = <TError = HandlersErrorResponse,
+export const getPutSubscriptionsMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSubscriptions>>, TError,{data: HandlersSubscriptionUpdateRequest}, TContext>, request?: SecondParameter<typeof putSubscriptionsMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putSubscriptions>>, TError,{data: HandlersSubscriptionUpdateRequest}, TContext> => {
     
@@ -398,12 +211,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof putSubscriptions>>>
     export type PutSubscriptionsMutationBody = HandlersSubscriptionUpdateRequest
-    export type PutSubscriptionsMutationError = HandlersErrorResponse
+    export type PutSubscriptionsMutationError = unknown
 
     /**
  * @summary サブスクリプション更新
  */
-export const usePutSubscriptions = <TError = HandlersErrorResponse,
+export const usePutSubscriptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putSubscriptions>>, TError,{data: HandlersSubscriptionUpdateRequest}, TContext>, request?: SecondParameter<typeof putSubscriptionsMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putSubscriptions>>,
@@ -413,6 +226,172 @@ export const usePutSubscriptions = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutSubscriptionsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * 新しいサブスクリプションを作成する
+ * @summary サブスクリプション作成
+ */
+export type postSubscriptionsResponse200 = {
+  data: HandlersSubscriptionResponse
+  status: 200
+}
+    
+export type postSubscriptionsResponseComposite = postSubscriptionsResponse200;
+    
+export type postSubscriptionsResponse = postSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostSubscriptionsUrl = () => {
+
+
+  
+
+  return `/subscriptions`
+}
+
+export const postSubscriptions = async (handlersSubscriptionCreateRequest: HandlersSubscriptionCreateRequest, options?: RequestInit): Promise<postSubscriptionsResponse> => {
+  
+  return postSubscriptionsMutator<postSubscriptionsResponse>(getPostSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersSubscriptionCreateRequest,)
+  }
+);}
+
+
+
+
+export const getPostSubscriptionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext>, request?: SecondParameter<typeof postSubscriptionsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext> => {
+    
+const mutationKey = ['postSubscriptions'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postSubscriptions>>, {data: HandlersSubscriptionCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postSubscriptions(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof postSubscriptions>>>
+    export type PostSubscriptionsMutationBody = HandlersSubscriptionCreateRequest
+    export type PostSubscriptionsMutationError = unknown
+
+    /**
+ * @summary サブスクリプション作成
+ */
+export const usePostSubscriptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postSubscriptions>>, TError,{data: HandlersSubscriptionCreateRequest}, TContext>, request?: SecondParameter<typeof postSubscriptionsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postSubscriptions>>,
+        TError,
+        {data: HandlersSubscriptionCreateRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPostSubscriptionsMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * 指定されたサブスクリプションを削除する
+ * @summary サブスクリプション削除
+ */
+export type deleteSubscriptionsResponse200 = {
+  data: HandlersSubscriptionResponse
+  status: 200
+}
+    
+export type deleteSubscriptionsResponseComposite = deleteSubscriptionsResponse200;
+    
+export type deleteSubscriptionsResponse = deleteSubscriptionsResponseComposite & {
+  headers: Headers;
+}
+
+export const getDeleteSubscriptionsUrl = () => {
+
+
+  
+
+  return `/subscriptions`
+}
+
+export const deleteSubscriptions = async (handlersDeleteSubscriptionRequest: HandlersDeleteSubscriptionRequest, options?: RequestInit): Promise<deleteSubscriptionsResponse> => {
+  
+  return deleteSubscriptionsMutator<deleteSubscriptionsResponse>(getDeleteSubscriptionsUrl(),
+  {      
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersDeleteSubscriptionRequest,)
+  }
+);}
+
+
+
+
+export const getDeleteSubscriptionsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext>, request?: SecondParameter<typeof deleteSubscriptionsMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext> => {
+    
+const mutationKey = ['deleteSubscriptions'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSubscriptions>>, {data: HandlersDeleteSubscriptionRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  deleteSubscriptions(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSubscriptionsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSubscriptions>>>
+    export type DeleteSubscriptionsMutationBody = HandlersDeleteSubscriptionRequest
+    export type DeleteSubscriptionsMutationError = unknown
+
+    /**
+ * @summary サブスクリプション削除
+ */
+export const useDeleteSubscriptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptions>>, TError,{data: HandlersDeleteSubscriptionRequest}, TContext>, request?: SecondParameter<typeof deleteSubscriptionsMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSubscriptions>>,
+        TError,
+        {data: HandlersDeleteSubscriptionRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getDeleteSubscriptionsMutationOptions(options);
 
       return useMutation(mutationOptions);
     }

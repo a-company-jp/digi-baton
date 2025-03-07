@@ -26,13 +26,12 @@ import type {
   GetAliveChecksParams,
   HandlersAliveCheckHistoryCreateRequest,
   HandlersAliveCheckHistoryResponse,
-  HandlersAliveCheckHistoryUpdateRequest,
-  HandlersErrorResponse
+  HandlersAliveCheckHistoryUpdateRequest
 } from '.././schemas';
 
 import getAliveChecksMutator from '../../../../lib/fetch';
-import postAliveChecksMutator from '../../../../lib/fetch';
 import putAliveChecksMutator from '../../../../lib/fetch';
+import postAliveChecksMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -154,94 +153,6 @@ export function useGetAliveChecks<TData = Awaited<ReturnType<typeof getAliveChec
 
 
 /**
- * アライブチェック履歴を作成する
- * @summary アライブチェック履歴作成
- */
-export type postAliveChecksResponse200 = {
-  data: HandlersAliveCheckHistoryResponse
-  status: 200
-}
-
-export type postAliveChecksResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
-    
-export type postAliveChecksResponseComposite = postAliveChecksResponse200 | postAliveChecksResponse400;
-    
-export type postAliveChecksResponse = postAliveChecksResponseComposite & {
-  headers: Headers;
-}
-
-export const getPostAliveChecksUrl = () => {
-
-
-  
-
-  return `/alive-checks`
-}
-
-export const postAliveChecks = async (handlersAliveCheckHistoryCreateRequest: HandlersAliveCheckHistoryCreateRequest, options?: RequestInit): Promise<postAliveChecksResponse> => {
-  
-  return postAliveChecksMutator<postAliveChecksResponse>(getPostAliveChecksUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      handlersAliveCheckHistoryCreateRequest,)
-  }
-);}
-
-
-
-
-export const getPostAliveChecksMutationOptions = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext>, request?: SecondParameter<typeof postAliveChecksMutator>}
-): UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext> => {
-    
-const mutationKey = ['postAliveChecks'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAliveChecks>>, {data: HandlersAliveCheckHistoryCreateRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postAliveChecks(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostAliveChecksMutationResult = NonNullable<Awaited<ReturnType<typeof postAliveChecks>>>
-    export type PostAliveChecksMutationBody = HandlersAliveCheckHistoryCreateRequest
-    export type PostAliveChecksMutationError = HandlersErrorResponse
-
-    /**
- * @summary アライブチェック履歴作成
- */
-export const usePostAliveChecks = <TError = HandlersErrorResponse,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext>, request?: SecondParameter<typeof postAliveChecksMutator>}
-): UseMutationResult<
-        Awaited<ReturnType<typeof postAliveChecks>>,
-        TError,
-        {data: HandlersAliveCheckHistoryCreateRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getPostAliveChecksMutationOptions(options);
-
-      return useMutation(mutationOptions);
-    }
-    /**
  * アライブチェック履歴を更新する
  * @summary アライブチェック履歴更新
  */
@@ -249,13 +160,8 @@ export type putAliveChecksResponse200 = {
   data: HandlersAliveCheckHistoryResponse
   status: 200
 }
-
-export type putAliveChecksResponse400 = {
-  data: HandlersErrorResponse
-  status: 400
-}
     
-export type putAliveChecksResponseComposite = putAliveChecksResponse200 | putAliveChecksResponse400;
+export type putAliveChecksResponseComposite = putAliveChecksResponse200;
     
 export type putAliveChecksResponse = putAliveChecksResponseComposite & {
   headers: Headers;
@@ -284,7 +190,7 @@ export const putAliveChecks = async (handlersAliveCheckHistoryUpdateRequest: Han
 
 
 
-export const getPutAliveChecksMutationOptions = <TError = HandlersErrorResponse,
+export const getPutAliveChecksMutationOptions = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putAliveChecks>>, TError,{data: HandlersAliveCheckHistoryUpdateRequest}, TContext>, request?: SecondParameter<typeof putAliveChecksMutator>}
 ): UseMutationOptions<Awaited<ReturnType<typeof putAliveChecks>>, TError,{data: HandlersAliveCheckHistoryUpdateRequest}, TContext> => {
     
@@ -311,12 +217,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type PutAliveChecksMutationResult = NonNullable<Awaited<ReturnType<typeof putAliveChecks>>>
     export type PutAliveChecksMutationBody = HandlersAliveCheckHistoryUpdateRequest
-    export type PutAliveChecksMutationError = HandlersErrorResponse
+    export type PutAliveChecksMutationError = unknown
 
     /**
  * @summary アライブチェック履歴更新
  */
-export const usePutAliveChecks = <TError = HandlersErrorResponse,
+export const usePutAliveChecks = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putAliveChecks>>, TError,{data: HandlersAliveCheckHistoryUpdateRequest}, TContext>, request?: SecondParameter<typeof putAliveChecksMutator>}
 ): UseMutationResult<
         Awaited<ReturnType<typeof putAliveChecks>>,
@@ -326,6 +232,89 @@ export const usePutAliveChecks = <TError = HandlersErrorResponse,
       > => {
 
       const mutationOptions = getPutAliveChecksMutationOptions(options);
+
+      return useMutation(mutationOptions);
+    }
+    /**
+ * アライブチェック履歴を作成する
+ * @summary アライブチェック履歴作成
+ */
+export type postAliveChecksResponse200 = {
+  data: HandlersAliveCheckHistoryResponse
+  status: 200
+}
+    
+export type postAliveChecksResponseComposite = postAliveChecksResponse200;
+    
+export type postAliveChecksResponse = postAliveChecksResponseComposite & {
+  headers: Headers;
+}
+
+export const getPostAliveChecksUrl = () => {
+
+
+  
+
+  return `/alive-checks`
+}
+
+export const postAliveChecks = async (handlersAliveCheckHistoryCreateRequest: HandlersAliveCheckHistoryCreateRequest, options?: RequestInit): Promise<postAliveChecksResponse> => {
+  
+  return postAliveChecksMutator<postAliveChecksResponse>(getPostAliveChecksUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      handlersAliveCheckHistoryCreateRequest,)
+  }
+);}
+
+
+
+
+export const getPostAliveChecksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext>, request?: SecondParameter<typeof postAliveChecksMutator>}
+): UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext> => {
+    
+const mutationKey = ['postAliveChecks'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postAliveChecks>>, {data: HandlersAliveCheckHistoryCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postAliveChecks(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostAliveChecksMutationResult = NonNullable<Awaited<ReturnType<typeof postAliveChecks>>>
+    export type PostAliveChecksMutationBody = HandlersAliveCheckHistoryCreateRequest
+    export type PostAliveChecksMutationError = unknown
+
+    /**
+ * @summary アライブチェック履歴作成
+ */
+export const usePostAliveChecks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postAliveChecks>>, TError,{data: HandlersAliveCheckHistoryCreateRequest}, TContext>, request?: SecondParameter<typeof postAliveChecksMutator>}
+): UseMutationResult<
+        Awaited<ReturnType<typeof postAliveChecks>>,
+        TError,
+        {data: HandlersAliveCheckHistoryCreateRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getPostAliveChecksMutationOptions(options);
 
       return useMutation(mutationOptions);
     }
