@@ -41,10 +41,10 @@ resource "azurerm_container_app" "frontend" {
         secret_name = null
         value       = "8080"
       }
-      # env {
-      #   name        = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-      #   secret_name = "clerk-pub-key"
-      # }
+      env {
+        name        = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+        secret_name = "clerk-pub-key"
+      }
       env {
         name        = "NEXT_PUBLIC_CLERK_SIGN_UP_URL"
         secret_name = null
@@ -55,11 +55,11 @@ resource "azurerm_container_app" "frontend" {
         secret_name = null
         value       = "/sign-in"
       }
-      # env {
-      #   name        = "CLERK_SECRET_KEY"
-      #   secret_name = "clerk-secret-key"
-      #   value       = null
-      # }
+      env {
+        name        = "CLERK_SECRET_KEY"
+        secret_name = "clerk-secret-key"
+        value       = null
+      }
     }
   }
   secret {
