@@ -30,7 +30,8 @@ CREATE TABLE public.accounts (
     app_name text,
     app_description text,
     app_icon_url text,
-    account_username text NOT NULL,
+    username text DEFAULT ''::text NOT NULL,
+    email text DEFAULT ''::text NOT NULL,
     enc_password bytea NOT NULL,
     memo text NOT NULL,
     pls_delete boolean NOT NULL,
@@ -126,9 +127,9 @@ ALTER SEQUENCE public.app_template_id_seq OWNED BY public.app_template.id;
 CREATE TABLE public.devices (
     id integer NOT NULL,
     device_type integer NOT NULL,
-    credential_type integer NOT NULL,
     device_description text,
     device_username text,
+    device_icon_url text,
     enc_password bytea NOT NULL,
     memo text NOT NULL,
     message text NOT NULL,
@@ -230,6 +231,54 @@ CREATE TABLE public.schema_migrations_seed (
 ALTER TABLE public.schema_migrations_seed OWNER TO "user";
 
 --
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.subscriptions (
+    id integer NOT NULL,
+    service_name text,
+    icon_url text,
+    username text DEFAULT ''::text NOT NULL,
+    email text DEFAULT ''::text NOT NULL,
+    enc_password bytea NOT NULL,
+    amount integer NOT NULL,
+    currency text NOT NULL,
+    billing_cycle text NOT NULL,
+    memo text NOT NULL,
+    pls_delete boolean NOT NULL,
+    message text NOT NULL,
+    passer_id uuid NOT NULL,
+    trust_id integer,
+    is_disclosed boolean NOT NULL,
+    custom_data jsonb
+);
+
+
+ALTER TABLE public.subscriptions OWNER TO "user";
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.subscriptions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNER TO "user";
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
+
+
+--
 -- Name: trusts; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -306,6 +355,13 @@ ALTER TABLE ONLY public.disclosures ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
+
+
+--
 -- Name: trusts id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -366,6 +422,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 ALTER TABLE ONLY public.schema_migrations_seed
     ADD CONSTRAINT schema_migrations_seed_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
 
 
 --
@@ -454,6 +518,22 @@ ALTER TABLE ONLY public.disclosures
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_requester_id_fkey FOREIGN KEY (requester_id) REFERENCES public.users(id);
+
+
+--
+-- Name: subscriptions subscriptions_passer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_passer_id_fkey FOREIGN KEY (passer_id) REFERENCES public.users(id);
+
+
+--
+-- Name: subscriptions subscriptions_trust_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_trust_id_fkey FOREIGN KEY (trust_id) REFERENCES public.trusts(id);
 
 
 --

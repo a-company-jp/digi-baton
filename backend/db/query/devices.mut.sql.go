@@ -12,11 +12,11 @@ import (
 )
 
 const createDevice = `-- name: CreateDevice :one
-INSERT INTO devices(id,
+INSERT INTO devices(
                     device_type,
-                    credential_type,
                     device_description,
                     device_username,
+                    device_icon_url,
                     enc_password,
                     memo,
                     message,
@@ -24,16 +24,15 @@ INSERT INTO devices(id,
                     trust_id,
                     is_disclosed,
                     custom_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, false, $11)
-RETURNING id, device_type, credential_type, device_description, device_username, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, $10)
+RETURNING id, device_type, device_description, device_username, device_icon_url, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type CreateDeviceParams struct {
-	ID                int32
 	DeviceType        int32
-	CredentialType    int32
 	DeviceDescription pgtype.Text
 	DeviceUsername    pgtype.Text
+	DeviceIconUrl     pgtype.Text
 	EncPassword       []byte
 	Memo              string
 	Message           string
@@ -44,11 +43,10 @@ type CreateDeviceParams struct {
 
 func (q *Queries) CreateDevice(ctx context.Context, arg CreateDeviceParams) (Device, error) {
 	row := q.db.QueryRow(ctx, createDevice,
-		arg.ID,
 		arg.DeviceType,
-		arg.CredentialType,
 		arg.DeviceDescription,
 		arg.DeviceUsername,
+		arg.DeviceIconUrl,
 		arg.EncPassword,
 		arg.Memo,
 		arg.Message,
@@ -60,9 +58,9 @@ func (q *Queries) CreateDevice(ctx context.Context, arg CreateDeviceParams) (Dev
 	err := row.Scan(
 		&i.ID,
 		&i.DeviceType,
-		&i.CredentialType,
 		&i.DeviceDescription,
 		&i.DeviceUsername,
+		&i.DeviceIconUrl,
 		&i.EncPassword,
 		&i.Memo,
 		&i.Message,
@@ -77,7 +75,7 @@ func (q *Queries) CreateDevice(ctx context.Context, arg CreateDeviceParams) (Dev
 const deleteDevice = `-- name: DeleteDevice :one
 DELETE FROM devices
 WHERE id = $1 AND passer_id = $2
-RETURNING id, device_type, credential_type, device_description, device_username, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
+RETURNING id, device_type, device_description, device_username, device_icon_url, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type DeleteDeviceParams struct {
@@ -91,9 +89,43 @@ func (q *Queries) DeleteDevice(ctx context.Context, arg DeleteDeviceParams) (Dev
 	err := row.Scan(
 		&i.ID,
 		&i.DeviceType,
-		&i.CredentialType,
 		&i.DeviceDescription,
 		&i.DeviceUsername,
+		&i.DeviceIconUrl,
+		&i.EncPassword,
+		&i.Memo,
+		&i.Message,
+		&i.PasserID,
+		&i.TrustID,
+		&i.IsDisclosed,
+		&i.CustomData,
+	)
+	return i, err
+}
+
+const setDeviceDisclosureStatus = `-- name: SetDeviceDisclosureStatus :one
+UPDATE devices
+SET is_disclosed = $2,
+    trust_id = $3
+WHERE id = $1
+RETURNING id, device_type, device_description, device_username, device_icon_url, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
+`
+
+type SetDeviceDisclosureStatusParams struct {
+	ID          int32
+	IsDisclosed bool
+	TrustID     pgtype.Int4
+}
+
+func (q *Queries) SetDeviceDisclosureStatus(ctx context.Context, arg SetDeviceDisclosureStatusParams) (Device, error) {
+	row := q.db.QueryRow(ctx, setDeviceDisclosureStatus, arg.ID, arg.IsDisclosed, arg.TrustID)
+	var i Device
+	err := row.Scan(
+		&i.ID,
+		&i.DeviceType,
+		&i.DeviceDescription,
+		&i.DeviceUsername,
+		&i.DeviceIconUrl,
 		&i.EncPassword,
 		&i.Memo,
 		&i.Message,
@@ -108,23 +140,23 @@ func (q *Queries) DeleteDevice(ctx context.Context, arg DeleteDeviceParams) (Dev
 const updateDevice = `-- name: UpdateDevice :one
 UPDATE devices
 SET device_type = $2,
-    credential_type = $3,
-    device_description = $4,
-    device_username = $5,
+    device_description = $3,
+    device_username = $4,
+    device_icon_url = $5,
     enc_password = $6,
     memo = $7,
     message = $8,
     custom_data = $9
 WHERE id = $1
-RETURNING id, device_type, credential_type, device_description, device_username, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
+RETURNING id, device_type, device_description, device_username, device_icon_url, enc_password, memo, message, passer_id, trust_id, is_disclosed, custom_data
 `
 
 type UpdateDeviceParams struct {
 	ID                int32
 	DeviceType        int32
-	CredentialType    int32
 	DeviceDescription pgtype.Text
 	DeviceUsername    pgtype.Text
+	DeviceIconUrl     pgtype.Text
 	EncPassword       []byte
 	Memo              string
 	Message           string
@@ -135,9 +167,9 @@ func (q *Queries) UpdateDevice(ctx context.Context, arg UpdateDeviceParams) (Dev
 	row := q.db.QueryRow(ctx, updateDevice,
 		arg.ID,
 		arg.DeviceType,
-		arg.CredentialType,
 		arg.DeviceDescription,
 		arg.DeviceUsername,
+		arg.DeviceIconUrl,
 		arg.EncPassword,
 		arg.Memo,
 		arg.Message,
@@ -147,9 +179,9 @@ func (q *Queries) UpdateDevice(ctx context.Context, arg UpdateDeviceParams) (Dev
 	err := row.Scan(
 		&i.ID,
 		&i.DeviceType,
-		&i.CredentialType,
 		&i.DeviceDescription,
 		&i.DeviceUsername,
+		&i.DeviceIconUrl,
 		&i.EncPassword,
 		&i.Memo,
 		&i.Message,

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -57,7 +58,8 @@ type AccountResponse struct {
 	AppName         string                 `json:"appName"`
 	AppDescription  string                 `json:"appDescription"`
 	AppIconUrl      string                 `json:"appIconUrl"`
-	AccountUsername string                 `json:"accountUsername"`
+	Username       string `json:"accountUsername"`
+	Email          string `json:"email"`
 	EncPassword     []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
 	Memo            string                 `json:"memo"`
 	PlsDelete       bool                   `json:"plsDelete"`
@@ -73,7 +75,8 @@ type AccountCreateRequest struct {
 	AppName         string                    `json:"appName"`
 	AppDescription  string                    `json:"appDescription"`
 	AppIconUrl      string                    `json:"appIconUrl"`
-	AccountUsername string                    `json:"accountUsername"`
+	Username       string  `json:"accountUsername"`
+	Email          string  `json:"email"`
 	Password        string                    `json:"password"`
 	Memo            string                    `json:"memo"`
 	PlsDelete       bool                      `json:"plsDelete"`
@@ -88,25 +91,19 @@ type AccountCreateRequest struct {
 // @Tags accounts
 // @Accept json
 // @Produce json
-// @Param passerID query string true "パスワードを取得するユーザのID"
 // @Success 200 {array} AccountResponse "成功"
 // @Failure 400 {object} ErrorResponse "リクエストデータが不正です"
 // @Failure 500 {object} ErrorResponse "データベース接続に失敗しました"
 // @Router /accounts [get]
 func (h *AccountsHandler) List(c *gin.Context) {
-	passerID := c.Query("passerID")
-	if passerID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "パラメータが不正です", "details": "passerIDが指定されていません"})
+	// 認証済みミドルウェアからユーザIDを取得
+	userUUID, exists := middleware.GetUserIdUUID(c)
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザー認証に失敗しました"})
 		return
 	}
 
-	pID, err := toPGUUID(passerID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "パラメータ変換中にエラーが発生しました", "details": err.Error()})
-		return
-	}
-
-	accounts, err := h.queries.ListAccountsByPasserId(c, pID)
+	accounts, err := h.queries.ListAccountsByPasserId(c, userUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "アカウント一覧取得に失敗しました", "details": err.Error()})
 		return
@@ -267,7 +264,8 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	params.AppName = pgtype.Text{String: req.AppName, Valid: true}
 	params.AppDescription = pgtype.Text{String: req.AppDescription, Valid: true}
 	params.AppIconUrl = pgtype.Text{String: req.AppIconUrl, Valid: true}
-	params.AccountUsername = req.AccountUsername
+	params.Username = req.Username
+	params.Email = req.Email
 	params.Memo = req.Memo
 	params.Message = req.Message
 
@@ -312,7 +310,8 @@ func reqToUpdateAccountParams(req AccountUpdateRequest) (query.UpdateAccountPara
 	params.AppName = pgtype.Text{String: req.AppName, Valid: req.AppName != ""}
 	params.AppDescription = pgtype.Text{String: req.AppDescription, Valid: req.AppDescription != ""}
 	params.AppIconUrl = pgtype.Text{String: req.AppIconUrl, Valid: req.AppIconUrl != ""}
-	params.AccountUsername = req.AccountUsername
+	params.Username = req.Username
+	params.Email = req.Email
 	params.EncPassword = []byte(req.Password) // TODO: encrypt
 	params.Memo = req.Memo
 	params.Message = req.Message
@@ -388,12 +387,13 @@ func accountToResponse(account query.Account) AccountResponse {
 	}
 
 	return AccountResponse{
-		ID:              account.ID,
-		AppTemplateID:   appTemplateID,
+		ID:                account.ID,
+		AppTemplateID:     appTemplateID,
 		AppName:         appName,
 		AppDescription:  appDescription,
 		AppIconUrl:      appIconUrl,
-		AccountUsername: account.AccountUsername,
+		Username:       account.Username,
+		Email:          account.Email,
 		EncPassword:     account.EncPassword,
 		Memo:            account.Memo,
 		PlsDelete:       account.PlsDelete,

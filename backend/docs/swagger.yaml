@@ -1,3 +1,4 @@
+basePath: /api
 definitions:
   handlers.AccountCreateRequest:
     properties:
@@ -15,6 +16,8 @@ definitions:
         items:
           type: integer
         type: array
+      email:
+        type: string
       memo:
         type: string
       message:
@@ -42,6 +45,8 @@ definitions:
         items:
           type: integer
         type: array
+      email:
+        type: string
       encPassword:
         items:
           type: integer
@@ -117,6 +122,11 @@ definitions:
         type: integer
       passerID:
         type: string
+    type: object
+  handlers.DeleteSubscriptionRequest:
+    properties:
+      subscriptionID:
+        type: integer
     type: object
   handlers.DeleteTrustRequest:
     properties:
@@ -244,6 +254,109 @@ definitions:
       error:
         type: string
     type: object
+  handlers.SubscriptionCreateRequest:
+    properties:
+      amount:
+        type: integer
+      billingCycle:
+        type: string
+      currency:
+        type: string
+      customData:
+        items:
+          type: integer
+        type: array
+      email:
+        type: string
+      iconUrl:
+        type: string
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+      plsDelete:
+        type: boolean
+      serviceName:
+        type: string
+      username:
+        type: string
+    type: object
+  handlers.SubscriptionResponse:
+    properties:
+      amount:
+        type: integer
+      billingCycle:
+        type: string
+      currency:
+        type: string
+      customData:
+        items:
+          type: integer
+        type: array
+      email:
+        type: string
+      encPassword:
+        items:
+          type: integer
+        type: array
+      iconUrl:
+        type: string
+      id:
+        type: integer
+      isDisclosed:
+        type: boolean
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      plsDelete:
+        type: boolean
+      serviceName:
+        type: string
+      trustID:
+        type: integer
+      username:
+        type: string
+    type: object
+  handlers.SubscriptionUpdateRequest:
+    properties:
+      amount:
+        type: integer
+      billingCycle:
+        type: string
+      currency:
+        type: string
+      customData:
+        items:
+          type: integer
+        type: array
+      email:
+        type: string
+      iconUrl:
+        type: string
+      id:
+        type: integer
+      memo:
+        type: string
+      message:
+        type: string
+      passerID:
+        type: string
+      password:
+        type: string
+      plsDelete:
+        type: boolean
+      serviceName:
+        type: string
+      username:
+        type: string
+    type: object
   handlers.TrustRequest:
     properties:
       passerID:
@@ -285,8 +398,11 @@ definitions:
       userID:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  title: Digi Baton API
+  version: "2.0"
 paths:
   /accounts:
     delete:
@@ -322,12 +438,6 @@ paths:
       consumes:
       - application/json
       description: ユーザが開示しているアカウント一覧を取得する
-      parameters:
-      - description: パスワードを取得するユーザのID
-        in: query
-        name: passerID
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -521,12 +631,6 @@ paths:
       consumes:
       - application/json
       description: ユーザが開示しているデバイス一覧を取得する
-      parameters:
-      - description: デバイスを取得するユーザのID
-        in: query
-        name: passerID
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -536,8 +640,8 @@ paths:
             items:
               $ref: '#/definitions/handlers.DeviceResponse'
             type: array
-        "400":
-          description: リクエストデータが不正です
+        "401":
+          description: 認証に失敗しました
           schema:
             $ref: '#/definitions/handlers.ErrorResponse'
         "500":
@@ -723,6 +827,118 @@ paths:
       summary: 開示申請更新
       tags:
       - disclosures
+  /subscriptions:
+    delete:
+      consumes:
+      - application/json
+      description: 指定されたサブスクリプションを削除する
+      parameters:
+      - description: 削除するサブスクリプション情報
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.DeleteSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.SubscriptionResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: サブスクリプション削除
+      tags:
+      - subscriptions
+    get:
+      consumes:
+      - application/json
+      description: ユーザが開示しているサブスクリプション一覧を取得する
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/handlers.SubscriptionResponse'
+            type: array
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: サブスクリプション一覧取得
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: 新しいサブスクリプションを作成する
+      parameters:
+      - description: サブスクリプション情報
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SubscriptionCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.SubscriptionResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: サブスクリプション作成
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: 既存のサブスクリプション情報を更新する
+      parameters:
+      - description: サブスクリプション情報
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SubscriptionUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/handlers.SubscriptionResponse'
+        "400":
+          description: リクエストデータが不正です
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: データベース接続に失敗しました
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: サブスクリプション更新
+      tags:
+      - subscriptions
   /trusts:
     delete:
       consumes:

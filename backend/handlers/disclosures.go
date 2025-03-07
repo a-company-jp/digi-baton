@@ -32,16 +32,16 @@ type DisclosureResponse struct {
 	CustomData  string     `json:"customData"`
 }
 
-// @Summary 開示申請一覧取得
-// @Description ユーザが受けた開示請求一覧を取得する
-// @Tags disclosures
-// @Accept json
-// @Produce json
-// @Param requesterID query string true "開示請求を出したユーザのID"
-// @Success 200 {array} DisclosureResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストが不正"
-// @Failure 500 {object} ErrorResponse "開示請求が見つかりませんでした"
-// @Router /disclosures [get]
+// @Summary		開示申請一覧取得
+// @Description	ユーザが受けた開示請求一覧を取得する
+// @Tags			disclosures
+// @Accept			json
+// @Produce		json
+// @Param			requesterID	query		string				true	"開示請求を出したユーザのID"
+// @Success		200			{array}		DisclosureResponse	"成功"
+// @Failure		400			{object}	ErrorResponse		"リクエストが不正"
+// @Failure		500			{object}	ErrorResponse		"開示請求が見つかりませんでした"
+// @Router			/disclosures [get]
 func (h *DisclosuresHandler) List(c *gin.Context) {
 	requesterID := c.Query("requesterID")
 	if requesterID == "" {
@@ -81,16 +81,16 @@ type DisclosureCreateRequest struct {
 	CustomData       []byte `json:"customData"`
 }
 
-// @Summary 開示申請作成
-// @Description ユーザが他のユーザに開示請求を出す
-// @Tags disclosures
-// @Accept json
-// @Produce json
-// @Param disclosure body DisclosureCreateRequest true "開示請求情報"
-// @Success 200 {object} DisclosureResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストが不正"
-// @Failure 500 {object} ErrorResponse "開示請求の作成に失敗"
-// @Router /disclosures [post]
+// @Summary		開示申請作成
+// @Description	ユーザが他のユーザに開示請求を出す
+// @Tags			disclosures
+// @Accept			json
+// @Produce		json
+// @Param			disclosure	body		DisclosureCreateRequest	true	"開示請求情報"
+// @Success		200			{object}	DisclosureResponse		"成功"
+// @Failure		400			{object}	ErrorResponse			"リクエストが不正"
+// @Failure		500			{object}	ErrorResponse			"開示請求の作成に失敗"
+// @Router			/disclosures [post]
 func (h *DisclosuresHandler) Create(c *gin.Context) {
 	var req DisclosureCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -130,16 +130,16 @@ type DisclosureUpdateRequest struct {
 	CustomData  []byte     `json:"customData"`
 }
 
-// @Summary 開示申請更新
-// @Description 開示申請のステータスを更新する
-// @Tags disclosures
-// @Accept json
-// @Produce json
-// @Param disclosure body DisclosureUpdateRequest true "開示申請情報"
-// @Success 200 {object} DisclosureResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストが不正"
-// @Failure 500 {object} ErrorResponse "開示申請の更新に失敗"
-// @Router /disclosures [put]
+// @Summary		開示申請更新
+// @Description	開示申請のステータスを更新する
+// @Tags			disclosures
+// @Accept			json
+// @Produce		json
+// @Param			disclosure	body		DisclosureUpdateRequest	true	"開示申請情報"
+// @Success		200			{object}	DisclosureResponse		"成功"
+// @Failure		400			{object}	ErrorResponse			"リクエストが不正"
+// @Failure		500			{object}	ErrorResponse			"開示申請の更新に失敗"
+// @Router			/disclosures [put]
 func (h *DisclosuresHandler) Update(c *gin.Context) {
 	var req DisclosureUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -179,16 +179,16 @@ type DisclosureDeleteRequest struct {
 	RequesterID string `json:"requesterID"`
 }
 
-// @Summary 開示申請削除
-// @Description 開示申請を削除する
-// @Tags disclosures
-// @Accept json
-// @Produce json
-// @Param disclosure body DisclosureDeleteRequest true "開示申請情報"
-// @Success 200 {object} DisclosureResponse "成功"
-// @Failure 400 {object} ErrorResponse "リクエストが不正"
-// @Failure 500 {object} ErrorResponse "開示申請の削除に失敗"
-// @Router /disclosures [delete]
+// @Summary		開示申請削除
+// @Description	開示申請を削除する
+// @Tags			disclosures
+// @Accept			json
+// @Produce		json
+// @Param			disclosure	body		DisclosureDeleteRequest	true	"開示申請情報"
+// @Success		200			{object}	DisclosureResponse		"成功"
+// @Failure		400			{object}	ErrorResponse			"リクエストが不正"
+// @Failure		500			{object}	ErrorResponse			"開示申請の削除に失敗"
+// @Router			/disclosures [delete]
 func (h *DisclosuresHandler) Delete(c *gin.Context) {
 	var req DisclosureDeleteRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

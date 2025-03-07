@@ -38,6 +38,7 @@ jobs:
           if [[ -n $(git status --porcelain) ]]; then
             echo "Changes detected after running 'make dump-schema'. Please run 'make dump-schema' locally and commit the changes."
             git diff
+            cat ./backend/db/schema.sql
             exit 1
           fi
       - name: Setup aqua

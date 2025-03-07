@@ -1,9 +1,9 @@
 -- name: CreateDevice :one
-INSERT INTO devices(id,
+INSERT INTO devices(
                     device_type,
-                    credential_type,
                     device_description,
                     device_username,
+                    device_icon_url,
                     enc_password,
                     memo,
                     message,
@@ -11,15 +11,15 @@ INSERT INTO devices(id,
                     trust_id,
                     is_disclosed,
                     custom_data)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, false, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, $10)
 RETURNING *;
 
 -- name: UpdateDevice :one
 UPDATE devices
 SET device_type = $2,
-    credential_type = $3,
-    device_description = $4,
-    device_username = $5,
+    device_description = $3,
+    device_username = $4,
+    device_icon_url = $5,
     enc_password = $6,
     memo = $7,
     message = $8,
@@ -30,4 +30,11 @@ RETURNING *;
 -- name: DeleteDevice :one
 DELETE FROM devices
 WHERE id = $1 AND passer_id = $2
+RETURNING *;
+
+-- name: SetDeviceDisclosureStatus :one
+UPDATE devices
+SET is_disclosed = $2,
+    trust_id = $3
+WHERE id = $1
 RETURNING *;
