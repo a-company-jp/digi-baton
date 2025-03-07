@@ -7,17 +7,28 @@ type ThemeStorage = BaseStorage<Theme> & {
   toggle: () => Promise<void>;
 };
 
-const storage = createStorage<Theme>('theme-storage-key', 'light', {
+type AuthStorage = BaseStorage<string>;
+
+const themeStorage = createStorage<Theme>('theme-storage-key', 'light', {
+  storageEnum: StorageEnum.Local,
+  liveUpdate: true,
+});
+
+const authStorage = createStorage<string>('auth-storage-key', '', {
   storageEnum: StorageEnum.Local,
   liveUpdate: true,
 });
 
 // You can extend it with your own methods
 export const exampleThemeStorage: ThemeStorage = {
-  ...storage,
+  ...themeStorage,
   toggle: async () => {
-    await storage.set(currentTheme => {
+    await themeStorage.set(currentTheme => {
       return currentTheme === 'light' ? 'dark' : 'light';
     });
   },
+};
+
+export const exampleAuthStorage: AuthStorage = {
+  ...authStorage,
 };
