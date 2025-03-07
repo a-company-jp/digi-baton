@@ -8,7 +8,7 @@ resource "azurerm_container_app" "frontend" {
   name                         = "frontend-dev"
   resource_group_name          = azurerm_resource_group.digi_baton.name
   revision_mode                = "Single"
-  tags = {}
+  tags                         = {}
   workload_profile_name        = "Consumption"
   ingress {
     allow_insecure_connections = false
@@ -23,31 +23,28 @@ resource "azurerm_container_app" "frontend" {
     }
   }
   registry {
-    identity             = null
-    password_secret_name = "reg-pswd-4f548f58-b5a9"
-    server               = "digibaton.azurecr.io"
-    username             = "DigiBaton"
+    identity = data.azurerm_user_assigned_identity.main.id
+    server   = "digibaton.azurecr.io"
   }
   template {
     max_replicas = 10
     min_replicas = 1
     container {
-      args = []
+      args    = []
       command = []
-      cpu    = 0.5
-      image  = "digibaton.azurecr.io/frontend-dev:latest"
-      memory = "1Gi"
-      name   = "frontend-dev"
+      cpu     = 0.5
+      image   = "digibaton.azurecr.io/frontend-dev:latest"
+      memory  = "1Gi"
+      name    = "frontend-dev"
       env {
         name        = "PORT"
         secret_name = null
         value       = "8080"
       }
-      env {
-        name        = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-        secret_name = null
-        value       = "pk_test_Ymxlc3NlZC1zdHVyZ2Vvbi05OS5jbGVyay5hY2NvdW50cy5kZXYk"
-      }
+      # env {
+      #   name        = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+      #   secret_name = "clerk-pub-key"
+      # }
       env {
         name        = "NEXT_PUBLIC_CLERK_SIGN_UP_URL"
         secret_name = null
@@ -58,16 +55,33 @@ resource "azurerm_container_app" "frontend" {
         secret_name = null
         value       = "/sign-in"
       }
-      env {
-        name        = "CLERK_SECRET_KEY"
-        secret_name = "clerk-secret-key"
-        value       = null
-      }
+      # env {
+      #   name        = "CLERK_SECRET_KEY"
+      #   secret_name = "clerk-secret-key"
+      #   value       = null
+      # }
     }
   }
   secret {
-    identity = ""
-    name     = ""
+    identity            = data.azurerm_user_assigned_identity.main.id
+    name                = "clerk-pub-key"
+    key_vault_secret_id = data.azurerm_key_vault_secret.clerk_pub_key.id
+  }
+  secret {
+    identity            = data.azurerm_user_assigned_identity.main.id
+    name                = "clerk-secret-key"
+    key_vault_secret_id = data.azurerm_key_vault_secret.clerk_secret_key.id
+  }
+  identity {
+    identity_ids = [
+      data.azurerm_user_assigned_identity.main.id
+    ]
+    type = "SystemAssigned, UserAssigned"
+  }
+  lifecycle {
+    ignore_changes = [
+      secret, template[0].container[0].env, registry
+    ]
   }
 }
 
@@ -76,11 +90,11 @@ resource "azurerm_container_app" "backend" {
   name                         = "backend-dev"
   resource_group_name          = azurerm_resource_group.digi_baton.name
   revision_mode                = "Single"
-  tags = {}
+  tags                         = {}
   workload_profile_name        = "Consumption"
   identity {
     identity_ids = [
-      "/subscriptions/079243f8-647d-4602-908a-7f755b3dfbcf/resourceGroups/digi-baton/providers/Microsoft.ManagedIdentity/userAssignedIdentities/digi-baton-main"
+      data.azurerm_user_assigned_identity.main.id
     ]
     type = "SystemAssigned, UserAssigned"
   }
@@ -97,21 +111,19 @@ resource "azurerm_container_app" "backend" {
     }
   }
   registry {
-    identity             = "/subscriptions/079243f8-647d-4602-908a-7f755b3dfbcf/resourcegroups/digi-baton/providers/Microsoft.ManagedIdentity/userAssignedIdentities/digi-baton-main"
-    password_secret_name = null
-    server               = "digibaton.azurecr.io"
-    username             = null
+    identity = data.azurerm_user_assigned_identity.main.id
+    server   = "digibaton.azurecr.io"
   }
   template {
     max_replicas = 10
     min_replicas = 1
     container {
-      args = []
+      args    = []
       command = []
-      cpu    = 0.5
-      image  = "digibaton.azurecr.io/backend-dev:latest"
-      memory = "1Gi"
-      name   = "backend-dev"
+      cpu     = 0.5
+      image   = "digibaton.azurecr.io/backend-dev:latest"
+      memory  = "1Gi"
+      name    = "backend-dev"
       env {
         name        = "CLERK_SECRET_KEY"
         secret_name = "clerk-secret-key"
@@ -154,17 +166,9 @@ resource "azurerm_container_app" "backend" {
     name                = "pg-password"
     key_vault_secret_id = data.azurerm_key_vault_secret.pg_password.id
   }
+  lifecycle {
+    ignore_changes = [
+      secret, template[0].container[0].env, registry
+    ]
+  }
 }
-
-
-import {
-  id = "/subscriptions/079243f8-647d-4602-908a-7f755b3dfbcf/resourceGroups/digi-baton/providers/Microsoft.App/containerApps/backend-dev"
-  to = azurerm_container_app.backend
-}
-
-import {
-  id = "/subscriptions/079243f8-647d-4602-908a-7f755b3dfbcf/resourceGroups/digi-baton/providers/Microsoft.App/containerApps/frontend-dev"
-  to = azurerm_container_app.frontend
-}
-
-
