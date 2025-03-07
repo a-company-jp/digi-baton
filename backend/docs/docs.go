@@ -517,15 +517,6 @@ const docTemplate = `{
                     "disclosures"
                 ],
                 "summary": "開示申請一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "開示請求を出したユーザのID",
-                        "name": "requesterID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -1531,6 +1522,16 @@ const docTemplate = `{
         },
         "handlers.DisclosureResponse": {
             "type": "object",
+            "required": [
+                "deadline",
+                "disclosed",
+                "id",
+                "inProgress",
+                "issuedTime",
+                "passerID",
+                "preventedBy",
+                "requesterID"
+            ],
             "properties": {
                 "customData": {
                     "type": "string"
@@ -1620,6 +1621,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 }
             }

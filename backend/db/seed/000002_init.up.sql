@@ -17,6 +17,11 @@ INSERT INTO users (
     '00000000-0000-0000-0000-000000000003',
     '00000000-0000-0000-0000-000000000003',
     'user_2tynEsjKI2JBe8itcnmY2E5nfHd'
+),
+(
+    '00000000-0000-0000-0000-000000000004',
+    '00000000-0000-0000-0000-000000000004',
+    'user_2u0QYBKkNhu6UbGlbWRtO817tvg'
 );
 
 INSERT INTO trusts (
@@ -33,6 +38,11 @@ INSERT INTO trusts (
     1,
     '00000000-0000-0000-0000-000000000001',
     '00000000-0000-0000-0000-000000000003'
+),
+(
+    2,
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000004'
 );
 
 INSERT INTO app_template (
@@ -327,4 +337,39 @@ INSERT INTO devices (
     0,
     false,
     '{"accessories": ["Apple Pencil", "Magic Keyboard"], "cellular": true, "storage": "256GB"}'::jsonb
+);
+
+-- disclosuresテーブルのシードデータ
+INSERT INTO disclosures (
+    id,
+    passer_id,
+    requester_id,
+    issued_time,
+    deadline,
+    disclosed,
+    in_progress,
+    prevented_by,
+    custom_data
+) VALUES
+(
+    1,
+    '00000000-0000-0000-0000-000000000002', -- 被相続人ID (田中太郎)
+    '00000000-0000-0000-0000-000000000001', -- 申請者ID (山田花子)
+    NOW() - INTERVAL '5 days',
+    NOW() + INTERVAL '25 days',
+    false,
+    true,
+    NULL,
+    '{"reason": "家族のサポート", "relationship": "daughter"}'::jsonb
+),
+(
+    2,
+    '00000000-0000-0000-0000-000000000003', -- 被相続人ID (田中太郎)
+    '00000000-0000-0000-0000-000000000001', -- 申請者ID (鈴木一郎)
+    NOW() - INTERVAL '10 days',
+    NOW() + INTERVAL '20 days',
+    true,
+    false,
+    NULL,
+    '{"reason": "財産管理", "relationship": "son"}'::jsonb
 );

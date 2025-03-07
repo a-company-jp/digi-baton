@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -21,14 +22,14 @@ func NewDisclosuresHandler(q *query.Queries) *DisclosuresHandler {
 }
 
 type DisclosureResponse struct {
-	ID          int32      `json:"id"`
-	RequesterID string     `json:"requesterID"`
-	PasserID    string     `json:"passerID"`
-	IssuedTime  string     `json:"issuedTime"`
-	InProgress  bool       `json:"inProgress"`
-	Disclosed   bool       `json:"disclosed"`
-	PreventedBy *uuid.UUID `json:"preventedBy"`
-	Deadline    string     `json:"deadline"`
+	ID          int32      `json:"id" validate:"required"`
+	RequesterID string     `json:"requesterID" validate:"required"`
+	PasserID    string     `json:"passerID" validate:"required"`
+	IssuedTime  string     `json:"issuedTime" validate:"required"`
+	InProgress  bool       `json:"inProgress" validate:"required"`
+	Disclosed   bool       `json:"disclosed" validate:"required"`
+	PreventedBy *uuid.UUID `json:"preventedBy" validate:"required"`
+	Deadline    string     `json:"deadline" validate:"required"`
 	CustomData  string     `json:"customData"`
 }
 
@@ -37,25 +38,18 @@ type DisclosureResponse struct {
 // @Tags			disclosures
 // @Accept			json
 // @Produce		json
-// @Param			requesterID	query		string				true	"開示請求を出したユーザのID"
 // @Success		200			{array}		DisclosureResponse	"成功"
 // @Failure		400			{object}	ErrorResponse		"リクエストが不正"
 // @Failure		500			{object}	ErrorResponse		"開示請求が見つかりませんでした"
 // @Router			/disclosures [get]
 func (h *DisclosuresHandler) List(c *gin.Context) {
-	requesterID := c.Query("requesterID")
-	if requesterID == "" {
+	requesterID, ok := middleware.GetUserIdUUID(c)
+	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "requesterID is required"})
 		return
 	}
 
-	pgRequesterID, err := toPGUUID(requesterID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid requesterID"})
-		return
-	}
-
-	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, pgRequesterID)
+	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, requesterID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "開示請求が見つかりませんでした"})
 		return

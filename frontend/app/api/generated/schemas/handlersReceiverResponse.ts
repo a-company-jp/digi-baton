@@ -11,4 +11,5 @@ export interface HandlersReceiverResponse {
   iconUrl?: string;
   id?: number;
   name?: string;
+  userId?: string;
 }

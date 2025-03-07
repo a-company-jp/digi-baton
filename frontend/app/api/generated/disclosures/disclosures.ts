@@ -23,7 +23,6 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  GetDisclosuresParams,
   HandlersDisclosureCreateRequest,
   HandlersDisclosureDeleteRequest,
   HandlersDisclosureResponse,
@@ -149,24 +148,17 @@ export type getDisclosuresResponse = getDisclosuresResponseComposite & {
   headers: Headers;
 }
 
-export const getGetDisclosuresUrl = (params: GetDisclosuresParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetDisclosuresUrl = () => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/disclosures?${stringifiedParams}` : `/disclosures`
+  return `/disclosures`
 }
 
-export const getDisclosures = async (params: GetDisclosuresParams, options?: RequestInit): Promise<getDisclosuresResponse> => {
+export const getDisclosures = async ( options?: RequestInit): Promise<getDisclosuresResponse> => {
   
-  return getDisclosuresMutator<getDisclosuresResponse>(getGetDisclosuresUrl(params),
+  return getDisclosuresMutator<getDisclosuresResponse>(getGetDisclosuresUrl(),
   {      
     ...options,
     method: 'GET'
@@ -177,21 +169,21 @@ export const getDisclosures = async (params: GetDisclosuresParams, options?: Req
 
 
 
-export const getGetDisclosuresQueryKey = (params: GetDisclosuresParams,) => {
-    return [`/disclosures`, ...(params ? [params]: [])] as const;
+export const getGetDisclosuresQueryKey = () => {
+    return [`/disclosures`] as const;
     }
 
     
-export const getGetDisclosuresQueryOptions = <TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>(params: GetDisclosuresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
+export const getGetDisclosuresQueryOptions = <TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetDisclosuresQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getGetDisclosuresQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDisclosures>>> = ({ signal }) => getDisclosures(params, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDisclosures>>> = ({ signal }) => getDisclosures({ signal, ...requestOptions });
 
       
 
@@ -205,7 +197,7 @@ export type GetDisclosuresQueryError = HandlersErrorResponse
 
 
 export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>(
- params: GetDisclosuresParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>> & Pick<
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDisclosures>>,
           TError,
@@ -215,7 +207,7 @@ export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosur
 
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>(
- params: GetDisclosuresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>> & Pick<
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getDisclosures>>,
           TError,
@@ -225,7 +217,7 @@ export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosur
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>(
- params: GetDisclosuresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -233,11 +225,11 @@ export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosur
  */
 
 export function useGetDisclosures<TData = Awaited<ReturnType<typeof getDisclosures>>, TError = HandlersErrorResponse>(
- params: GetDisclosuresParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDisclosures>>, TError, TData>>, request?: SecondParameter<typeof getDisclosuresMutator>}
 
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetDisclosuresQueryOptions(params,options)
+  const queryOptions = getGetDisclosuresQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
