@@ -42,7 +42,7 @@ jobs:
         # Log in to ACR
       - name: Inject .env file
         run: |
-          echo "{{ secrets.ENV_FILE }}" > ./frontend/.env
+          echo ${{ secrets.ENV_FILE }} > ./frontend/.env
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
