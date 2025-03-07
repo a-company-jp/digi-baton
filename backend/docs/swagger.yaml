@@ -51,9 +51,6 @@ definitions:
         type: object
       email:
         type: string
-      encPassword:
-        format: binary
-        type: string
       id:
         type: integer
       isDisclosed:
@@ -64,6 +61,8 @@ definitions:
         type: string
       passerID:
         type: string
+      password:
+        type: string
       plsDelete:
         type: boolean
       trustID:
@@ -73,10 +72,10 @@ definitions:
     required:
     - appDescription
     - appName
-    - encPassword
     - id
     - isDisclosed
     - passerID
+    - password
     - plsDelete
     - trustID
     type: object

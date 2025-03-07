@@ -1240,10 +1240,10 @@ const docTemplate = `{
             "required": [
                 "appDescription",
                 "appName",
-                "encPassword",
                 "id",
                 "isDisclosed",
                 "passerID",
+                "password",
                 "plsDelete",
                 "trustID"
             ],
@@ -1267,10 +1267,6 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "encPassword": {
-                    "type": "string",
-                    "format": "binary"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1284,6 +1280,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "passerID": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "plsDelete": {

@@ -294,12 +294,12 @@ export function AccountsTable({ accountsData }: AccountsTableProps) {
       },
     },
     {
-      accessorKey: "encPassword",
+      accessorKey: "password",
       header: "パスワード",
-      cell: () => {
+      cell: ({ row }) => {
         // 実際のアプリケーションでは暗号化されたパスワードを復号化するロジックが必要
         // ダミーパスワードを使用
-        return <PasswordCell value="********" />;
+        return <PasswordCell value={row.original.password} />;
       },
     },
 

@@ -1233,10 +1233,10 @@
             "required": [
                 "appDescription",
                 "appName",
-                "encPassword",
                 "id",
                 "isDisclosed",
                 "passerID",
+                "password",
                 "plsDelete",
                 "trustID"
             ],
@@ -1260,10 +1260,6 @@
                 "email": {
                     "type": "string"
                 },
-                "encPassword": {
-                    "type": "string",
-                    "format": "binary"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1277,6 +1273,9 @@
                     "type": "string"
                 },
                 "passerID": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 },
                 "plsDelete": {

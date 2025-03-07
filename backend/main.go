@@ -13,12 +13,15 @@ import (
 	"github.com/a-company-jp/digi-baton/backend/docs"
 	"github.com/a-company-jp/digi-baton/backend/handlers"
 	"github.com/a-company-jp/digi-baton/backend/middleware"
+	"github.com/a-company-jp/digi-baton/proto/crypto"
 	"github.com/clerk/clerk-sdk-go/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // @title		Digi Baton API
@@ -34,6 +37,16 @@ func main() {
 		panic("CLERK_SECRET_KEY environment variable is not set")
 	}
 	clerk.SetKey(secretKey)
+
+	// Connect to the crypto service
+	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC server: %v", err)
+	}
+	defer conn.Close()
+
+	// Create a client
+	client := crypto.NewEncryptionServiceClient(conn)
 
 	dbPool, err := initDatabasePool(config.DB.GetConnStr())
 	if err != nil {
@@ -80,7 +93,7 @@ func main() {
 			authenticated.GET("/users", userHandlers.GetByClerkID)
 
 			// accounts
-			accountHandlers := handlers.NewAccountsHandler(q)
+			accountHandlers := handlers.NewAccountsHandler(q, client)
 			authenticated.GET("/accounts", accountHandlers.List)
 			authenticated.POST("/accounts", accountHandlers.Create)
 			authenticated.PUT("/accounts", accountHandlers.Update)

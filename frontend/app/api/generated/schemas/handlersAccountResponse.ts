@@ -13,12 +13,12 @@ export interface HandlersAccountResponse {
   appTemplateID?: number;
   customData?: HandlersAccountResponseCustomData;
   email?: string;
-  encPassword: Blob;
   id: number;
   isDisclosed: boolean;
   memo?: string;
   message?: string;
   passerID: string;
+  password: string;
   plsDelete: boolean;
   trustID: number;
   username?: string;
