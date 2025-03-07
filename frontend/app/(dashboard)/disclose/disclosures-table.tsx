@@ -40,6 +40,7 @@ import Image from "next/image";
 import { getReceivers } from "@/app/api/generated/receivers/receivers";
 import { toast } from "sonner";
 import { DisclosureCreationDialog } from "./disclosure-creation-dialog";
+import { getDisclosures } from "@/app/api/generated/disclosures/disclosures";
 
 interface DisclosuresTableProps {
   disclosuresData: HandlersDisclosureResponse[];
@@ -85,19 +86,14 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
     try {
       const token = await getToken();
       // APIから最新のデータを取得
-      const response = await fetch("/api/disclosures", {
+      const response = await getDisclosures({
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch updated data");
-      }
-
-      const result = await response.json();
-      if (result && result.data && Array.isArray(result.data)) {
-        setData(result.data);
+      if (response && response.data && Array.isArray(response.data)) {
+        setData(response.data);
       }
     } catch (error) {
       console.error("Error refreshing data:", error);
