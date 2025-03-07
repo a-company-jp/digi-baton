@@ -23,11 +23,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: frontend/go.mod
-          cache-dependency-path: frontend/go.sum
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         # Enable Docker buildx
