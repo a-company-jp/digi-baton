@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"bytes"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
@@ -19,17 +20,17 @@ func NewDevicesHandler(q *query.Queries) *DevicesHandler {
 }
 
 type DeviceResponse struct {
-	ID                int32  `json:"id"`
-	DeviceType        int32  `json:"deviceType"`
-	CredentialType    int32  `json:"credentialType"`
-	DeviceDescription string `json:"deviceDescription"`
-	DeviceUsername    string `json:"deviceUsername"`
-	EncPassword       string `json:"encPassword"`
-	Memo              string `json:"memo"`
-	Message           string `json:"message"`
-	PasserID          string `json:"passerID"`
-	TrustID           *int32 `json:"trustID"`
-	CustomData        []byte `json:"customData"`
+	ID                int32                  `json:"id"`
+	DeviceType        int32                  `json:"deviceType"`
+	CredentialType    int32                  `json:"credentialType"`
+	DeviceDescription string                 `json:"deviceDescription"`
+	DeviceUsername    string                 `json:"deviceUsername"`
+	EncPassword       string                 `json:"encPassword"`
+	Memo              string                 `json:"memo"`
+	Message           string                 `json:"message"`
+	PasserID          string                 `json:"passerID"`
+	TrustID           int32                  `json:"trustID"`
+	CustomData        map[string]interface{} `json:"customData"`
 }
 
 // @Summary		デバイス一覧取得
@@ -49,25 +50,30 @@ func (h *DevicesHandler) List(c *gin.Context) {
 		return
 	}
 
-	devices, err := h.queries.ListDisclosedDevicesByReceiverId(c, userID)
+	devices, err := h.queries.ListDevicesByPasserId(c, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{"デバイス一覧取得に失敗しました", err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, devices)
+	response := make([]DeviceResponse, len(devices))
+	for i, device := range devices {
+		response[i] = deviceToResponse(device)
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 type DeviceCreateRequest struct {
-	DeviceType        int32  `json:"deviceType"`
-	CredentialType    int32  `json:"credentialType"`
-	DeviceDescription string `json:"deviceDescription,omitempty"`
-	DeviceUsername    string `json:"deviceUsername,omitempty"`
-	Password          string `json:"password,omitempty"`
-	Memo              string `json:"memo,omitempty"`
-	Message           string `json:"message,omitempty"`
-	PasserID          string `json:"passerID,omitempty"`
-	CustomData        []byte `json:"customData"`
+	DeviceType        int32                   `json:"deviceType"`
+	CredentialType    int32                   `json:"credentialType"`
+	DeviceDescription string                  `json:"deviceDescription,omitempty"`
+	DeviceUsername    string                  `json:"deviceUsername,omitempty"`
+	Password          string                  `json:"password,omitempty"`
+	Memo              string                  `json:"memo,omitempty"`
+	Message           string                  `json:"message,omitempty"`
+	PasserID          string                  `json:"passerID,omitempty"`
+	CustomData        *map[string]interface{} `json:"customData"`
 }
 
 // @Summary		デバイス追加
@@ -211,10 +217,15 @@ func reqToCreateDeviceParams(req DeviceCreateRequest) (query.CreateDeviceParams,
 		params.PasserID = uuid
 	}
 
-	if req.CustomData == nil || bytes.Equal(req.CustomData, []byte("\x00")) {
+	if req.CustomData == nil {
 		params.CustomData = nil
 	} else {
-		params.CustomData = req.CustomData
+		// Convert map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
 	}
 
 	return params, nil
@@ -230,7 +241,45 @@ func reqToUpdateDeviceParams(req DeviceUpdateRequest) (query.UpdateDeviceParams,
 	params.EncPassword = []byte(req.Password)
 	params.Memo = req.Memo
 	params.Message = req.Message
-	params.CustomData = []byte(req.CustomData)
+
+	if req.CustomData == nil {
+		params.CustomData = nil
+	} else {
+		// Convert map[string]interface{} to JSON []byte
+		jsonData, err := json.Marshal(*req.CustomData)
+		if err != nil {
+			return params, fmt.Errorf("CustomDataのJSON変換に失敗しました: %w", err)
+		}
+		params.CustomData = jsonData
+	}
 
 	return params, nil
+}
+
+// deviceToResponse converts a database device object to a response object
+func deviceToResponse(device query.Device) DeviceResponse {
+	var response DeviceResponse
+	var customData map[string]interface{}
+
+	response.ID = device.ID
+	response.DeviceType = device.DeviceType
+	response.DeviceDescription = device.DeviceDescription.String
+	response.DeviceUsername = device.DeviceUsername.String
+	response.EncPassword = string(device.EncPassword)
+	response.Memo = device.Memo
+	response.Message = device.Message
+	response.PasserID = device.PasserID.String()
+	response.TrustID = device.TrustID.Int32
+
+	// Parse CustomData JSON if it exists
+	if device.CustomData != nil {
+		if err := json.Unmarshal(device.CustomData, &customData); err != nil {
+			customData = make(map[string]interface{})
+		}
+		response.CustomData = customData
+	} else {
+		response.CustomData = make(map[string]interface{})
+	}
+
+	return response
 }

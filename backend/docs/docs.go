@@ -1140,11 +1140,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": true
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "email": {
                     "type": "string"
@@ -1352,10 +1349,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "deviceDescription": {
                     "type": "string"
@@ -1387,10 +1382,8 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "deviceDescription": {
                     "type": "string"

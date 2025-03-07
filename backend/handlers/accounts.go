@@ -71,18 +71,18 @@ type AccountResponse struct {
 }
 
 type AccountCreateRequest struct {
-	AppTemplateID  *int32                    `json:"appTemplateID"`
-	AppName        string                    `json:"appName"`
-	AppDescription string                    `json:"appDescription"`
-	AppIconUrl     string                    `json:"appIconUrl"`
-	Username       string                    `json:"username"`
-	Email          string                    `json:"email"`
-	Password       string                    `json:"password"`
-	Memo           string                    `json:"memo"`
-	PlsDelete      bool                      `json:"plsDelete"`
-	Message        string                    `json:"message"`
-	PasserID       string                    `json:"passerID"`
-	CustomData     *[]map[string]interface{} `json:"customData"`
+	AppTemplateID  *int32                  `json:"appTemplateID"`
+	AppName        string                  `json:"appName"`
+	AppDescription string                  `json:"appDescription"`
+	AppIconUrl     string                  `json:"appIconUrl"`
+	Username       string                  `json:"username"`
+	Email          string                  `json:"email"`
+	Password       string                  `json:"password"`
+	Memo           string                  `json:"memo"`
+	PlsDelete      bool                    `json:"plsDelete"`
+	Message        string                  `json:"message"`
+	PasserID       string                  `json:"passerID"`
+	CustomData     *map[string]interface{} `json:"customData"`
 }
 
 // List アカウント一覧取得

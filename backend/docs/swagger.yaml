@@ -11,10 +11,8 @@ definitions:
       appTemplateID:
         type: integer
       customData:
-        items:
-          additionalProperties: true
-          type: object
-        type: array
+        additionalProperties: true
+        type: object
       email:
         type: string
       memo:
@@ -150,9 +148,8 @@ definitions:
       credentialType:
         type: integer
       customData:
-        items:
-          type: integer
-        type: array
+        additionalProperties: true
+        type: object
       deviceDescription:
         type: string
       deviceType:
@@ -173,9 +170,8 @@ definitions:
       credentialType:
         type: integer
       customData:
-        items:
-          type: integer
-        type: array
+        additionalProperties: true
+        type: object
       deviceDescription:
         type: string
       deviceType:
