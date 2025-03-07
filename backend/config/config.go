@@ -31,12 +31,12 @@ func LoadConfig() *Config {
 				Port: getEnv("SERVER_PORT", "8080"),
 			},
 			DB: DBConfig{
-				Host:         getEnv("DB_HOST", "localhost"),
-				Port:         getEnv("DB_PORT", "5432"),
-				User:         getEnv("DB_USER", "user"),
-				Password:     getEnv("DB_PASSWORD", "password"),
-				Name:         getEnv("DB_NAME", "digi_baton"),
-				AzureConnStr: getEnv("AZURE_SQL_HOST", ""),
+				Host:     getEnv("DB_HOST", "localhost"),
+				Port:     getEnv("DB_PORT", "5432"),
+				User:     getEnv("DB_USER", "user"),
+				Password: getEnv("DB_PASSWORD", "password"),
+				Name:     getEnv("DB_NAME", "digi_baton"),
+				UseSSL:   getEnv("SSL", "false"),
 			},
 		}
 	})
