@@ -132,10 +132,12 @@ export function AccountCreationDialog({ onSave }: AccountCreationDialogProps) {
         passerID: user.data.userID,
       };
 
+      const authToken = await getToken();
+
       // APIを呼び出してアカウントを作成
       const response = await postAccounts(createData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
       });
 

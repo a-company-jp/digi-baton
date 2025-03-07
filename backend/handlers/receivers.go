@@ -113,7 +113,7 @@ func (h *ReceiversHandler) List(c *gin.Context) {
 
 func ReceiverToResponse(receiver *query.ListReceiversByUserIdRow) *ReceiverResponse {
 	response := &ReceiverResponse{}
-	response.ID = receiver.ID
+	response.ID = receiver.TrustID
 	response.ClerkUserID = receiver.ClerkUserID
 	response.Name = ""
 	response.Email = ""

@@ -269,6 +269,7 @@ func reqToCreateAccountParams(req AccountCreateRequest) (query.CreateAccountPara
 	params.Email = req.Email
 	params.Memo = req.Memo
 	params.Message = req.Message
+	params.TrustID = pgtype.Int4{Int32: req.TrustID, Valid: true}
 
 	if req.PasserID != "" {
 		uuid, err := toPGUUID(req.PasserID)
