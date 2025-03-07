@@ -20,12 +20,15 @@ import {
 import { User, users as mockUsers } from "./mock-data";
 import Image from "next/image";
 
-interface UserSelectProps {
-  selectedUserId: string | undefined;
+interface TrustUserSelectProps {
+  selectedUserId: string | number | undefined;
   onSelect: (userId: string) => void;
 }
 
-export function UserSelect({ selectedUserId, onSelect }: UserSelectProps) {
+export function TrustUserSelect({
+  selectedUserId,
+  onSelect,
+}: TrustUserSelectProps) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState<User[]>([]);
@@ -41,7 +44,7 @@ export function UserSelect({ selectedUserId, onSelect }: UserSelectProps) {
 
   // 選択されているユーザーを取得
   const selectedUser = selectedUserId
-    ? users.find((user) => user.id === selectedUserId)
+    ? users.find((user) => user.id === String(selectedUserId))
     : undefined;
 
   // 確実に配列が存在することを保証
