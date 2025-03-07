@@ -37,7 +37,7 @@ CREATE TABLE public.accounts (
     pls_delete boolean NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
@@ -134,7 +134,7 @@ CREATE TABLE public.devices (
     memo text NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
@@ -288,7 +288,7 @@ CREATE TABLE public.subscriptions (
     pls_delete boolean NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
