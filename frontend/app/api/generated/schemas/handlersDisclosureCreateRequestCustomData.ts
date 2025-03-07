@@ -5,9 +5,4 @@
  * OpenAPI spec version: 2.0
  */
 
-export type GetDisclosuresParams = {
-/**
- * 開示請求を出したユーザのID
- */
-requesterID: string;
-};
+export type HandlersDisclosureCreateRequestCustomData = { [key: string]: unknown };

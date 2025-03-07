@@ -215,14 +215,11 @@ definitions:
   handlers.DisclosureCreateRequest:
     properties:
       customData:
-        items:
-          type: integer
-        type: array
+        additionalProperties: true
+        type: object
       deadlineDuration:
         type: integer
       passerID:
-        type: string
-      requesterID:
         type: string
     type: object
   handlers.DisclosureDeleteRequest:
@@ -252,6 +249,15 @@ definitions:
         type: string
       requesterID:
         type: string
+    required:
+    - deadline
+    - disclosed
+    - id
+    - inProgress
+    - issuedTime
+    - passerID
+    - preventedBy
+    - requesterID
     type: object
   handlers.DisclosureUpdateRequest:
     properties:
@@ -292,6 +298,8 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+      userId:
         type: string
     type: object
   handlers.SubscriptionCreateRequest:
@@ -806,12 +814,6 @@ paths:
       consumes:
       - application/json
       description: ユーザが受けた開示請求一覧を取得する
-      parameters:
-      - description: 開示請求を出したユーザのID
-        in: query
-        name: requesterID
-        required: true
-        type: string
       produces:
       - application/json
       responses:

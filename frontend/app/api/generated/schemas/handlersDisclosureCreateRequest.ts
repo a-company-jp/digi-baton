@@ -4,10 +4,10 @@
  * Digi Baton API
  * OpenAPI spec version: 2.0
  */
+import type { HandlersDisclosureCreateRequestCustomData } from './handlersDisclosureCreateRequestCustomData';
 
 export interface HandlersDisclosureCreateRequest {
-  customData?: number[];
+  customData?: HandlersDisclosureCreateRequestCustomData;
   deadlineDuration?: number;
   passerID?: string;
-  requesterID?: string;
 }

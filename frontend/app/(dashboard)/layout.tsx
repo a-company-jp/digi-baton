@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   DollarSignIcon,
+  FileLockIcon,
   HomeIcon,
   Menu,
   SettingsIcon,
@@ -31,6 +32,7 @@ export default function DashboardLayout({
       label: "サブスクリプション",
     },
     { href: "/devices", icon: SmartphoneChargingIcon, label: "デバイス" },
+    { href: "/disclose", icon: FileLockIcon, label: "相続申請" },
     { href: "/settings", icon: SettingsIcon, label: "設定" },
   ];
   return (

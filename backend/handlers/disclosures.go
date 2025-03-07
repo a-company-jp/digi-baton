@@ -3,10 +3,12 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
+	"github.com/a-company-jp/digi-baton/backend/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -21,14 +23,14 @@ func NewDisclosuresHandler(q *query.Queries) *DisclosuresHandler {
 }
 
 type DisclosureResponse struct {
-	ID          int32      `json:"id"`
-	RequesterID string     `json:"requesterID"`
-	PasserID    string     `json:"passerID"`
-	IssuedTime  string     `json:"issuedTime"`
-	InProgress  bool       `json:"inProgress"`
-	Disclosed   bool       `json:"disclosed"`
-	PreventedBy *uuid.UUID `json:"preventedBy"`
-	Deadline    string     `json:"deadline"`
+	ID          int32      `json:"id" validate:"required"`
+	RequesterID string     `json:"requesterID" validate:"required"`
+	PasserID    string     `json:"passerID" validate:"required"`
+	IssuedTime  string     `json:"issuedTime" validate:"required"`
+	InProgress  bool       `json:"inProgress" validate:"required"`
+	Disclosed   bool       `json:"disclosed" validate:"required"`
+	PreventedBy *uuid.UUID `json:"preventedBy" validate:"required"`
+	Deadline    string     `json:"deadline" validate:"required"`
 	CustomData  string     `json:"customData"`
 }
 
@@ -37,25 +39,18 @@ type DisclosureResponse struct {
 // @Tags			disclosures
 // @Accept			json
 // @Produce		json
-// @Param			requesterID	query		string				true	"開示請求を出したユーザのID"
 // @Success		200			{array}		DisclosureResponse	"成功"
 // @Failure		400			{object}	ErrorResponse		"リクエストが不正"
 // @Failure		500			{object}	ErrorResponse		"開示請求が見つかりませんでした"
 // @Router			/disclosures [get]
 func (h *DisclosuresHandler) List(c *gin.Context) {
-	requesterID := c.Query("requesterID")
-	if requesterID == "" {
+	requesterID, ok := middleware.GetUserIdUUID(c)
+	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "requesterID is required"})
 		return
 	}
 
-	pgRequesterID, err := toPGUUID(requesterID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid requesterID"})
-		return
-	}
-
-	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, pgRequesterID)
+	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, requesterID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "開示請求が見つかりませんでした"})
 		return
@@ -75,10 +70,9 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 }
 
 type DisclosureCreateRequest struct {
-	PasserID         string `json:"passerID"`
-	RequesterID      string `json:"requesterID"`
-	DeadlineDuration int32  `json:"deadlineDuration"`
-	CustomData       []byte `json:"customData"`
+	PasserID         string                 `json:"passerID"`
+	DeadlineDuration int32                  `json:"deadlineDuration"`
+	CustomData       map[string]interface{} `json:"customData"`
 }
 
 // @Summary		開示申請作成
@@ -92,13 +86,18 @@ type DisclosureCreateRequest struct {
 // @Failure		500			{object}	ErrorResponse			"開示請求の作成に失敗"
 // @Router			/disclosures [post]
 func (h *DisclosuresHandler) Create(c *gin.Context) {
+	requesterID, ok := middleware.GetUserIdUUID(c)
+	if !ok {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: ""})
+		return
+	}
 	var req DisclosureCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: err.Error()})
 		return
 	}
 
-	params, err := reqToCreateDisclosureParams(req)
+	params, err := reqToCreateDisclosureParams(requesterID, req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "パラメータが不正です", Details: err.Error()})
 		return
@@ -220,20 +219,23 @@ func (h *DisclosuresHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func reqToCreateDisclosureParams(req DisclosureCreateRequest) (query.CreateDisclosureParams, error) {
+func reqToCreateDisclosureParams(requesterID pgtype.UUID, req DisclosureCreateRequest) (query.CreateDisclosureParams, error) {
 
 	passerID, err := toPGUUID(req.PasserID)
 	if err != nil {
 		return query.CreateDisclosureParams{}, err
 	}
 
-	requesterID, err := toPGUUID(req.RequesterID)
-	if err != nil {
-		return query.CreateDisclosureParams{}, err
-	}
-
-	if len(req.CustomData) == 0 || string(req.CustomData) == "null" || bytes.Equal(req.CustomData, []byte("\x00")) {
-		req.CustomData = []byte("{}")
+	// CustomDataをJSONに変換
+	var customDataBytes []byte
+	if req.CustomData != nil {
+		var err error
+		customDataBytes, err = json.Marshal(req.CustomData)
+		if err != nil {
+			return query.CreateDisclosureParams{}, fmt.Errorf("failed to marshal custom data: %w", err)
+		}
+	} else {
+		customDataBytes = []byte("{}")
 	}
 
 	return query.CreateDisclosureParams{
@@ -241,7 +243,7 @@ func reqToCreateDisclosureParams(req DisclosureCreateRequest) (query.CreateDiscl
 		RequesterID: requesterID,
 		IssuedTime:  toPGTimestamp(time.Now()),
 		Deadline:    toPGTimestamp(time.Now().AddDate(0, 0, int(req.DeadlineDuration))),
-		CustomData:  req.CustomData,
+		CustomData:  customDataBytes,
 	}, nil
 }
 

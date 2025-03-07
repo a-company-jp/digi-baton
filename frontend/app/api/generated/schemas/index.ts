@@ -6,7 +6,6 @@
  */
 
 export * from './getAliveChecksParams';
-export * from './getDisclosuresParams';
 export * from './getTrustsParams';
 export * from './handlersAccountCreateRequest';
 export * from './handlersAccountCreateRequestBody';
@@ -27,6 +26,7 @@ export * from './handlersDeviceCreateRequestCustomData';
 export * from './handlersDeviceResponse';
 export * from './handlersDeviceResponseCustomData';
 export * from './handlersDisclosureCreateRequest';
+export * from './handlersDisclosureCreateRequestCustomData';
 export * from './handlersDisclosureDeleteRequest';
 export * from './handlersDisclosureResponse';
 export * from './handlersDisclosureUpdateRequest';

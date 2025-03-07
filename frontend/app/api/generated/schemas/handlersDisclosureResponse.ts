@@ -7,12 +7,12 @@
 
 export interface HandlersDisclosureResponse {
   customData?: string;
-  deadline?: string;
-  disclosed?: boolean;
-  id?: number;
-  inProgress?: boolean;
-  issuedTime?: string;
-  passerID?: string;
-  preventedBy?: string;
-  requesterID?: string;
+  deadline: string;
+  disclosed: boolean;
+  id: number;
+  inProgress: boolean;
+  issuedTime: string;
+  passerID: string;
+  preventedBy: string;
+  requesterID: string;
 }

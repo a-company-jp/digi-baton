@@ -5,6 +5,7 @@ import "./globals.css";
 import Link from "next/link";
 import { CircleIcon } from "lucide-react";
 import QueryProvider from "./query_provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const viewport: Viewport = {
   maximumScale: 1,
@@ -53,6 +54,7 @@ export default function RootLayout({
           >
             <Header />
             <div className="pt-[60px]">{children}</div>
+            <Toaster />
           </body>
         </QueryProvider>
       </ClerkProvider>

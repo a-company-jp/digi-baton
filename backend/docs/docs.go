@@ -517,15 +517,6 @@ const docTemplate = `{
                     "disclosures"
                 ],
                 "summary": "開示申請一覧取得",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "開示請求を出したユーザのID",
-                        "name": "requesterID",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "成功",
@@ -1502,18 +1493,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "deadlineDuration": {
                     "type": "integer"
                 },
                 "passerID": {
-                    "type": "string"
-                },
-                "requesterID": {
                     "type": "string"
                 }
             }
@@ -1531,6 +1517,16 @@ const docTemplate = `{
         },
         "handlers.DisclosureResponse": {
             "type": "object",
+            "required": [
+                "deadline",
+                "disclosed",
+                "id",
+                "inProgress",
+                "issuedTime",
+                "passerID",
+                "preventedBy",
+                "requesterID"
+            ],
             "properties": {
                 "customData": {
                     "type": "string"
@@ -1620,6 +1616,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 }
             }

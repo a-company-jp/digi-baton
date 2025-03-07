@@ -20,6 +20,7 @@ func NewReceiversHandler(queries *query.Queries) *ReceiversHandler {
 
 type ReceiverResponse struct {
 	ID          int32  `json:"id"`
+	UserID      string `json:"userId"`
 	ClerkUserID string `json:"clerkUserId"`
 	Name        string `json:"name"`
 	Email       string `json:"email"`
@@ -114,6 +115,7 @@ func (h *ReceiversHandler) List(c *gin.Context) {
 func ReceiverToResponse(receiver *query.ListReceiversByUserIdRow) *ReceiverResponse {
 	response := &ReceiverResponse{}
 	response.ID = receiver.TrustID
+	response.UserID = receiver.UserID.String()
 	response.ClerkUserID = receiver.ClerkUserID
 	response.Name = ""
 	response.Email = ""
