@@ -25,6 +25,7 @@ import type {
 import type {
   HandlersAccountCreateRequestBody,
   HandlersAccountResponse,
+  HandlersAccountTemplateResponse,
   HandlersDeleteAccountCreateRequest,
   HandlersErrorResponse
 } from '.././schemas';
@@ -33,6 +34,7 @@ import deleteAccountsMutator from '../../../../lib/fetch';
 import getAccountsMutator from '../../../../lib/fetch';
 import postAccountsMutator from '../../../../lib/fetch';
 import putAccountsMutator from '../../../../lib/fetch';
+import getAccountsTemplatesMutator from '../../../../lib/fetch';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -415,4 +417,110 @@ export const usePutAccounts = <TError = HandlersErrorResponse,
 
       return useMutation(mutationOptions);
     }
+    /**
+ * アカウントテンプレートの一覧取得
+ * @summary アカウントテンプレート一覧
+ */
+export type getAccountsTemplatesResponse200 = {
+  data: HandlersAccountTemplateResponse[]
+  status: 200
+}
     
+export type getAccountsTemplatesResponseComposite = getAccountsTemplatesResponse200;
+    
+export type getAccountsTemplatesResponse = getAccountsTemplatesResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetAccountsTemplatesUrl = () => {
+
+
+  
+
+  return `/accounts/templates`
+}
+
+export const getAccountsTemplates = async ( options?: RequestInit): Promise<getAccountsTemplatesResponse> => {
+  
+  return getAccountsTemplatesMutator<getAccountsTemplatesResponse>(getGetAccountsTemplatesUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+export const getGetAccountsTemplatesQueryKey = () => {
+    return [`/accounts/templates`] as const;
+    }
+
+    
+export const getGetAccountsTemplatesQueryOptions = <TData = Awaited<ReturnType<typeof getAccountsTemplates>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData>>, request?: SecondParameter<typeof getAccountsTemplatesMutator>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAccountsTemplatesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAccountsTemplates>>> = ({ signal }) => getAccountsTemplates({ signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetAccountsTemplatesQueryResult = NonNullable<Awaited<ReturnType<typeof getAccountsTemplates>>>
+export type GetAccountsTemplatesQueryError = unknown
+
+
+export function useGetAccountsTemplates<TData = Awaited<ReturnType<typeof getAccountsTemplates>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAccountsTemplates>>,
+          TError,
+          Awaited<ReturnType<typeof getAccountsTemplates>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof getAccountsTemplatesMutator>}
+
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAccountsTemplates<TData = Awaited<ReturnType<typeof getAccountsTemplates>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getAccountsTemplates>>,
+          TError,
+          Awaited<ReturnType<typeof getAccountsTemplates>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof getAccountsTemplatesMutator>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetAccountsTemplates<TData = Awaited<ReturnType<typeof getAccountsTemplates>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData>>, request?: SecondParameter<typeof getAccountsTemplatesMutator>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary アカウントテンプレート一覧
+ */
+
+export function useGetAccountsTemplates<TData = Awaited<ReturnType<typeof getAccountsTemplates>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAccountsTemplates>>, TError, TData>>, request?: SecondParameter<typeof getAccountsTemplatesMutator>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetAccountsTemplatesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+

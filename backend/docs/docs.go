@@ -185,6 +185,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/accounts/templates": {
+            "get": {
+                "description": "アカウントテンプレートの一覧取得",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "アカウントテンプレート一覧",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handlers.AccountTemplateResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/alive-checks": {
             "get": {
                 "description": "アライブチェック履歴一覧を取得する",
@@ -1101,9 +1127,6 @@ const docTemplate = `{
         "handlers.AccountCreateRequest": {
             "type": "object",
             "properties": {
-                "accountUsername": {
-                    "type": "string"
-                },
                 "appDescription": {
                     "type": "string"
                 },
@@ -1119,7 +1142,8 @@ const docTemplate = `{
                 "customData": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "object",
+                        "additionalProperties": true
                     }
                 },
                 "email": {
@@ -1139,15 +1163,15 @@ const docTemplate = `{
                 },
                 "plsDelete": {
                     "type": "boolean"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
         "handlers.AccountResponse": {
             "type": "object",
             "properties": {
-                "accountUsername": {
-                    "type": "string"
-                },
                 "appDescription": {
                     "type": "string"
                 },
@@ -1161,19 +1185,15 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "customData": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object",
+                    "additionalProperties": true
                 },
                 "email": {
                     "type": "string"
                 },
                 "encPassword": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "string",
+                    "format": "binary"
                 },
                 "id": {
                     "type": "integer"
@@ -1194,6 +1214,26 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "trustID": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AccountTemplateResponse": {
+            "type": "object",
+            "properties": {
+                "appDescription": {
+                    "type": "string"
+                },
+                "appIconUrl": {
+                    "type": "string"
+                },
+                "appName": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "integer"
                 }
             }
