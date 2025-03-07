@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -52,7 +51,7 @@ func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 
 		// Get the DB user by the Clerk user ID
 		clerkUserID := claims.Subject
-		user, err := q.GetUserByClerkID(context.Background(), clerkUserID)
+		user, err := q.GetUserByClerkID(c, clerkUserID)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Sprintf("User not found in the database: %v", err)})
 			c.Abort()
