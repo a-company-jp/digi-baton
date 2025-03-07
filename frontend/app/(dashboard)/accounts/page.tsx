@@ -1,29 +1,55 @@
-"use client";
-
-import { useState } from "react";
-import {
-  LayoutGrid,
-  Table as TableIcon,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AlertCircle } from "lucide-react";
 import { AccountsTable } from "./accounts-table";
 import { AccountsCardView } from "./accounts-card-view";
-import { useGetAccounts } from "@/app/api/generated/accounts/accounts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { auth } from "@clerk/nextjs/server";
+import { getAccounts } from "@/app/api/generated/accounts/accounts"; // 生成されたAPI関数を使用
+import { HandlersAccountResponse } from "@/app/api/generated/schemas"; // 型定義をインポート
 
-export default function AccountsPage() {
-  const [viewMode, setViewMode] = useState<"table" | "card">("table");
+export default async function AccountsPage() {
+  // デフォルトでテーブル表示
+  // NOTE: あまり良くないかも
+  const viewMode = "table";
 
-  // アカウントデータの取得 (認証トークンは自動的に設定される)
-  const { data: accountsData, isLoading, isError } = useGetAccounts();
+  // Clerk認証を使用
+  const authData = await auth();
+  const token = await authData.getToken();
 
-  // APIレスポンスの安全な取得
-  const accounts =
-    accountsData?.data && Array.isArray(accountsData.data)
-      ? accountsData.data
-      : [];
+  // エラー状態とアカウントデータの初期化
+  let isError = false;
+  let accountsData: HandlersAccountResponse[] = [];
+
+  try {
+    // Server-side data fetching
+    const response = await getAccounts({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // レスポンスからデータを取得
+    if (response && "data" in response && Array.isArray(response.data)) {
+      accountsData = response.data as HandlersAccountResponse[];
+    }
+  } catch (error) {
+    console.error("Error fetching accounts:", error);
+    isError = true;
+  }
+
+  // エラー状態の処理
+  if (isError) {
+    return (
+      <div className="p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>エラー</AlertTitle>
+          <AlertDescription>
+            アカウント情報の取得中にエラーが発生しました。
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -31,49 +57,13 @@ export default function AccountsPage() {
         <h1 className="text-2xl font-bold">アカウント</h1>
       </div>
 
-      <div className="flex justify-between items-center my-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant={viewMode === "table" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setViewMode("table")}
-            title="テーブル表示"
-          >
-            <TableIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === "card" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setViewMode("card")}
-            title="カード表示"
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-        </div>
+      <div className="mt-6">
+        {viewMode === "table" ? (
+          <AccountsTable accountsData={accountsData} />
+        ) : (
+          <AccountsCardView accountsData={accountsData} />
+        )}
       </div>
-
-      {isLoading ? (
-        <div className="flex justify-center items-center h-40">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">読み込み中...</span>
-        </div>
-      ) : isError ? (
-        <Alert variant="destructive" className="my-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>エラー</AlertTitle>
-          <AlertDescription>
-            データの取得に失敗しました。もう一度お試しください。
-          </AlertDescription>
-        </Alert>
-      ) : (
-        <>
-          {viewMode === "table" ? (
-            <AccountsTable accountsData={accounts} />
-          ) : (
-            <AccountsCardView accountsData={accounts} />
-          )}
-        </>
-      )}
     </div>
   );
 }
