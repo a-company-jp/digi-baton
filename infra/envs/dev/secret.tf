@@ -19,3 +19,8 @@ resource "azurerm_key_vault_access_policy" "main" {
     "Delete",
   ]
 }
+
+data "azurerm_key_vault_secret" "pg_password" {
+  name         = "pg-password"
+  key_vault_id = azurerm_key_vault.main.id
+}
