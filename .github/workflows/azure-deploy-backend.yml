@@ -55,3 +55,11 @@ jobs:
           file: ./backend/build/Dockerfile.prod
           tags: digibaton.azurecr.io/backend-dev:latest
           push: true
+      - name: Create a new revison for containerapp
+        runs:
+           az containerapp update \                                                                                                                  in zsh at 00:58:29
+              --resource-group digi-baton \
+              --name backend-dev \
+              --container-name backend-dev \
+              --image "digibaton.azurecr.io/backend-dev:latest" \
+              --revision-suffix "manual-$(date +%s)"
