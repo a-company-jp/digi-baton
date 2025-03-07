@@ -60,15 +60,15 @@ INSERT INTO accounts (
 
 (
     1, 
-    'Gmail', 
-    'Google email service', 
-    'https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/gmail.webp', 
+    'Google',
+    'Google',
+    'https://digibatonmainstorageacct.blob.core.windows.net/digibatonpublic/google.webp',
     '',
     'user1@example.com', 
     '\x0123456789ABCDEF', -- Encrypted password as bytea
-    'Personal Gmail account', 
+    'Personal Google account',
     false, 
-    'This is my main email account', 
+    'This is my main google account',
     '00000000-0000-0000-0000-000000000001', -- Sample UUID for passer_id
     null, 
     false, 
