@@ -4,6 +4,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+import { useCopyClipboard } from "@/app/hooks/useCopyClipboard";
+import { Button } from "@/components/ui/button";
+import { Check, Copy, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
@@ -104,6 +109,64 @@ function TableCaption({
   )
 }
 
+function PasswordCell({ value }: { value: string }) {
+  const { copied, copyToClipboard } = useCopyClipboard(value, "パスワード");
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  
+  return (
+    <div className="flex items-center justify-between">
+      <span>{showPassword ? value : "••••••••"}</span>
+      <div className="flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={copyToClipboard}
+          className="h-8 w-8 ml-2 opacity-70 hover:opacity-100"
+        >
+          {copied ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={togglePasswordVisibility}
+          className="h-8 w-8 opacity-70 hover:opacity-100"
+        >
+          {showPassword ? (
+            <Eye className="h-4 w-4" />
+          ) : (
+            <EyeOff className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function CopyableCell({ value, label }: { value: string; label: string }) {
+  const { copied, copyToClipboard } = useCopyClipboard(value, label);
+
+  return (
+    <div className="flex items-center justify-between">
+      <span>{value}</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={copyToClipboard}
+        className="h-8 w-8 ml-2 opacity-70 hover:opacity-100"
+      >
+        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+      </Button>
+    </div>
+  );
+}
+
+
+
 export {
   Table,
   TableHeader,
@@ -113,4 +176,6 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  PasswordCell,
+  CopyableCell,
 }

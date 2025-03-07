@@ -30,7 +30,7 @@ export default function AccountCard({
     appDescription: account.appDescription || "",
     username: account.username || account.email || "",
     email: account.email || "",
-    encodedPassword: account.encPassword || new Blob(),
+    encodedPassword: typeof account.password === "string" ? new Blob([account.password]) : account.password || new Blob(),
   }));
   const router = useRouter();
 
