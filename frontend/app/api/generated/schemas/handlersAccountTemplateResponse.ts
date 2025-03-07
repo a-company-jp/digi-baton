@@ -6,8 +6,8 @@
  */
 
 export interface HandlersAccountTemplateResponse {
-  appDescription?: string;
-  appIconUrl?: string;
-  appName?: string;
-  id?: number;
+  appDescription: string;
+  appIconUrl: string;
+  appName: string;
+  id: number;
 }

@@ -9,14 +9,15 @@ import type { HandlersAccountCreateRequestCustomData } from './handlersAccountCr
 export interface HandlersAccountCreateRequest {
   appDescription?: string;
   appIconUrl?: string;
-  appName?: string;
+  appName: string;
   appTemplateID?: number;
   customData?: HandlersAccountCreateRequestCustomData;
   email?: string;
   memo?: string;
   message?: string;
-  passerID?: string;
-  password?: string;
-  plsDelete?: boolean;
+  passerID: string;
+  password: string;
+  plsDelete: boolean;
+  trustID: number;
   username?: string;
 }

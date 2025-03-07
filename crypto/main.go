@@ -30,7 +30,7 @@ func (s *Server) storeHistory(ctx context.Context, userID, operation string, dat
 }
 
 func main() {
-	dsn := "postgres://username:password@localhost:5432/mydb?sslmode=disable"
+	dsn := "postgres://user:password@localhost:5432/digi_baton_crypto?sslmode=disable"
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("failed to open db: %v", err)

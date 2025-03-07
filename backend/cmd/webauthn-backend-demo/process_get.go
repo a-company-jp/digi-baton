@@ -60,12 +60,16 @@ func processGetAssertion(reqJSON string) string {
 		log.Printf("No allowCredentials in request")
 		return ""
 	}
-	credID := req.AllowCredentials[0].ID
 
-	// base64 URL decode する場合など、エンコード形式に合わせて適宜処理
-	passkey := store.Get(req.RPID, credID)
+	var passkey *StoredPasskey
+	for _, cred := range req.AllowCredentials {
+		passkey = store.Get(req.RPID, cred.ID)
+		if passkey != nil {
+			break
+		}
+	}
 	if passkey == nil {
-		log.Printf("No stored passkey found for RPID=%s, CredID=%s", req.RPID, credID)
+		log.Printf("No stored passkey found for RPID=%s", req.RPID)
 		return ""
 	}
 
@@ -121,8 +125,8 @@ func processGetAssertion(reqJSON string) string {
 
 	// 6. レスポンス用構造体を組み立て
 	var pkc PublicKeyCredential
-	pkc.ID = credID
-	pkc.RawID = credID
+	pkc.ID = passkey.CredentialID
+	pkc.RawID = passkey.CredentialID
 	pkc.Type = "public-key"
 
 	// Base64URLエンコードして詰める

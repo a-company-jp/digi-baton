@@ -25,10 +25,23 @@ migrate-down: ## マイグレーションロールバック
 migrate-drop: ## データベース削除
 	migrate -source file://db/migrations -database $(DATABASE_URL) drop
 
+migrate-seed-new: ## マイグレーションファイル作成
+ifndef NAME
+	@echo "Usage: make NAME=migration_name migrate-new"
+else
+	migrate create -ext sql -dir ./db/seed -seq $(NAME)
+endif
+
+migrate-seed-up: ## データベース初期データ投入
+	migrate -source file://db/seed -database "$(DATABASE_URL)&x-migrations-table=schema_migrations_seed" up
+
+migrate-seed-down: ## データベース初期データ投入
+	migrate -source file://db/seed -database "$(DATABASE_URL)&x-migrations-table=schema_migrations_seed" down 1
+
 dump-schema:
 	pg_dump --schema-only "user=$(RDB_USER) password=$(RDB_PASS) dbname=$(RDB_NAME) sslmode=disable host=$(RDB_HOST) port=$(RDB_PORT)" > db/schema.sql
 
-migrate-reset: migrate-drop migrate-up
+migrate-reset: migrate-drop migrate-up migrate-seed-up
 
 dev:
 	air -c .air.toml

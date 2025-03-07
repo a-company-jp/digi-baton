@@ -1,0 +1,30 @@
+{
+  "extensionDescription": {
+    "description": "拡張機能の説明",
+    "message": "Keyper Chrome拡張機能を使って、パスキーをクラウド上で安全に管理しましょう!!"
+  },
+  "extensionName": {
+    "description": "拡張機能の名称",
+    "message": "Keyper"
+  },
+  "toggleTheme": {
+    "message": "テーマの切り替え"
+  },
+  "loading": {
+    "message": "読み込み中..."
+  },
+  "greeting": {
+    "description": "挨拶メッセージ",
+    "message": "こんにちは、私の名前は$NAME$です。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "山田太郎"
+      }
+    }
+  },
+  "hello": {
+    "description": "プレースホルダーの例",
+    "message": "こんにちは $1"
+  }
+}

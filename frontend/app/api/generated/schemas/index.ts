@@ -7,7 +7,6 @@
 
 export * from './getAliveChecksParams';
 export * from './getDisclosuresParams';
-export * from './getReceiversParams';
 export * from './getTrustsParams';
 export * from './handlersAccountCreateRequest';
 export * from './handlersAccountCreateRequestBody';

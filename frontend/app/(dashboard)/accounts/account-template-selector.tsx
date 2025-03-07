@@ -2,18 +2,28 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { AccountTemplate } from "./mock-data";
-import { User } from "lucide-react";
+import { Loader2, User } from "lucide-react";
+import { HandlersAccountTemplateResponse } from "@/app/api/generated/schemas";
 
 interface AccountTemplateSelectorProps {
-  templates: AccountTemplate[];
-  onSelect: (template?: AccountTemplate) => void;
+  isLoading: boolean;
+  templates: HandlersAccountTemplateResponse[] | undefined;
+  onSelect: (template?: HandlersAccountTemplateResponse) => void;
 }
 
 export function AccountTemplateSelector({
+  isLoading,
   templates,
   onSelect,
 }: AccountTemplateSelectorProps) {
+  if (isLoading || !templates) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-4 w-4 mr-1" />
+        テンプレートを読み込んでいます...
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-center gap-4">
@@ -43,7 +53,7 @@ export function AccountTemplateSelector({
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs">
-                  {template.appName.charAt(0)}
+                  {template.appName?.charAt(0)}
                 </div>
               )}
             </div>

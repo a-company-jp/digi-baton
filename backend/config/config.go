@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	Server ServerConfig
-	DB    DBConfig
+	DB     DBConfig
 }
 
 var (
@@ -36,6 +36,7 @@ func LoadConfig() *Config {
 				User:     getEnv("DB_USER", "user"),
 				Password: getEnv("DB_PASSWORD", "password"),
 				Name:     getEnv("DB_NAME", "digi_baton"),
+				UseSSL:   getEnv("SSL", "false"),
 			},
 		}
 	})
@@ -49,4 +50,3 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
-

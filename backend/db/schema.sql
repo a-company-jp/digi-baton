@@ -37,7 +37,7 @@ CREATE TABLE public.accounts (
     pls_delete boolean NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
@@ -134,7 +134,7 @@ CREATE TABLE public.devices (
     memo text NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
@@ -207,6 +207,46 @@ ALTER SEQUENCE public.disclosures_id_seq OWNED BY public.disclosures.id;
 
 
 --
+-- Name: passkeys; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.passkeys (
+    id integer NOT NULL,
+    user_id uuid NOT NULL,
+    rp_id text NOT NULL,
+    credential_id text NOT NULL,
+    user_name text NOT NULL,
+    public_key bytea NOT NULL,
+    private_key bytea NOT NULL,
+    sign_count bigint NOT NULL
+);
+
+
+ALTER TABLE public.passkeys OWNER TO "user";
+
+--
+-- Name: passkeys_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.passkeys_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.passkeys_id_seq OWNER TO "user";
+
+--
+-- Name: passkeys_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.passkeys_id_seq OWNED BY public.passkeys.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -248,7 +288,7 @@ CREATE TABLE public.subscriptions (
     pls_delete boolean NOT NULL,
     message text NOT NULL,
     passer_id uuid NOT NULL,
-    trust_id integer,
+    trust_id integer NOT NULL,
     is_disclosed boolean NOT NULL,
     custom_data jsonb
 );
@@ -355,6 +395,13 @@ ALTER TABLE ONLY public.disclosures ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: passkeys id; Type: DEFAULT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys ALTER COLUMN id SET DEFAULT nextval('public.passkeys_id_seq'::regclass);
+
+
+--
 -- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: user
 --
 
@@ -406,6 +453,30 @@ ALTER TABLE ONLY public.devices
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: passkeys passkeys_credential_id_unique; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_credential_id_unique UNIQUE (credential_id);
+
+
+--
+-- Name: passkeys passkeys_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: passkeys passkeys_user_id_rp_id_unique; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_user_id_rp_id_unique UNIQUE (user_id, rp_id);
 
 
 --
@@ -518,6 +589,14 @@ ALTER TABLE ONLY public.disclosures
 
 ALTER TABLE ONLY public.disclosures
     ADD CONSTRAINT disclosures_requester_id_fkey FOREIGN KEY (requester_id) REFERENCES public.users(id);
+
+
+--
+-- Name: passkeys passkeys_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.passkeys
+    ADD CONSTRAINT passkeys_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --

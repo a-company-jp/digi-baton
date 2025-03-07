@@ -21,7 +21,7 @@ type Account struct {
 	PlsDelete      bool
 	Message        string
 	PasserID       pgtype.UUID
-	TrustID        pgtype.Int4
+	TrustID        int32
 	IsDisclosed    bool
 	CustomData     []byte
 }
@@ -46,7 +46,7 @@ type Device struct {
 	Memo              string
 	Message           string
 	PasserID          pgtype.UUID
-	TrustID           pgtype.Int4
+	TrustID           int32
 	IsDisclosed       bool
 	CustomData        []byte
 }
@@ -64,6 +64,17 @@ type Disclosure struct {
 	CustomData  []byte
 }
 
+type Passkey struct {
+	ID           int32
+	UserID       pgtype.UUID
+	RpID         string
+	CredentialID string
+	UserName     string
+	PublicKey    []byte
+	PrivateKey   []byte
+	SignCount    int64
+}
+
 type Subscription struct {
 	ID           int32
 	ServiceName  pgtype.Text
@@ -78,7 +89,7 @@ type Subscription struct {
 	PlsDelete    bool
 	Message      string
 	PasserID     pgtype.UUID
-	TrustID      pgtype.Int4
+	TrustID      int32
 	IsDisclosed  bool
 	CustomData   []byte
 }

@@ -61,7 +61,7 @@ CREATE TABLE accounts
     pls_delete       BOOLEAN NOT NULL,
     message          TEXT    NOT NULL,
     passer_id        UUID    NOT NULL REFERENCES users (id),
-    trust_id         INTEGER REFERENCES trusts (id),
+    trust_id         INTEGER NOT NULL REFERENCES trusts (id),
     is_disclosed     BOOLEAN NOT NULL,
     custom_data      JSONB
 );
@@ -116,7 +116,7 @@ CREATE TABLE devices
     memo               TEXT    NOT NULL,
     message            TEXT    NOT NULL,
     passer_id          UUID    NOT NULL REFERENCES users (id),
-    trust_id           INTEGER REFERENCES trusts (id),
+    trust_id           INTEGER NOT NULL  REFERENCES trusts (id),
     is_disclosed       BOOLEAN NOT NULL,
     custom_data        JSONB
 );
@@ -188,7 +188,7 @@ CREATE TABLE subscriptions
     pls_delete       BOOLEAN NOT NULL,
     message          TEXT    NOT NULL,
     passer_id        UUID    NOT NULL REFERENCES users (id),
-    trust_id         INTEGER REFERENCES trusts (id),
+    trust_id         INTEGER NOT NULL  REFERENCES trusts (id),
     is_disclosed     BOOLEAN NOT NULL,
     custom_data      JSONB
 );

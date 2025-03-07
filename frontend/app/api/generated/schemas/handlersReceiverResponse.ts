@@ -6,7 +6,9 @@
  */
 
 export interface HandlersReceiverResponse {
+  clerkUserId?: string;
   email?: string;
+  iconUrl?: string;
   id?: number;
   name?: string;
 }
