@@ -6,7 +6,7 @@ const getUrl = (contextUrl: string): string => {
   return requestUrl.toString();
 };
 
-export default async <T>(url: string, options: RequestInit): Promise<T> => {
+const fetch = async <T>(url: string, options: RequestInit): Promise<T> => {
   const requestUrl = getUrl(url);
 
   const timeoutMS = 60 * 30 * 1000;
@@ -15,3 +15,5 @@ export default async <T>(url: string, options: RequestInit): Promise<T> => {
 
   return { status: response.status, data } as T;
 };
+
+export default fetch;

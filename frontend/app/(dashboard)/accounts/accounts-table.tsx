@@ -257,7 +257,7 @@ const columns: ColumnDef<HandlersAccountResponse>[] = [
   {
     accessorKey: "encPassword",
     header: "パスワード",
-    cell: ({ row }) => {
+    cell: () => {
       // 実際のアプリケーションでは暗号化されたパスワードを復号化するロジックが必要
       // ダミーパスワードを使用
       return <PasswordCell value="********" />;
