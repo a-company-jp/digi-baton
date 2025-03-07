@@ -24,3 +24,13 @@ data "azurerm_key_vault_secret" "pg_password" {
   name         = "pg-password"
   key_vault_id = azurerm_key_vault.main.id
 }
+
+data "azurerm_key_vault_secret" "clerk_secret_key" {
+  name         = "clerk-secret-key"
+  key_vault_id = azurerm_key_vault.main.id
+}
+
+data "azurerm_key_vault_secret" "clerk_pub_key" {
+  name         = "clerk-pub-key"
+  key_vault_id = azurerm_key_vault.main.id
+}
