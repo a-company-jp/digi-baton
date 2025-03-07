@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,12 +35,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import {
-  Account,
-  accounts as mockAccounts,
-  User,
-  users as mockUsers,
-} from "./mock-data";
+import { HandlersAccountResponse } from "@/app/api/generated/schemas/handlersAccountResponse";
 import {
   Dialog,
   DialogContent,
@@ -139,8 +134,8 @@ function ActionCell({
   account,
   onDelete,
 }: {
-  account: Account;
-  onDelete: (id: string) => void;
+  account: HandlersAccountResponse;
+  onDelete: (id: number) => void;
 }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -159,7 +154,7 @@ function ActionCell({
           </DialogHeader>
           <AccountEditModal
             account={account}
-            onSave={(updatedAccount: Account) => {
+            onSave={(updatedAccount) => {
               // 実際のアプリケーションではここでデータ更新処理を行う
               console.log("アカウント更新:", updatedAccount);
               setIsEditOpen(false);
@@ -179,7 +174,10 @@ function ActionCell({
             <DialogTitle>アカウント削除の確認</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p>「{account.appName}」のアカウントを削除してもよろしいですか？</p>
+            <p>
+              「{account.appName || "このアカウント"}
+              」を削除してもよろしいですか？
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
               この操作は元に戻せません。
             </p>
@@ -191,7 +189,7 @@ function ActionCell({
             <Button
               variant="destructive"
               onClick={() => {
-                onDelete(account.id);
+                onDelete(account.id || 0);
                 setIsDeleteOpen(false);
               }}
             >
@@ -204,37 +202,8 @@ function ActionCell({
   );
 }
 
-// 相続ユーザーセル
-function InheritUserCell({ value, users }: { value: string; users: User[] }) {
-  const user = users.find((user) => user.id === value);
-  if (!user) {
-    return <span className="text-sm font-semibold text-rose-500">未選択</span>;
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      {user.avatarUrl ? (
-        <div className="w-6 h-6 rounded-full overflow-hidden">
-          <Image src={user.avatarUrl} alt={user.name} width={24} height={24} />
-        </div>
-      ) : (
-        <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs">
-          {user.name.charAt(0)}
-        </div>
-      )}
-      <span>{user.name}</span>
-    </div>
-  );
-}
-
-// メタデータの型定義
-interface TableCustomMeta {
-  users?: User[];
-  onDeleteAccount?: (id: string) => void;
-}
-
 // テーブルのカラム定義
-const columns: ColumnDef<Account>[] = [
+const columns: ColumnDef<HandlersAccountResponse>[] = [
   {
     accessorKey: "appName",
     header: ({ column }) => {
@@ -254,188 +223,108 @@ const columns: ColumnDef<Account>[] = [
       );
     },
     cell: ({ row }) => {
-      const account = row.original;
+      const appName = row.getValue("appName") as string;
+      const appIconUrl = row.original.appIconUrl as string | undefined;
+
       return (
-        <div className="flex items-center">
-          <div className="h-10 w-10 flex items-center justify-center rounded-md bg-gray-50 mr-3">
-            {account.appIconUrl ? (
-              <Image
-                src={account.appIconUrl}
-                alt={account.appName}
-                width={24}
-                height={24}
-              />
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-md bg-gray-50 flex items-center justify-center">
+            {appIconUrl ? (
+              <Image src={appIconUrl} alt={appName} width={20} height={20} />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                {account.appName.charAt(0)}
+              <div className="w-8 h-8 rounded-md bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                {appName?.charAt(0) || "?"}
               </div>
             )}
           </div>
-          <span>{account.appName}</span>
+          <span>{appName || "不明"}</span>
         </div>
       );
     },
   },
   {
     accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          メールアドレス
-          {{
-            asc: <ChevronUp className="ml-2 h-4 w-4" />,
-            desc: <ChevronDown className="ml-2 h-4 w-4" />,
-          }[column.getIsSorted() as string] ?? (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
+    header: "メールアドレス",
+    cell: ({ row }) => {
+      const email = row.getValue("email") as string | undefined;
+      return email ? (
+        <CopyableCell value={email} label="メールアドレス" />
+      ) : (
+        <span className="text-muted-foreground">未設定</span>
       );
     },
-    cell: ({ row }) => (
-      <CopyableCell
-        value={row.getValue("email") as string}
-        label="メールアドレス"
-      />
-    ),
   },
   {
-    accessorKey: "encodedPassword",
+    accessorKey: "encPassword",
     header: "パスワード",
-    cell: ({ row }) => (
-      <PasswordCell value={row.getValue("encodedPassword") as string} />
-    ),
-  },
-  {
-    accessorKey: "inheritedUserId",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          相続ユーザー
-          {{
-            asc: <ChevronUp className="ml-2 h-4 w-4" />,
-            desc: <ChevronDown className="ml-2 h-4 w-4" />,
-          }[column.getIsSorted() as string] ?? (
-            <ChevronsUpDown className="ml-2 h-4 w-4" />
-          )}
-        </Button>
-      );
-    },
-    cell: ({ row, table }) => {
-      // AccountsTableコンポーネントのstateにアクセス
-      const users = (table.options.meta as TableCustomMeta)?.users || [];
-      return (
-        <InheritUserCell
-          value={row.getValue("inheritedUserId") as string}
-          users={users}
-        />
-      );
+    cell: ({ row }) => {
+      // 実際のアプリケーションでは暗号化されたパスワードを復号化するロジックが必要
+      // ダミーパスワードを使用
+      return <PasswordCell value="********" />;
     },
   },
   {
     id: "actions",
-    cell: ({ row, table }) => (
+    cell: ({ row }) => (
       <ActionCell
         account={row.original}
         onDelete={(id) => {
-          const accountsTable = table.options.meta as TableCustomMeta;
-          if (accountsTable && accountsTable.onDeleteAccount) {
-            accountsTable.onDeleteAccount(id);
-          }
+          // 削除処理
+          console.log(`ID: ${id}のアカウントを削除`);
         }}
       />
     ),
   },
 ];
 
-export function AccountsTable() {
+interface AccountsTableProps {
+  accountsData: HandlersAccountResponse[];
+}
+
+export function AccountsTable({ accountsData }: AccountsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-
-  // アカウントデータとユーザーデータの取得
-  useEffect(() => {
-    // TODO: バックエンドのGoのAPIを叩いてデータを取得する予定
-    // 現状はモックデータを使用
-    setAccounts(mockAccounts);
-    setUsers(mockUsers);
-  }, []);
-
-  const handleSaveAccount = (updatedAccount: Account) => {
-    // 新規アカウントの場合
-    if (!updatedAccount.id) {
-      const newAccount = {
-        ...updatedAccount,
-        id: Date.now().toString(),
-      };
-      setAccounts([...accounts, newAccount]);
-      toast.success("アカウントを作成しました");
-    } else {
-      // 既存アカウントの更新
-      const updatedAccounts = accounts.map((acc) =>
-        acc.id === updatedAccount.id ? updatedAccount : acc
-      );
-      setAccounts(updatedAccounts);
-      toast.success("アカウントを更新しました");
-    }
-  };
-
-  const handleDeleteAccount = (id: string) => {
-    // アカウントの削除処理
-    const filteredAccounts = accounts.filter((acc) => acc.id !== id);
-    setAccounts(filteredAccounts);
-    toast.success("アカウントを削除しました");
-  };
 
   const table = useReactTable({
-    data: accounts,
+    data: accountsData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
       columnFilters,
     },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
-    meta: {
-      users, // usersをmetaとして渡す
-      onDeleteAccount: handleDeleteAccount, // 削除ハンドラーを渡す
-    },
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between pb-4">
         <div className="relative max-w-sm">
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            type="search"
-            placeholder="検索..."
-            className="pl-8"
-            value={columnFilters.map((filter) => filter.value).join(" ")}
-            onChange={(e) => {
-              setColumnFilters([{ id: "appName", value: e.target.value }]);
-            }}
+            placeholder="アプリ名、メールアドレスで検索..."
+            value={
+              (table.getColumn("appName")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("appName")?.setFilterValue(event.target.value)
+            }
+            className="w-80 pl-8"
           />
         </div>
-        <AccountCreationDialog onSave={handleSaveAccount} />
+        <AccountCreationDialog
+          onSave={(newAccount) => {
+            // ここにアカウント作成処理を実装
+            console.log("新規アカウント:", newAccount);
+          }}
+        />
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -476,7 +365,7 @@ export function AccountsTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  データがありません
+                  登録されたアカウントがありません
                 </TableCell>
               </TableRow>
             )}
@@ -484,63 +373,23 @@ export function AccountsTable() {
         </Table>
       </div>
 
-      {/* ページネーションコントロール */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm text-muted-foreground">
-            全 {table.getFilteredRowModel().rows.length} 件中
-            {table.getState().pagination.pageIndex *
-              table.getState().pagination.pageSize +
-              1}
-            -
-            {Math.min(
-              (table.getState().pagination.pageIndex + 1) *
-                table.getState().pagination.pageSize,
-              table.getFilteredRowModel().rows.length
-            )}
-            件を表示
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            前へ
-          </Button>
-          {Array.from({ length: table.getPageCount() })
-            .map((_, index) => (
-              <Button
-                key={index}
-                variant={
-                  table.getState().pagination.pageIndex === index
-                    ? "default"
-                    : "outline"
-                }
-                size="sm"
-                onClick={() => table.setPageIndex(index)}
-              >
-                {index + 1}
-              </Button>
-            ))
-            .slice(
-              Math.max(0, table.getState().pagination.pageIndex - 1),
-              Math.min(
-                table.getPageCount(),
-                table.getState().pagination.pageIndex + 4
-              )
-            )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            次へ
-          </Button>
-        </div>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          前へ
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          次へ
+        </Button>
       </div>
     </div>
   );

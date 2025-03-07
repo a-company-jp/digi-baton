@@ -4,6 +4,8 @@ import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { CircleIcon } from "lucide-react";
+import { AuthProvider } from "@/components/auth-provider";
+import { QueryClientProvider } from "@/components/query-client-provider";
 
 export const viewport: Viewport = {
   maximumScale: 1,
@@ -46,12 +48,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ClerkProvider>
-        <body
-          className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}
-        >
-          <Header />
-          <div className="pt-[60px]">{children}</div>
-        </body>
+        <QueryClientProvider>
+          <AuthProvider>
+            <body
+              className={`${notoSansJP.className} min-h-screen antialiased bg-gray-50`}
+            >
+              <Header />
+              <div className="pt-[60px]">{children}</div>
+            </body>
+          </AuthProvider>
+        </QueryClientProvider>
       </ClerkProvider>
     </html>
   );

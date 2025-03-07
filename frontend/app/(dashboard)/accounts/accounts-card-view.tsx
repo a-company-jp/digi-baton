@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,12 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PencilIcon, SearchIcon, Copy, Check, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
-import {
-  Account,
-  accounts as mockAccounts,
-  User,
-  users as mockUsers,
-} from "./mock-data";
+import { HandlersAccountResponse } from "@/app/api/generated/schemas/handlersAccountResponse";
 import {
   Dialog,
   DialogContent,
@@ -30,25 +25,26 @@ import { AccountCreationDialog } from "./account-creation-dialog";
 import { toast } from "sonner";
 
 interface AccountCardProps {
-  account: Account;
+  account: HandlersAccountResponse;
   onCopy: (text: string, label: string) => void;
-  users: User[];
 }
 
-function AccountCard({ account, onCopy, users }: AccountCardProps) {
+function AccountCard({ account, onCopy }: AccountCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleCopyEmail = () => {
-    onCopy(account.email, "メールアドレス");
-    setCopiedEmail(true);
-    setTimeout(() => setCopiedEmail(false), 2000);
+    if (account.email) {
+      onCopy(account.email, "メールアドレス");
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2000);
+    }
   };
 
   const handleCopyPassword = () => {
-    onCopy(account.encodedPassword, "パスワード");
+    onCopy("********", "パスワード"); // 実際には復号化したパスワードを使用
     setCopiedPassword(true);
     setTimeout(() => setCopiedPassword(false), 2000);
   };
@@ -56,11 +52,6 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  // 相続ユーザーの情報を取得（安全なアクセス）
-  const inheritedUser = account.inheritedUserId
-    ? users.find((user) => user.id === account.inheritedUserId)
-    : undefined;
 
   return (
     <Card className="overflow-hidden">
@@ -70,17 +61,19 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
             {account.appIconUrl ? (
               <Image
                 src={account.appIconUrl}
-                alt={account.appName}
+                alt={account.appName || ""}
                 width={24}
                 height={24}
               />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
-                {account.appName.charAt(0)}
+                {account.appName?.charAt(0) || "?"}
               </div>
             )}
           </div>
-          <CardTitle className="text-lg">{account.appName}</CardTitle>
+          <CardTitle className="text-lg">
+            {account.appName || "不明なアプリ"}
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -114,7 +107,7 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
               <p className="text-sm font-medium text-gray-500">パスワード</p>
               <div className="flex items-center">
                 <p className="text-sm mr-2">
-                  {showPassword ? account.encodedPassword : "••••••••"}
+                  {showPassword ? "********" : "••••••••"}
                 </p>
                 <Button
                   variant="ghost"
@@ -143,34 +136,6 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
               </div>
             </div>
           </div>
-          <div className="pt-2 border-t border-gray-100">
-            <p className="text-sm font-medium text-gray-500 mb-1">
-              相続ユーザー
-            </p>
-            {inheritedUser ? (
-              <div className="flex items-center gap-2">
-                {inheritedUser.avatarUrl ? (
-                  <div className="w-6 h-6 rounded-full overflow-hidden">
-                    <Image
-                      src={inheritedUser.avatarUrl}
-                      alt={inheritedUser.name}
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs">
-                    {inheritedUser.name.charAt(0)}
-                  </div>
-                )}
-                <span>{inheritedUser.name}</span>
-              </div>
-            ) : (
-              <span className="text-sm font-semibold text-rose-500">
-                未設定（要選択）
-              </span>
-            )}
-          </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
@@ -186,8 +151,7 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
             </DialogHeader>
             <AccountEditModal
               account={account}
-              onSave={(updatedAccount: Account) => {
-                // 実際のアプリケーションではここでデータ更新処理を行う
+              onSave={(updatedAccount) => {
                 console.log("アカウント更新:", updatedAccount);
                 setIsOpen(false);
               }}
@@ -199,42 +163,18 @@ function AccountCard({ account, onCopy, users }: AccountCardProps) {
   );
 }
 
-export function AccountsCardView() {
+interface AccountsCardViewProps {
+  accountsData: HandlersAccountResponse[];
+}
+
+export function AccountsCardView({ accountsData }: AccountsCardViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-
-  // アカウントデータとユーザーデータの取得
-  useEffect(() => {
-    // TODO: バックエンドのGoのAPIを叩いてデータを取得する予定
-    // 現状はモックデータを使用
-    setAccounts(mockAccounts);
-    setUsers(mockUsers);
-  }, []);
-
-  const handleSaveAccount = (updatedAccount: Account) => {
-    // 新規アカウントの場合
-    if (!updatedAccount.id) {
-      const newAccount = {
-        ...updatedAccount,
-        id: Date.now().toString(),
-      };
-      setAccounts([...accounts, newAccount]);
-      toast.success("アカウントを作成しました");
-    } else {
-      // 既存アカウントの更新
-      const updatedAccounts = accounts.map((acc) =>
-        acc.id === updatedAccount.id ? updatedAccount : acc
-      );
-      setAccounts(updatedAccounts);
-      toast.success("アカウントを更新しました");
-    }
-  };
 
   // 検索フィルター
-  const filteredAccounts = accounts.filter(
+  const filteredAccounts = accountsData.filter(
     (account) =>
-      account.appName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (account.appName &&
+        account.appName.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (account.email &&
         account.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -252,33 +192,37 @@ export function AccountsCardView() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="relative max-w-sm">
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            type="search"
             placeholder="検索..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
+            className="pl-8 w-80"
           />
         </div>
-        <AccountCreationDialog onSave={handleSaveAccount} />
+        <AccountCreationDialog
+          onSave={(newAccount) => {
+            console.log("新規アカウント:", newAccount);
+            toast.success("アカウントを作成しました");
+          }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredAccounts.map((account) => (
-          <AccountCard
-            key={account.id}
-            account={account}
-            onCopy={copyToClipboard}
-            users={users}
-          />
-        ))}
-      </div>
-
-      {/* カードがない場合 */}
-      {filteredAccounts.length === 0 && (
+      {filteredAccounts.length === 0 ? (
         <div className="text-center p-8 border rounded-md bg-gray-50">
-          <p className="text-gray-500">データがありません</p>
+          <p className="text-muted-foreground">
+            登録されたアカウントがありません
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredAccounts.map((account) => (
+            <AccountCard
+              key={account.id}
+              account={account}
+              onCopy={copyToClipboard}
+            />
+          ))}
         </div>
       )}
     </div>

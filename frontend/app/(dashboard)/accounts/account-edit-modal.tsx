@@ -1,12 +1,10 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Account } from "./mock-data";
-import { UserSelect } from "./user-select";
+import { HandlersAccountResponse } from "@/app/api/generated/schemas/handlersAccountResponse";
 import { toast } from "sonner";
 import {
   Form,
@@ -17,45 +15,55 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Image from "next/image";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 // Zodスキーマの定義
 const accountSchema = z.object({
-  id: z.string(),
-  appName: z.string().min(1, "アカウント名は必須です"),
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  encodedPassword: z
-    .string()
-    .min(6, "パスワードは6文字以上である必要があります"),
-  inheritedUserId: z.string().min(1, "ユーザーを選択してください"),
+  id: z.number().optional(),
+  appName: z.string().min(1, "アプリ名は必須です"),
+  email: z.string().email("有効なメールアドレスを入力してください").optional(),
+  accountUsername: z.string().optional(),
   appIconUrl: z.string().optional(),
-  lastUpdated: z.string(),
+  memo: z.string().optional(),
+  trustID: z.number().optional(),
 });
 
 // スキーマから型を推論
 type AccountFormValues = z.infer<typeof accountSchema>;
 
 interface AccountEditModalProps {
-  account: Account;
-  onSave: (updatedAccount: Account) => void;
+  account: HandlersAccountResponse;
+  onSave: (updatedAccount: HandlersAccountResponse) => void;
 }
 
 export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
   // react-hook-formとZodの統合
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
-    defaultValues: account,
+    defaultValues: {
+      id: account.id,
+      appName: account.appName || "",
+      email: account.email || "",
+      accountUsername: account.accountUsername || "",
+      appIconUrl: account.appIconUrl || "",
+      memo: account.memo || "",
+      trustID: account.trustID,
+    },
   });
 
   const handleSubmit = (values: AccountFormValues) => {
-    // アカウント更新時に最終更新日を更新
-    const updatedAccount: Account = {
-      ...values,
-      lastUpdated: new Date().toISOString().split("T")[0], // Current date in YYYY-MM-DD format
-    };
+    try {
+      // FormデータからAPIに渡すオブジェクトを作成
+      const updatedAccount: HandlersAccountResponse = {
+        ...account, // 元のデータを保持
+        ...values, // 更新された値で上書き
+      };
 
-    onSave(updatedAccount);
-    toast.success("アカウントが更新されました");
+      onSave(updatedAccount);
+      toast.success("アカウント情報を更新しました");
+    } catch (error) {
+      console.error("更新エラー:", error);
+      toast.error("更新に失敗しました");
+    }
   };
 
   return (
@@ -75,12 +83,9 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
                   <div className="flex items-center gap-2">
                     <div className="w-12 h-12 aspect-square flex-shrink-0 flex items-center justify-center rounded-md bg-gray-50 overflow-hidden">
                       {account.appIconUrl ? (
-                        <Image
-                          src={account.appIconUrl}
-                          alt={account.appName}
-                          width={24}
-                          height={24}
-                        />
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                          {account.appName.charAt(0)}
+                        </div>
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
                           {account.appName.charAt(0)}
@@ -139,16 +144,12 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
 
         <FormField
           control={form.control}
-          name="encodedPassword"
+          name="accountUsername"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>パスワード</FormLabel>
+              <FormLabel>アカウント名</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="password"
-                  placeholder="パスワードを入力"
-                />
+                <Input {...field} placeholder="アカウント名を入力" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -157,15 +158,26 @@ export function AccountEditModal({ account, onSave }: AccountEditModalProps) {
 
         <FormField
           control={form.control}
-          name="inheritedUserId"
+          name="memo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>継承ユーザー</FormLabel>
+              <FormLabel>メモ</FormLabel>
               <FormControl>
-                <UserSelect
-                  selectedUserId={field.value}
-                  onSelect={field.onChange}
-                />
+                <Input {...field} placeholder="メモを入力" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="trustID"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>信頼度</FormLabel>
+              <FormControl>
+                <Input {...field} type="number" placeholder="信頼度を入力" />
               </FormControl>
               <FormMessage />
             </FormItem>
