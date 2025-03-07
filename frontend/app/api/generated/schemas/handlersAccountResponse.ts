@@ -7,19 +7,19 @@
 import type { HandlersAccountResponseCustomData } from './handlersAccountResponseCustomData';
 
 export interface HandlersAccountResponse {
-  appDescription?: string;
+  appDescription: string;
   appIconUrl?: string;
-  appName?: string;
+  appName: string;
   appTemplateID?: number;
   customData?: HandlersAccountResponseCustomData;
   email?: string;
-  encPassword?: Blob;
-  id?: number;
-  isDisclosed?: boolean;
+  encPassword: Blob;
+  id: number;
+  isDisclosed: boolean;
   memo?: string;
   message?: string;
-  passerID?: string;
-  plsDelete?: boolean;
-  trustID?: number;
+  passerID: string;
+  plsDelete: boolean;
+  trustID: number;
   username?: string;
 }

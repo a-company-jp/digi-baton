@@ -1080,6 +1080,27 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "description": "clerkIDからユーザーを取得するためのエンドポイント",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ユーザー取得",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UserResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
                 "consumes": [
@@ -1173,6 +1194,13 @@ const docTemplate = `{
     "definitions": {
         "handlers.AccountCreateRequest": {
             "type": "object",
+            "required": [
+                "appName",
+                "passerID",
+                "password",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1208,6 +1236,9 @@ const docTemplate = `{
                 "plsDelete": {
                     "type": "boolean"
                 },
+                "trustID": {
+                    "type": "integer"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -1215,6 +1246,16 @@ const docTemplate = `{
         },
         "handlers.AccountResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appName",
+                "encPassword",
+                "id",
+                "isDisclosed",
+                "passerID",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1267,6 +1308,12 @@ const docTemplate = `{
         },
         "handlers.AccountTemplateResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appIconUrl",
+                "appName",
+                "id"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1778,6 +1825,9 @@ const docTemplate = `{
         },
         "handlers.UserCreateRequest": {
             "type": "object",
+            "required": [
+                "clerkUserID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"
@@ -1789,6 +1839,11 @@ const docTemplate = `{
         },
         "handlers.UserResponse": {
             "type": "object",
+            "required": [
+                "clerkUserID",
+                "defaultReceiverID",
+                "userID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"

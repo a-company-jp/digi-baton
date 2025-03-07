@@ -6,6 +6,6 @@
  */
 
 export interface HandlersUserCreateRequest {
-  clerkUserID?: string;
+  clerkUserID: string;
   defaultReceiverID?: string;
 }

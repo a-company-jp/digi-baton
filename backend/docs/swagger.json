@@ -1073,6 +1073,27 @@
             }
         },
         "/users": {
+            "get": {
+                "description": "clerkIDからユーザーを取得するためのエンドポイント",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ユーザー取得",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UserResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "clerkでユーザ認証した後にバックエンドのDBにユーザを更新するためのエンドポイント",
                 "consumes": [
@@ -1166,6 +1187,13 @@
     "definitions": {
         "handlers.AccountCreateRequest": {
             "type": "object",
+            "required": [
+                "appName",
+                "passerID",
+                "password",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1201,6 +1229,9 @@
                 "plsDelete": {
                     "type": "boolean"
                 },
+                "trustID": {
+                    "type": "integer"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -1208,6 +1239,16 @@
         },
         "handlers.AccountResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appName",
+                "encPassword",
+                "id",
+                "isDisclosed",
+                "passerID",
+                "plsDelete",
+                "trustID"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1260,6 +1301,12 @@
         },
         "handlers.AccountTemplateResponse": {
             "type": "object",
+            "required": [
+                "appDescription",
+                "appIconUrl",
+                "appName",
+                "id"
+            ],
             "properties": {
                 "appDescription": {
                     "type": "string"
@@ -1771,6 +1818,9 @@
         },
         "handlers.UserCreateRequest": {
             "type": "object",
+            "required": [
+                "clerkUserID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"
@@ -1782,6 +1832,11 @@
         },
         "handlers.UserResponse": {
             "type": "object",
+            "required": [
+                "clerkUserID",
+                "defaultReceiverID",
+                "userID"
+            ],
             "properties": {
                 "clerkUserID": {
                     "type": "string"
