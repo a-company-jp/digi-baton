@@ -11,7 +11,28 @@ INSERT INTO users (
 (
     '00000000-0000-0000-0000-000000000002',
     '00000000-0000-0000-0000-000000000002',
-    'user_2tiwmsCOgwgOFdbszDgR2O2SfGS'
+    'user_2tzSwFlcpzyJN4hps3rM5hzpWj3'
+),
+(
+    '00000000-0000-0000-0000-000000000003',
+    '00000000-0000-0000-0000-000000000003',
+    'user_2tynEsjKI2JBe8itcnmY2E5nfHd'
+);
+
+INSERT INTO trusts (
+    id,
+    passer_user_id,
+    receiver_user_id
+) VALUES
+(
+    0,
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000002'
+),
+(
+    1,
+    '00000000-0000-0000-0000-000000000001',
+    '00000000-0000-0000-0000-000000000003'
 );
 
 INSERT INTO app_template (
@@ -70,7 +91,7 @@ INSERT INTO accounts (
     false, 
     'This is my main google account',
     '00000000-0000-0000-0000-000000000001', -- Sample UUID for passer_id
-    null, 
+    0, 
     false, 
     '{"recovery_email": "backup@example.com", "last_login": "2023-01-01"}'::jsonb
 ),
@@ -87,7 +108,7 @@ INSERT INTO accounts (
     false, 
     'Used for work-related communications', 
     '00000000-0000-0000-0000-000000000001', -- Same passer_id as above
-    null, 
+    0, 
     false, 
     '{"phone_number": "+1234567890", "two_factor_enabled": true}'::jsonb
 ),
@@ -104,7 +125,7 @@ INSERT INTO accounts (
     false, 
     'Used for work-related communications', 
     '00000000-0000-0000-0000-000000000001', -- Same passer_id as above
-    null,
+    0,
     false,
     null
 ),
@@ -121,7 +142,7 @@ INSERT INTO accounts (
     false, 
     '', 
     '00000000-0000-0000-0000-000000000001', -- Same passer_id as above
-    NULL, 
+    0, 
     false, 
     '{"recovery_email": "backup@example.com", "last_login": "2023-01-01"}'::jsonb
 );
@@ -156,7 +177,7 @@ INSERT INTO subscriptions (
     false,
     '家族で共有しているNetflixアカウント',
     '00000000-0000-0000-0000-000000000001', -- Sample UUID for passer_id
-    null,
+    0,
     false,
     '{"payment_method": "credit_card", "next_billing_date": "2023-06-15"}'::jsonb
 ),
@@ -173,7 +194,7 @@ INSERT INTO subscriptions (
     false,
     '音楽ストリーミングサービス',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"payment_method": "paypal", "auto_renew": true}'::jsonb
 ),
@@ -190,7 +211,7 @@ INSERT INTO subscriptions (
     false,
     '配送無料とPrimeビデオを利用中',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"member_since": "2020-03-10", "benefits": ["free_shipping", "prime_video", "prime_reading"]}'::jsonb
 ),
@@ -207,7 +228,7 @@ INSERT INTO subscriptions (
     false,
     '写真編集に使用',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"apps": ["photoshop", "lightroom"], "storage": "20GB"}'::jsonb
 ),
@@ -224,7 +245,7 @@ INSERT INTO subscriptions (
     false,
     'YouTube Musicも含まれる',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"family_plan": false, "youtube_music": true}'::jsonb
 );
@@ -251,7 +272,7 @@ INSERT INTO devices (
     '仕事用のMacBook',
     'パスワードは大文字小文字と数字を含む',
     '00000000-0000-0000-0000-000000000001', -- Same passer_id as above
-    null,
+    0,
     false,
     '{"purchase_date": "2022-10-15", "os": "macOS Ventura", "serial_number": "C02ZN3YBLVCG"}'::jsonb
 ),
@@ -264,7 +285,7 @@ INSERT INTO devices (
     '自宅のデスクトップPC',
     'ゲームとプライベート作業用',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"specs": {"cpu": "Intel Core i7", "ram": "32GB", "storage": "1TB SSD"}, "location": "自宅書斎"}'::jsonb
 ),
@@ -277,7 +298,7 @@ INSERT INTO devices (
     'メインスマートフォン',
     'Face IDも設定済み',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"phone_number": "+81-90-1234-5678", "icloud_enabled": true, "color": "スペースブラック"}'::jsonb
 ),
@@ -290,7 +311,7 @@ INSERT INTO devices (
     'テスト用Android端末',
     'アプリ開発のテスト用',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"android_version": "Android 13", "screen_lock": "pattern"}'::jsonb
 ),
@@ -303,7 +324,7 @@ INSERT INTO devices (
     '出張時のサブデバイス',
     'Apple Pencilでメモを取るのに使用',
     '00000000-0000-0000-0000-000000000001',
-    null,
+    0,
     false,
     '{"accessories": ["Apple Pencil", "Magic Keyboard"], "cellular": true, "storage": "256GB"}'::jsonb
 );

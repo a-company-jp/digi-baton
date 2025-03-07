@@ -14,10 +14,10 @@ import (
 )
 
 type AccountTemplate struct {
-	ID             int32  `json:"id"`
-	AppName        string `json:"appName"`
-	AppDescription string `json:"appDescription"`
-	AppIconUrl     string `json:"appIconUrl"`
+	ID             int32  `json:"id" validate:"required"`
+	AppName        string `json:"appName" validate:"required"`
+	AppDescription string `json:"appDescription" validate:"required"`
+	AppIconUrl     string `json:"appIconUrl" validate:"required"`
 }
 
 type AccountTemplateResponse AccountTemplate // 他と仕様を合わせるため
@@ -53,35 +53,36 @@ func NewAccountsHandler(q *query.Queries) *AccountsHandler {
 
 // 冗長に見えるが、後でrequestとresponseのフィールドが変わる可能性があるため
 type AccountResponse struct {
-	ID             int32                  `json:"id"`
+	ID             int32                  `json:"id" validate:"required"`
 	AppTemplateID  *int32                 `json:"appTemplateID"`
-	AppName        string                 `json:"appName"`
-	AppDescription string                 `json:"appDescription"`
+	AppName        string                 `json:"appName" validate:"required"`
+	AppDescription string                 `json:"appDescription" validate:"required"`
 	AppIconUrl     string                 `json:"appIconUrl"`
 	Username       string                 `json:"username"`
 	Email          string                 `json:"email"`
-	EncPassword    []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"`
+	EncPassword    []byte                 `json:"encPassword"  swaggertype:"string" format:"binary"  validate:"required"`
 	Memo           string                 `json:"memo"`
-	PlsDelete      bool                   `json:"plsDelete"`
+	PlsDelete      bool                   `json:"plsDelete"  validate:"required"`
 	Message        string                 `json:"message"`
-	PasserID       string                 `json:"passerID"`
-	TrustID        *int32                 `json:"trustID"`
-	IsDisclosed    bool                   `json:"isDisclosed"`
+	PasserID       string                 `json:"passerID"  validate:"required"`
+	TrustID        int32                  `json:"trustID" validate:"required"`
+	IsDisclosed    bool                   `json:"isDisclosed" validate:"required"`
 	CustomData     map[string]interface{} `json:"customData"`
 }
 
 type AccountCreateRequest struct {
 	AppTemplateID  *int32                  `json:"appTemplateID"`
-	AppName        string                  `json:"appName"`
+	AppName        string                  `json:"appName" validate:"required"`
 	AppDescription string                  `json:"appDescription"`
 	AppIconUrl     string                  `json:"appIconUrl"`
 	Username       string                  `json:"username"`
 	Email          string                  `json:"email"`
-	Password       string                  `json:"password"`
+	Password       string                  `json:"password" validate:"required"`
 	Memo           string                  `json:"memo"`
-	PlsDelete      bool                    `json:"plsDelete"`
+	PlsDelete      bool                    `json:"plsDelete" validate:"required"`
 	Message        string                  `json:"message"`
-	PasserID       string                  `json:"passerID"`
+	PasserID       string                  `json:"passerID" validate:"required"`
+	TrustID        int32                   `json:"trustID" validate:"required"`
 	CustomData     *map[string]interface{} `json:"customData"`
 }
 
@@ -368,12 +369,8 @@ func accountToResponse(account query.Account) AccountResponse {
 		appIconUrl = account.AppIconUrl.String
 	}
 
-	var trustID *int32
-	if account.TrustID.Valid {
-		trustID = &account.TrustID.Int32
-	} else {
-		trustID = nil
-	}
+	var trustID int32
+	trustID = account.TrustID.Int32
 
 	// CustomDataをJSONからmap[string]interface{}に変換
 	var customData map[string]interface{}
