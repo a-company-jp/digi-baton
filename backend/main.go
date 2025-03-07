@@ -70,6 +70,10 @@ func main() {
 		authenticated := api.Group("/")
 		authenticated.Use(middleware.ClerkAuth(q))
 		{
+			// receivers
+			receiversHandler := handlers.NewReceiversHandler(q)
+			authenticated.GET("/receivers", receiversHandler.List)
+
 			// accounts
 			accountHandlers := handlers.NewAccountsHandler(q)
 			authenticated.GET("/accounts", accountHandlers.List)
