@@ -58,3 +58,11 @@ jobs:
           cd frontend
           docker build -t digibaton.azurecr.io/frontend-dev:latest .
           docker push digibaton.azurecr.io/frontend-dev:latest
+      - name: Create a new revison for containerapp
+        run: |
+           az containerapp update \
+              --resource-group digi-baton \
+              --name frontend-dev \
+              --container-name frontend-dev \
+              --image "digibaton.azurecr.io/frontend-dev:latest" \
+              --revision-suffix "manual-$(date +%s)"
