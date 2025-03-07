@@ -1,0 +1,60 @@
+name: "[Frontend] Deploy to Azure Container Registry"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/azure-deploy-frontend.yml'
+      - 'frontend/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/azure-deploy-frontend.yml'
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+jobs:
+  build_and_push:
+    environment: dev
+    runs-on: 	ubuntu-latest
+    env:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+    permissions:
+      id-token: 'write'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Setup pnpm
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: cd frontend && pnpm install --frozen-lockfile
+      - name: Build
+        run: cd frontend && pnpm build
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2.2.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Docker login to ACR
+        uses: azure/docker-login@v1
+        with:
+          # Replace with your actual registry name in lowercase
+          login-server: digibaton.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+        # Log in to ACR
+      - name: Inject .env file
+        run: |
+          echo ${{ secrets.ENV_FILE }} > ./frontend/.env
+      - name: Build and push
+        run: |
+          cd frontend
+          docker build -t digibaton.azurecr.io/frontend-dev:latest .
+          docker push digibaton.azurecr.io/frontend-dev:latest

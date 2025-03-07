@@ -44,7 +44,7 @@ jobs:
         uses: azure/docker-login@v1
         with:
           # Replace with your actual registry name in lowercase
-          login-server: digibatonbackenddev.azurecr.io
+          login-server: digibaton.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
         # Log in to ACR
@@ -53,5 +53,5 @@ jobs:
         with:
           context: ./backend
           file: ./backend/build/Dockerfile.prod
-          tags: digibatonbackenddev.azurecr.io/backend:latest
+          tags: digibaton.azurecr.io/backend-dev:latest
           push: true
