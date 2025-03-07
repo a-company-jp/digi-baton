@@ -7,6 +7,7 @@
 
 export * from './getAliveChecksParams';
 export * from './getDisclosuresParams';
+export * from './getReceiversParams';
 export * from './getTrustsParams';
 export * from './handlersAccountCreateRequest';
 export * from './handlersAccountCreateRequestBody';
@@ -31,6 +32,7 @@ export * from './handlersDisclosureDeleteRequest';
 export * from './handlersDisclosureResponse';
 export * from './handlersDisclosureUpdateRequest';
 export * from './handlersErrorResponse';
+export * from './handlersReceiverResponse';
 export * from './handlersSubscriptionCreateRequest';
 export * from './handlersSubscriptionResponse';
 export * from './handlersSubscriptionUpdateRequest';
