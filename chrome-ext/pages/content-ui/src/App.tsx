@@ -47,7 +47,7 @@ export default function App() {
     };
   }, []);
 
-  const loginWithAccount = (a: AccountInfo) => {
+  const loginWithAccount = (a: string) => {
     console.log('Login triggered');
     setIsLoading(true);
     const port = chrome.runtime.connect({ name: 'passkeyGetRequest' });

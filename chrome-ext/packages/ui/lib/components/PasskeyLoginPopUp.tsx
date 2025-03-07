@@ -7,7 +7,7 @@ export default function KeyperPopup(props: {
   isLoading: boolean;
   isComplete: boolean;
   accounts: AccountInfo[];
-  handleLogin: (a: AccountInfo) => void;
+  handleLogin: (userId: string) => void;
   handleDeviceAuth: () => void;
   handleCancel: () => void;
 }) {
