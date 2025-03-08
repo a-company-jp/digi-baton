@@ -83,7 +83,7 @@ func (h *ChromeHandler) HandleGetAssertion(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "invalid request"})
 		return
 	}
-	s := NewPasskeyStore(h.queries)
+	s := webauthn.NewPasskeyStore(h.queries)
 	p := webauthn.NewPasskeyProcessor(*s)
 	resp, err := p.ProcessGetAssertion(c, req.UserID, req.ReqJson)
 	if err != nil {
@@ -103,7 +103,7 @@ func (h *ChromeHandler) HandleCreate(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "invalid request"})
 		return
 	}
-	s := NewPasskeyStore(h.queries)
+	s := webauthn.NewPasskeyStore(h.queries)
 	p := webauthn.NewPasskeyProcessor(*s)
 	resp, err := p.ProcessCreate(c, req.UserID, req.ReqJson)
 	if err != nil {
