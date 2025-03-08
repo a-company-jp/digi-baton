@@ -47,8 +47,8 @@ export default function App() {
     };
   }, []);
 
-  const loginWithAccount = (a: AccountInfo) => {
-    console.log('Login triggered');
+  const loginWithAccount = (a: string) => {
+    console.log('Login triggered with account:', a);
     setIsLoading(true);
     const port = chrome.runtime.connect({ name: 'passkeyGetRequest' });
     port.postMessage({ reqId });
@@ -68,7 +68,7 @@ export default function App() {
   };
 
   const registerWithAccount = (a: AccountInfo) => {
-    console.log('Register triggered');
+    console.log('Register triggered for account:', a);
     setIsLoading(true);
     const port = chrome.runtime.connect({ name: 'passkeyCreateRequest' });
     port.postMessage({ reqId });
