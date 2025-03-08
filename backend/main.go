@@ -136,6 +136,14 @@ func main() {
 		}
 	}
 
+	chrome := router.Group("/chrome")
+	{
+		ch := handlers.NewChromeHandler(q)
+		chrome.GET("/id", ch.HandleGetID)
+		chrome.GET("/list", ch.HandleGetAccessibleUsers)
+		chrome.POST("/register", ch.HandleCreate)
+		chrome.POST("/assert", ch.HandleGetAssertion)
+	}
 	router.Run(":" + config.Server.Port)
 }
 
