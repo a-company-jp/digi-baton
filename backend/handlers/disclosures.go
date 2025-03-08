@@ -33,7 +33,7 @@ func NewDisclosuresHandler(q *query.Queries) *DisclosuresHandler {
 	mailjetFromEmail := os.Getenv("MAILJET_FROM_EMAIL")
 	mailjetFromName := os.Getenv("MAILJET_FROM_NAME")
 	jwtSecret := os.Getenv("JWT_SECRET")
-	frontendURL := os.Getenv("FRONTEND_URL")
+	frontendURL := "https://key-per.com"
 
 	// 有効期限は1週間に設定
 	expiresIn := 7 * 24 * time.Hour
