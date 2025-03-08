@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +29,7 @@ import {
   XCircle,
   AlertCircle,
   User,
+  Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -41,23 +42,46 @@ import { getReceivers } from "@/app/api/generated/receivers/receivers";
 import { toast } from "sonner";
 import { DisclosureCreationDialog } from "./disclosure-creation-dialog";
 import { getDisclosures } from "@/app/api/generated/disclosures/disclosures";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-interface DisclosuresTableProps {
-  disclosuresData: HandlersDisclosureResponse[];
-}
-
-export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
+export function DisclosuresTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [receivers, setReceivers] = useState<HandlersReceiverResponse[]>([]);
-  const [data, setData] =
-    useState<HandlersDisclosureResponse[]>(disclosuresData);
+  const [data, setData] = useState<HandlersDisclosureResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { getToken } = useAuth();
 
-  // データ更新（親コンポーネントから渡されたデータが変更された場合）
+  // データ取得関数
+  const fetchDisclosures = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = await getToken();
+      const response = await getDisclosures({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+
+      if (response && response.data && Array.isArray(response.data)) {
+        setData(response.data);
+      }
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching disclosures:", error);
+      setError("データの取得に失敗しました");
+      toast.error("相続申請データの取得に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getToken]);
+
+  // 初期データ読み込み
   useEffect(() => {
-    setData(disclosuresData);
-  }, [disclosuresData]);
+    fetchDisclosures();
+  }, [fetchDisclosures]);
 
   // 相続受取人（receivers）データを取得
   useEffect(() => {
@@ -83,22 +107,8 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
 
   // 申請作成後にデータを再取得
   const handleSuccessfulCreation = async () => {
-    try {
-      const token = await getToken();
-      // APIから最新のデータを取得
-      const response = await getDisclosures({
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response && response.data && Array.isArray(response.data)) {
-        setData(response.data);
-      }
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-      toast.error("データの更新に失敗しました");
-    }
+    await fetchDisclosures();
+    toast.success("申請が作成され、データが更新されました");
   };
 
   // 受取人（receiver）情報を表示するコンポーネント
@@ -241,6 +251,31 @@ export function DisclosuresTable({ disclosuresData }: DisclosuresTableProps) {
       columnFilters,
     },
   });
+
+  // エラー表示
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>エラー</AlertTitle>
+        <AlertDescription>
+          相続申請情報の取得中にエラーが発生しました。
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // ローディング表示
+  if (isLoading && data.length === 0) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">
+          データを読み込み中...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div>
