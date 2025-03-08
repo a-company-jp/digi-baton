@@ -361,15 +361,4 @@ INSERT INTO disclosures (
     true,
     NULL,
     '{"reason": "家族のサポート", "relationship": "daughter"}'::jsonb
-),
-(
-    1,
-    '00000000-0000-0000-0000-000000000003', -- 被相続人ID (田中太郎)
-    '00000000-0000-0000-0000-000000000001', -- 申請者ID (鈴木一郎)
-    NOW() - INTERVAL '10 days',
-    NOW() + INTERVAL '20 days',
-    true,
-    false,
-    NULL,
-    '{"reason": "財産管理", "relationship": "son"}'::jsonb
 );
