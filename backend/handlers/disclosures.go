@@ -2,24 +2,64 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/a-company-jp/digi-baton/backend/db/query"
 	"github.com/a-company-jp/digi-baton/backend/middleware"
+	"github.com/a-company-jp/digi-baton/backend/pkg/mail"
+	"github.com/a-company-jp/digi-baton/backend/pkg/verification"
+	"github.com/clerk/clerk-sdk-go/v2/user"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type DisclosuresHandler struct {
-	queries *query.Queries
+	queries            *query.Queries
+	mailSender         *mail.Sender
+	tokenManager       *verification.VerificationTokenManager
+	verificationURLFmt string
 }
 
 func NewDisclosuresHandler(q *query.Queries) *DisclosuresHandler {
-	return &DisclosuresHandler{queries: q}
+	// メール送信機能の初期化
+	mailjetPublicKey := os.Getenv("MAILJET_API_KEY_PUBLIC")
+	mailjetPrivateKey := os.Getenv("MAILJET_API_KEY_PRIVATE")
+	mailjetFromEmail := os.Getenv("MAILJET_FROM_EMAIL")
+	mailjetFromName := os.Getenv("MAILJET_FROM_NAME")
+	jwtSecret := os.Getenv("JWT_SECRET")
+	frontendURL := os.Getenv("FRONTEND_URL")
+
+	// 有効期限は1週間に設定
+	expiresIn := 7 * 24 * time.Hour
+
+	// トークンマネージャーを初期化
+	tokenManager := verification.NewVerificationTokenManager(jwtSecret, expiresIn)
+
+	// Mailjetのメール送信機能を初期化
+	var mailSender *mail.Sender
+	if mailjetPublicKey != "" && mailjetPrivateKey != "" && mailjetFromEmail != "" {
+		if mailjetFromName == "" {
+			mailjetFromName = "Digi Baton" // デフォルト送信者名
+		}
+		mailSender = mail.NewSender(mailjetPublicKey, mailjetPrivateKey, mailjetFromEmail, mailjetFromName)
+	} else {
+		// 環境変数が設定されていない場合はダミー送信者を使用（ログのみ出力）
+		fmt.Println("WARNING: Mailjet credentials not found, using dummy email sender")
+		mailSender = mail.NewDummySender()
+	}
+
+	return &DisclosuresHandler{
+		queries:            q,
+		mailSender:         mailSender,
+		tokenManager:       tokenManager,
+		verificationURLFmt: frontendURL + "/verify?token=%s&disclosure_id=%d",
+	}
 }
 
 type DisclosureResponse struct {
@@ -52,6 +92,7 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 
 	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, requesterID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "開示請求が見つかりませんでした"})
 		return
 	}
@@ -60,6 +101,7 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 	for i, d := range disclosures {
 		res, err := disclosureToResponse(d)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to convert disclosure to response"})
 			return
 		}
@@ -115,7 +157,76 @@ func (h *DisclosuresHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// 生存確認メールを送信するロジック
+	h.sendAliveCheckEmail(c.Request.Context(), disclosure)
+
 	c.JSON(http.StatusOK, res)
+}
+
+// sendAliveCheckEmail は生存確認のためのメールを送信します
+func (h *DisclosuresHandler) sendAliveCheckEmail(ctx context.Context, disclosure query.Disclosure) {
+	fmt.Println("h.sendAliveCheckEmail()")
+	// このコンテキストではクエリを実行しないので新しいコンテキストを作成
+	passerID := disclosure.PasserID.String()
+
+	// DBからパッサーのClerkIDを取得する
+	users, err := h.queries.ListUsers(ctx)
+	if err != nil {
+		return
+	}
+
+	var clerkUserID string
+	for _, u := range users {
+		if u.ID.String() == passerID {
+			clerkUserID = u.ClerkUserID
+			break
+		}
+	}
+
+	if clerkUserID == "" {
+		return // Clerk IDが見つからない
+	}
+
+	// Clerkからユーザー情報を取得
+	clerkUser, err := user.Get(ctx, clerkUserID)
+	if err != nil {
+		return
+	}
+
+	// メールアドレスがない場合は処理終了
+	if len(clerkUser.EmailAddresses) == 0 {
+		return
+	}
+
+	// メールアドレスを取得
+	passerEmail := clerkUser.EmailAddresses[0].EmailAddress
+	fmt.Println(passerEmail)
+
+	// ユーザー名を取得
+	passerName := ""
+	if clerkUser.FirstName != nil {
+		passerName = *clerkUser.FirstName
+	}
+	if passerName == "" {
+		passerName = passerEmail
+	}
+
+	// 検証トークンを生成（トークンにdisclosure_idを含める）
+	token, err := h.tokenManager.GenerateToken(passerID, clerkUserID, passerEmail)
+	if err != nil {
+		return
+	}
+
+	// 生存確認リンクを作成
+	verificationURL := fmt.Sprintf(h.verificationURLFmt, token, disclosure.ID)
+
+	// 生存確認メールを送信
+	_ = h.mailSender.SendVerificationEmail(
+		passerEmail,
+		passerName,
+		verificationURL,
+		int(h.tokenManager.ExpiresIn().Hours()),
+	)
 }
 
 type DisclosureUpdateRequest struct {
@@ -320,8 +431,7 @@ func disclosureToResponse(d query.Disclosure) (DisclosureResponse, error) {
 	response.Disclosed = d.Disclosed
 
 	if d.PreventedBy.Valid {
-		var u uuid.UUID
-		err = u.Scan(d.PreventedBy.Bytes)
+		u, err := uuid.FromBytes(d.PreventedBy.Bytes[:])
 		if err != nil {
 			return DisclosureResponse{}, err
 		}

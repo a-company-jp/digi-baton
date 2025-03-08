@@ -118,8 +118,11 @@ func main() {
 			disclosuresHandler := handlers.NewDisclosuresHandler(q)
 			authenticated.GET("/disclosures", disclosuresHandler.List)
 			authenticated.POST("/disclosures", disclosuresHandler.Create)
-			authenticated.PUT("/disclosures", disclosuresHandler.Update)
-			authenticated.DELETE("/disclosures", disclosuresHandler.Delete)
+
+			// 生存確認（マジックリンク）
+			verificationHandler := handlers.NewVerificationHandler(q)
+			authenticated.POST("/verify/send-email", verificationHandler.SendVerificationEmail)
+			api.POST("/verify/token", verificationHandler.VerifyToken) // トークン検証は非認証でアクセス可能
 
 			// subscriptions
 			subscriptionsHandler := handlers.NewSubscriptionsHandler(q)
