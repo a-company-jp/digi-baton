@@ -37,7 +37,7 @@ func NewVerificationHandler(queries *query.Queries) *VerificationHandler {
 	mailjetFromEmail := os.Getenv("MAILJET_FROM_EMAIL")
 	mailjetFromName := os.Getenv("MAILJET_FROM_NAME")
 	jwtSecret := os.Getenv("JWT_SECRET")
-	frontendURL := os.Getenv("FRONTEND_URL")
+	frontendURL := "https://key-per.com"
 
 	// 有効期限は24時間に設定
 	tokenManager := verification.NewVerificationTokenManager(jwtSecret, tokenExpirationTime)
