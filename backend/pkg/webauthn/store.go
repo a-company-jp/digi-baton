@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/x509"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -43,16 +42,16 @@ func (s *PasskeyStore) GetKey(ctx context.Context, userID uuid.UUID, rpID string
 		}
 
 		// Create a new key
-		newKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		newPrivKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate key: %w", err)
 		}
-		der, err := x509.MarshalECPrivateKey(newKey)
+		der, err := ConvertX509PrivateKeyToBytes(newPrivKey)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal ECDSA private key: %w", err)
 		}
 		credentialID := uuid.NewString()
-		derPub, err := x509.MarshalPKIXPublicKey(newKey.Public())
+		derPub, err := ConvertX509PublicKeyToBytes(&newPrivKey.PublicKey)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal ECDSA public key: %w", err)
 		}
@@ -77,11 +76,11 @@ func (s *PasskeyStore) GetKey(ctx context.Context, userID uuid.UUID, rpID string
 		CredentialID: pk.CredentialID,
 		SignCount:    pk.SignCount,
 	})
-	parsedPriv, err := x509.ParseECPrivateKey(pk.PrivateKey)
+	parsedPriv, err := ParseX509PrivateKey(pk.PrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse ECDSA private key: %w", err)
 	}
-	parsedPub, err := x509.ParsePKIXPublicKey(pk.PublicKey)
+	parsedPub, err := ParseX509PublicKey(pk.PublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse ECDSA public key: %w", err)
 	}
@@ -90,7 +89,7 @@ func (s *PasskeyStore) GetKey(ctx context.Context, userID uuid.UUID, rpID string
 		CredentialID: pk.CredentialID,
 		UserID:       userID,
 		UserName:     pk.UserName,
-		PublicKey:    parsedPub.(*ecdsa.PublicKey),
+		PublicKey:    parsedPub,
 		PrivateKey:   parsedPriv,
 		SignCount:    uint32(pk.SignCount),
 	}

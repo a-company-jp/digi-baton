@@ -6,7 +6,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
@@ -230,7 +229,7 @@ func (p *PasskeyProcessor) ProcessCreate(
 	pkc.Response.AuthenticatorData = authB64
 	pkc.Response.Transports = []string{"internal"}
 	pkc.ClientExtensionResults = map[string]interface{}{}
-	pubDER, err := x509.MarshalPKIXPublicKey(&pskyInfo.PublicKey)
+	pubDER, err := ConvertX509PublicKeyToBytes(pskyInfo.PublicKey)
 	if err != nil {
 		log.Fatal(err)
 	}
