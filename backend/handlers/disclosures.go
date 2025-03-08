@@ -92,6 +92,7 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 
 	disclosures, err := h.queries.ListDisclosuresByRequesterId(c, requesterID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "開示請求が見つかりませんでした"})
 		return
 	}
@@ -100,6 +101,7 @@ func (h *DisclosuresHandler) List(c *gin.Context) {
 	for i, d := range disclosures {
 		res, err := disclosureToResponse(d)
 		if err != nil {
+			fmt.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to convert disclosure to response"})
 			return
 		}
@@ -429,8 +431,7 @@ func disclosureToResponse(d query.Disclosure) (DisclosureResponse, error) {
 	response.Disclosed = d.Disclosed
 
 	if d.PreventedBy.Valid {
-		var u uuid.UUID
-		err = u.Scan(d.PreventedBy.Bytes)
+		u, err := uuid.FromBytes(d.PreventedBy.Bytes[:])
 		if err != nil {
 			return DisclosureResponse{}, err
 		}
