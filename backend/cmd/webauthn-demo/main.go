@@ -25,7 +25,7 @@ func main() {
 	w, _ := webauthn.New(&webauthn.Config{
 		RPDisplayName: "Demo WebAuthn Service",
 		RPID:          "localhost",
-		RPOrigins:     []string{"http://localhost:8081"},
+		RPOrigins:     []string{"http://localhost:6288"},
 	})
 
 	userStorage := NewInMemoryUserStorage()
@@ -113,8 +113,8 @@ func main() {
 	})
 
 	// ---------------------------------
-	log.Println("Demo WebAuthn Service is listening on :8081")
-	log.Fatal(r.Run(":8081"))
+	log.Println("Demo WebAuthn Service is listening on :6288")
+	log.Fatal(r.Run(":6288"))
 }
 
 // --- InMemory Session

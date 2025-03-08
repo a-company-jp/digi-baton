@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './base';
 
-const getAssertion = async (reqInfo: any): Promise<string> => {
+const getAssertion = async (reqInfo: unknown): Promise<string> => {
   return await fetch(API_BASE_URL + '/get-assertion', {
     method: 'POST',
     headers: {

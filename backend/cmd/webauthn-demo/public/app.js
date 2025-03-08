@@ -32,7 +32,7 @@ async function registerBegin() {
 
   // 1. Get challenge from server
   const resp = await fetch(
-    `http://localhost:8081/register/begin?username=${encodeURIComponent(username)}`);
+    `http://localhost:6288/register/begin?username=${encodeURIComponent(username)}`);
   if (!resp.ok) {
     alert('Failed to begin registration');
     return;
@@ -68,7 +68,7 @@ async function registerBegin() {
   console.log(credential.toJSON());
   const credentialJSON = credential.toJSON();
 
-  const finishResp = await fetch(`http://localhost:8081/register/finish?username=${encodeURIComponent(username)}`, {
+  const finishResp = await fetch(`http://localhost:6288/register/finish?username=${encodeURIComponent(username)}`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(credentialJSON),
@@ -87,7 +87,7 @@ async function loginBegin() {
   }
 
   // 1. Get challenge from server
-  const resp = await fetch(`http://localhost:8081/login/begin?username=${encodeURIComponent(username)}`);
+  const resp = await fetch(`http://localhost:6288/login/begin?username=${encodeURIComponent(username)}`);
   if (!resp.ok) {
     alert('Failed to begin login');
     return;
@@ -129,7 +129,7 @@ async function loginBegin() {
     },
   };
 
-  const finishResp = await fetch(`http://localhost:8081/login/finish?username=${encodeURIComponent(username)}`, {
+  const finishResp = await fetch(`http://localhost:6288/login/finish?username=${encodeURIComponent(username)}`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(assertionJSON),

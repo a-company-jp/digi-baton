@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -21,6 +22,7 @@ func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
 			c.Abort()
+			log.Printf("Authorization header is required")
 			return
 		}
 
@@ -28,6 +30,7 @@ func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be Bearer {token}"})
+			log.Printf("Authorization header format must be Bearer {token}")
 			c.Abort()
 			return
 		}
@@ -48,6 +51,7 @@ func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 		// Set claims in the context for later use
 		c.Set("clerkClaims", claims)
 		c.Set("clerkUserId", claims.Subject)
+		log.Printf("Clerk user ID: %s", claims.Subject)
 
 		// Get the DB user by the Clerk user ID
 		clerkUserID := claims.Subject
@@ -60,6 +64,7 @@ func ClerkAuth(q *query.Queries) gin.HandlerFunc {
 
 		// Set the DB user ID in the context
 		c.Set("userId", user.ID.String())
+		log.Printf("User ID: %s", user.ID.String())
 
 		c.Next()
 	}

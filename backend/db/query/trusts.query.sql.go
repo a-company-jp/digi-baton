@@ -12,7 +12,9 @@ import (
 )
 
 const getTrust = `-- name: GetTrust :one
-SELECT id, receiver_user_id, passer_user_id FROM trusts WHERE id = $1
+SELECT id, receiver_user_id, passer_user_id
+FROM trusts
+WHERE id = $1
 `
 
 func (q *Queries) GetTrust(ctx context.Context, id int32) (Trust, error) {
@@ -22,8 +24,42 @@ func (q *Queries) GetTrust(ctx context.Context, id int32) (Trust, error) {
 	return i, err
 }
 
+const listTrustersByReceiverID = `-- name: ListTrustersByReceiverID :many
+SELECT u.id, u.clerk_user_id
+FROM trusts
+         LEFT JOIN public.users u on trusts.passer_user_id = u.id
+WHERE receiver_user_id = $1
+`
+
+type ListTrustersByReceiverIDRow struct {
+	ID          pgtype.UUID
+	ClerkUserID pgtype.Text
+}
+
+func (q *Queries) ListTrustersByReceiverID(ctx context.Context, receiverUserID pgtype.UUID) ([]ListTrustersByReceiverIDRow, error) {
+	rows, err := q.db.Query(ctx, listTrustersByReceiverID, receiverUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListTrustersByReceiverIDRow
+	for rows.Next() {
+		var i ListTrustersByReceiverIDRow
+		if err := rows.Scan(&i.ID, &i.ClerkUserID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTrustsByPasserID = `-- name: ListTrustsByPasserID :many
-SELECT id, receiver_user_id, passer_user_id FROM trusts WHERE passer_user_id = $1
+SELECT id, receiver_user_id, passer_user_id
+FROM trusts
+WHERE passer_user_id = $1
 `
 
 func (q *Queries) ListTrustsByPasserID(ctx context.Context, passerUserID pgtype.UUID) ([]Trust, error) {

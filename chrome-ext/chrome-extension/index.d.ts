@@ -2509,7 +2509,7 @@ declare namespace chrome {
     export interface DebuggerDetachedEvent extends chrome.events.Event<(source: Debuggee, reason: string) => void> {}
 
     export interface DebuggerEventEvent
-      extends chrome.events.Event<(source: Debuggee, method: string, params?: Object) => void> {}
+      extends chrome.events.Event<(source: Debuggee, method: string, params?: object) => void> {}
 
     /**
      * Attaches debugger to the given target.
@@ -2547,7 +2547,7 @@ declare namespace chrome {
      * JSON object with request parameters. This object must conform to the remote debugging params scheme for given method.
      * @return The `sendCommand` method provides its result via callback or returned as a `Promise` (MV3 only).
      */
-    export function sendCommand(target: Debuggee, method: string, commandParams?: Object): Promise<Object>;
+    export function sendCommand(target: Debuggee, method: string, commandParams?: object): Promise<object>;
     /**
      * Sends given command to the debugging target.
      * @param target Debugging target to which you want to send the command.
@@ -2559,8 +2559,8 @@ declare namespace chrome {
     export function sendCommand(
       target: Debuggee,
       method: string,
-      commandParams?: Object,
-      callback?: (result?: Object) => void,
+      commandParams?: object,
+      callback?: (result?: object) => void,
     ): void;
 
     /**
@@ -2877,7 +2877,7 @@ declare namespace chrome {
           /**
            * Set to undefined if the resource content was set successfully; describes error otherwise.
            */
-          error?: Object,
+          error?: object,
         ) => void,
       ): void;
     }
@@ -3112,14 +3112,14 @@ declare namespace chrome {
        * @param rootTitle An optional title for the root of the expression tree.
        * @param callback A callback invoked after the sidebar is updated with the object.
        */
-      setObject(jsonObject: Object, rootTitle?: string, callback?: () => void): void;
+      setObject(jsonObject: object, rootTitle?: string, callback?: () => void): void;
 
       /**
        * Sets a JSON-compliant object to be displayed in the sidebar pane.
        * @param jsonObject An object to be displayed in context of the inspected page. Evaluated in the context of the caller (API client).
        * @param callback A callback invoked after the sidebar is updated with the object.
        */
-      setObject(jsonObject: Object, callback?: () => void): void;
+      setObject(jsonObject: object, callback?: () => void): void;
 
       /**
        * Sets an HTML page to be displayed in the sidebar pane.
@@ -4646,7 +4646,7 @@ declare namespace chrome {
 
     export interface SelectionResult {
       /** Optional. Selected file entry. It will be null if a file hasn't been selected.  */
-      entry?: Object | null | undefined;
+      entry?: object | null | undefined;
       /** Whether the file has been selected. */
       success: boolean;
     }
@@ -5288,13 +5288,13 @@ declare namespace chrome {
      * @param details This parameter is currently unused.
      * @return The `getDefaultFontSize` method provides its result via callback or returned as a `Promise` (MV3 only).
      */
-    export function getDefaultFontSize(details?: Object): Promise<FontSizeDetails>;
+    export function getDefaultFontSize(details?: object): Promise<FontSizeDetails>;
     /**
      * Gets the default font size.
      * @param details This parameter is currently unused.
      */
     export function getDefaultFontSize(callback: (options: FontSizeDetails) => void): void;
-    export function getDefaultFontSize(details: Object, callback: (options: FontSizeDetails) => void): void;
+    export function getDefaultFontSize(details: object, callback: (options: FontSizeDetails) => void): void;
 
     /**
      * Gets the minimum font size.
@@ -5324,26 +5324,26 @@ declare namespace chrome {
      * @param details This parameter is currently unused.
      * @return The `getDefaultFixedFontSize` method provides its result via callback or returned as a `Promise` (MV3 only).
      */
-    export function getDefaultFixedFontSize(details?: Object): Promise<FontSizeDetails>;
+    export function getDefaultFixedFontSize(details?: object): Promise<FontSizeDetails>;
     /**
      * Gets the default size for fixed width fonts.
      * @param details This parameter is currently unused.
      */
     export function getDefaultFixedFontSize(callback: (details: FontSizeDetails) => void): void;
-    export function getDefaultFixedFontSize(details: Object, callback: (details: FontSizeDetails) => void): void;
+    export function getDefaultFixedFontSize(details: object, callback: (details: FontSizeDetails) => void): void;
 
     /**
      * Clears the default font size set by this extension, if any.
      * @param details This parameter is currently unused.
      * @return The `clearDefaultFontSize` method provides its result via callback or returned as a `Promise` (MV3 only). It has no parameters.
      */
-    export function clearDefaultFontSize(details?: Object): Promise<void>;
+    export function clearDefaultFontSize(details?: object): Promise<void>;
     /**
      * Clears the default font size set by this extension, if any.
      * @param details This parameter is currently unused.
      */
     export function clearDefaultFontSize(callback: Function): void;
-    export function clearDefaultFontSize(details: Object, callback: Function): void;
+    export function clearDefaultFontSize(details: object, callback: Function): void;
 
     /**
      * Sets the default size for fixed width fonts.
@@ -5380,13 +5380,13 @@ declare namespace chrome {
      * @param details This parameter is currently unused.
      * @return The `clearMinimumFontSize` method provides its result via callback or returned as a `Promise` (MV3 only). It has no parameters.
      */
-    export function clearMinimumFontSize(details?: Object): Promise<void>;
+    export function clearMinimumFontSize(details?: object): Promise<void>;
     /**
      * Clears the minimum font size set by this extension, if any.
      * @param details This parameter is currently unused.
      */
     export function clearMinimumFontSize(callback: Function): void;
-    export function clearMinimumFontSize(details: Object, callback: Function): void;
+    export function clearMinimumFontSize(details: object, callback: Function): void;
 
     /**
      * Gets a list of fonts on the system.
@@ -5403,12 +5403,12 @@ declare namespace chrome {
      * @param details This parameter is currently unused.
      * @return The `clearDefaultFixedFontSize` method provides its result via callback or returned as a `Promise` (MV3 only). It has no parameters.
      */
-    export function clearDefaultFixedFontSize(details: Object): Promise<void>;
+    export function clearDefaultFixedFontSize(details: object): Promise<void>;
     /**
      * Clears the default fixed font size set by this extension, if any.
      * @param details This parameter is currently unused.
      */
-    export function clearDefaultFixedFontSize(details: Object, callback: Function): void;
+    export function clearDefaultFixedFontSize(details: object, callback: Function): void;
 
     /** Fired when the default fixed font size setting changes. */
     export var onDefaultFixedFontSizeChanged: DefaultFixedFontSizeChangedEvent;
@@ -5437,12 +5437,12 @@ declare namespace chrome {
       /** Optional. Time-to-live of the message in seconds. If it is not possible to send the message within that time, an onSendError event will be raised. A time-to-live of 0 indicates that the message should be sent immediately or fail if it's not possible. The maximum and a default value of time-to-live is 86400 seconds (1 day). */
       timeToLive?: number | undefined;
       /** Message data to send to the server. Case-insensitive goog. and google, as well as case-sensitive collapse_key are disallowed as key prefixes. Sum of all key/value pairs should not exceed gcm.MAX_MESSAGE_SIZE. */
-      data: Object;
+      data: object;
     }
 
     export interface IncomingMessage {
       /** The message data. */
-      data: Object;
+      data: object;
       /**
        * Optional.
        * The sender who issued the message.
@@ -5462,7 +5462,7 @@ declare namespace chrome {
       /** Optional. The ID of the message with this error, if error is related to a specific message. */
       messageId?: string | undefined;
       /** Additional details related to the error, when available. */
-      detail: Object;
+      detail: object;
     }
 
     export interface MessageReceptionEvent extends chrome.events.Event<(message: IncomingMessage) => void> {}
@@ -6139,7 +6139,7 @@ declare namespace chrome {
     }
 
     export interface MenuItemParameters {
-      items: Object[];
+      items: object[];
       engineId: string;
     }
 
@@ -7098,7 +7098,7 @@ declare namespace chrome {
      * @since Chrome 29
      * @param callback Returns the set of notification_ids currently in the system.
      */
-    export function getAll(callback: (notifications: Object) => void): void;
+    export function getAll(callback: (notifications: object) => void): void;
 
     /**
      * Retrieves whether the user has enabled notifications from this app or extension.
@@ -7544,7 +7544,7 @@ declare namespace chrome {
      */
     export function getKeyPair(
       certificate: ArrayBuffer,
-      parameters: Object,
+      parameters: object,
       callback: (publicKey: CryptoKey, privateKey: CryptoKey | null) => void,
     ): void;
 
@@ -7559,7 +7559,7 @@ declare namespace chrome {
      */
     export function getKeyPairBySpki(
       publicKeySpkiDer: ArrayBuffer,
-      parameters: Object,
+      parameters: object,
       callback: (publicKey: CryptoKey, privateKey: CryptoKey | null) => void,
     ): void;
 
@@ -7637,7 +7637,7 @@ declare namespace chrome {
       /** The print job title. */
       title: string;
       /** Print ticket in  CJT format. */
-      ticket: Object;
+      ticket: object;
       /** The document content type. Supported formats are "application/pdf" and "image/pwg-raster". */
       contentType: string;
       /** Blob containing the document data to print. Format must match |contentType|. */
@@ -9440,7 +9440,7 @@ declare namespace chrome {
      */
     export function sendNativeMessage(
       application: string,
-      message: Object,
+      message: object,
       responseCallback: (response: any) => void,
     ): void;
     /**
@@ -9449,7 +9449,7 @@ declare namespace chrome {
      * @param application The of the native messaging host.
      * @param message The message that will be passed to the native messaging host.
      */
-    export function sendNativeMessage(application: string, message: Object): Promise<any>;
+    export function sendNativeMessage(application: string, message: object): Promise<any>;
 
     /**
      * Sets the URL to be visited upon uninstallation. This may be used to clean up server-side data, do analytics, and implement surveys. Maximum 255 characters.
@@ -10182,7 +10182,7 @@ declare namespace chrome {
       address: string;
     }
 
-    export function create(type: string, options?: Object, callback?: (createInfo: CreateInfo) => void): void;
+    export function create(type: string, options?: object, callback?: (createInfo: CreateInfo) => void): void;
 
     export function destroy(socketId: number): void;
 
@@ -12855,7 +12855,7 @@ declare namespace chrome {
     export interface VpnConfigRemovalEvent extends chrome.events.Event<(id: string) => void> {}
 
     export interface VpnConfigCreationEvent
-      extends chrome.events.Event<(id: string, name: string, data: Object) => void> {}
+      extends chrome.events.Event<(id: string, name: string, data: object) => void> {}
 
     export interface VpnUiEvent extends chrome.events.Event<(event: string, id?: string) => void> {}
 
@@ -13364,13 +13364,11 @@ declare namespace chrome {
     }
 
     export type WebRequestBodyEvent = WebRequestEvent<
-      // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
       (details: WebRequestBodyDetails) => BlockingResponse | void,
       string[]
     >;
 
     export type WebRequestHeadersSynchronousEvent = WebRequestEvent<
-      // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
       (details: WebRequestHeadersDetails) => BlockingResponse | void,
       string[]
     >;
@@ -13383,7 +13381,6 @@ declare namespace chrome {
     >;
 
     export type WebResponseHeadersEvent = WebRequestEvent<
-      // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
       (details: WebResponseHeadersDetails) => BlockingResponse | void,
       string[]
     >;
