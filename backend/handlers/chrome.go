@@ -76,6 +76,7 @@ func (h *ChromeHandler) GetAccessibleUsers(ctx context.Context, userID uuid.UUID
 func (h *ChromeHandler) HandleGetAssertion(c *gin.Context) {
 	type AssertionRequest struct {
 		UserID  uuid.UUID `json:"user_id"`
+		ClerkID string    `json:"clerk_id"`
 		ReqJson string    `json:"req_json"`
 	}
 	var req AssertionRequest
@@ -96,6 +97,7 @@ func (h *ChromeHandler) HandleGetAssertion(c *gin.Context) {
 func (h *ChromeHandler) HandleCreate(c *gin.Context) {
 	type CreateRequest struct {
 		UserID  uuid.UUID `json:"user_id"`
+		ClerkID string    `json:"clerk_id"`
 		ReqJson string    `json:"req_json"`
 	}
 	var req CreateRequest
